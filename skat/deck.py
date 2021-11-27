@@ -1,6 +1,6 @@
 import random
 
-from skat.card import Card, RANKS, SUITS
+from skat.card import RANKS, SUITS, Card
 
 
 class Deck:
@@ -9,10 +9,29 @@ class Deck:
     card-distribution (dealing).
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize an empty deck and seed the random function"""
         random.seed(0)  # use a fixed seed for now
         self.deck: list[Card] = list()
+
+    def __len__(self) -> int:
+        """
+        The length of Deck is the quantity of Cards currently held by
+        self.deck. TODO: grammar-check
+        """
+        return len(self.deck)
+
+    def __hash__(self) -> int:
+        """
+        The hash of a Deck is the hash of the string representation of the
+        Deck. We can't use self.deck because Lists are not immutable and thus
+        not hashable.
+        """
+        return hash(str(self.deck))
+
+    def __str__(self) -> str:
+        """String representation of cards in self.deck"""
+        return f'{self.deck}'
 
     def initialize_cards(self) -> None:
         """
@@ -45,6 +64,3 @@ class Deck:
         for _ in range(quantity):
             result.append(self.deck.pop(0))
         return result
-
-    def __str__(self) -> str:
-        return f'{self.deck}'
