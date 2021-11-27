@@ -1,5 +1,5 @@
-SUITS = ['♦', '♥', '♠', '♣']  # sorted by suit ascending
-RANKS = ['7', '8', '9', 'J', 'Q', 'K', 'X', 'A']  # sorted by rank ascending
+SUITS = ('♦', '♥', '♠', '♣')  # sorted by suit ascending
+RANKS = ('7', '8', '9', 'J', 'Q', 'K', 'X', 'A')  # sorted by rank ascending
 
 
 class Card:
