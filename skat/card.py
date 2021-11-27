@@ -9,12 +9,12 @@ class Card:
     Ranks = {7, 8, 9, J, Q, K, X, A}
     """
 
-    def __init__(self, suit, rank):
+    def __init__(self, suit, rank) -> None:
         self.suit = SUITS[suit]
         self.rank = RANKS[rank]
         self.value = [0, 0, 0, 2, 3, 4, 10, 11][rank]
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         """
         As this function is used by built-in sort() function, this function
         compares two cards against each other with respect of the suit order
@@ -29,23 +29,23 @@ class Card:
         else:
             return suit_comparison
 
-    def __gt__(self, other):
+    def __gt__(self, other) -> bool:
         """
         The greater than function is just comparing ranks against each other,
         without respecting suit order.
         """
         return RANKS.index(self.rank) > RANKS.index(other.rank)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """
         Two cards are equal if they have same suit and rank.
         """
         return self.suit == other.suit and self.rank == other.rank
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.suit, self.rank))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "┌───────┐\n" \
                f"| {self.rank}     |\n" \
                "|       |\n" \
@@ -54,5 +54,5 @@ class Card:
                f"|     {self.rank} |\n" \
                "└───────┘"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.suit}{self.rank}"
