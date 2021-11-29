@@ -1,5 +1,6 @@
 from skat.card import RANKS, SUITS, Card
 from skat.games import Game
+from skat.trick import Trick
 
 MULTIPLIERS = (9, 10, 11, 12)
 
@@ -24,3 +25,9 @@ class SuitGame(Game):
     def value(self) -> int:
         """Returns the base multiplier for the selected game"""
         return MULTIPLIERS[self.suit]
+
+    @staticmethod
+    def evaluate_trick(trick: Trick) -> tuple[int, int]:
+        """Trick evaluation for Suit-Game"""
+        # TODO: Implementation
+        return 0, 0
