@@ -8,6 +8,9 @@ class Trick:
         self.game_mode: Game = game_mode
         self.trick_color = ''  # Holds the suit of card_outplays[0]
 
+    def __len__(self) -> int:
+        return len(self.card_outplays)
+
     def append(self, player_id: int, card: Card) -> None:
         """Adds a (player, card)-tuple to current trick"""
         if len(self.card_outplays) < 3:
