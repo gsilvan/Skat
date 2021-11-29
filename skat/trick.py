@@ -25,8 +25,8 @@ class Trick:
     def value(self) -> int:
         """Returns the {current, final} value of a trick"""
         _sum = 0
-        for outplay in self.card_outplays:
-            outplay[1].value += _sum
+        for _, card in self.card_outplays:
+            _sum += card.value
         return _sum
 
     @property
