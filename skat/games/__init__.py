@@ -5,7 +5,7 @@ from skat.card import Card
 
 class Game(ABC):
     @abstractmethod
-    def __init__(self):
+    def __init__(self) -> None:
         raise NotImplementedError
 
     @abstractmethod
@@ -15,4 +15,9 @@ class Game(ABC):
     @property
     @abstractmethod
     def value(self) -> int:
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def evaluate_trick(trick) -> tuple[int, int]:
         raise NotImplementedError
