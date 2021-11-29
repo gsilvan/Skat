@@ -1,12 +1,13 @@
-SUITS = ('♦', '♥', '♠', '♣')  # sorted by suit ascending
-RANKS = ('7', '8', '9', 'J', 'Q', 'K', 'X', 'A')  # sorted by rank ascending
+SUITS = ('♦', '♥', '♠', '♣')
+RANKS = ('7', '8', '9', 'J', 'Q', 'K', 'X', 'A')
 
 
 class Card:
     """
     Definition of the 32-card pack for Skat:
-    Suits = {♦, ♥, ♠, ♣}
-    Ranks = {7, 8, 9, J, Q, K, X, A}
+    Suits = {♦, ♥, ♠, ♣} sorted by suit ascending
+    Ranks = {7, 8, 9, J, Q, K, X, A} sorted by values ascending
+    Values = {0, 0, 0, 2, 3, 4, 10, 11}
     """
 
     def __init__(self, suit, rank) -> None:
