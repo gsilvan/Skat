@@ -32,6 +32,11 @@ class SuitGame(Game):
             suits.append(Card(suit, i))
         return tuple(suits)
 
+    def is_trump_card(self, card: Card):
+        """Check if given card is a trump card"""
+        card_set: set = {card}  # put the card in a set and compare it
+        return card_set < set(self.trump_set())
+
     @property
     def value(self) -> int:
         """Returns the base multiplier for the selected game"""
