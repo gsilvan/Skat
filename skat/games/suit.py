@@ -37,6 +37,9 @@ class SuitGame(Game):
         card_set: set = {card}  # put the card in a set and compare it
         return card_set < set(self.trump_set())
 
+    def is_trump_in_trick(self, trick: Trick) -> bool:
+        return any(x in self.trump_set() for _, x in trick.card_outplays)
+
     @property
     def value(self) -> int:
         """Returns the base multiplier for the selected game"""

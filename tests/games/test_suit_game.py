@@ -2,9 +2,45 @@ import unittest
 
 from skat.card import Card
 from skat.games.suit import SuitGame
+from skat.trick import Trick
 
 
 class SuitGameTest(unittest.TestCase):
+
+    def test_is_trump_in_trick(self) -> None:
+        self.diamonds_game = SuitGame(suit=0)
+        # True test
+        _test_trick_true = Trick(SuitGame(suit=0))
+        _trick_cards_true = (
+            Card(1, 1),
+            Card(1, 1),
+            Card(0, 6)
+        )
+        for i, card in enumerate(_trick_cards_true):
+            _test_trick_true.append(i+1, card)
+        self.assertTrue(
+            self.diamonds_game.is_trump_in_trick(_test_trick_true))
+        # False test
+        _test_trick_false = Trick(SuitGame(suit=1))
+        _trick_cards_false = (
+            Card(2, 0),
+            Card(2, 5),
+            Card(2, 2)
+        )
+        for i, card in enumerate(_trick_cards_false):
+            _test_trick_false.append(i+1, card)
+        self.assertFalse(
+            self.diamonds_game.is_trump_in_trick(_test_trick_false))
+        # J test
+        diamonds_trick = Trick(SuitGame(3))
+        _trick_cards_with_j = (
+            Card(2, 4),
+            Card(2, 3),  # Hearts J
+            Card(2, 6),
+        )
+        for i, card in enumerate(_trick_cards_with_j):
+            diamonds_trick.append(i+1, card)
+        self.assertTrue(self.diamonds_game.is_trump_in_trick(diamonds_trick))
 
     def test_find_all_trump_cards(self) -> None:
         for i in range(4):
