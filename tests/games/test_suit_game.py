@@ -23,7 +23,7 @@ class SuitGameTest(unittest.TestCase):
                 Card(i, 7),  # ♦A
             ]
             trumps_test_set.sort()
-            trumps = suit_game.trumps()
+            trumps = list(suit_game.trump_set())
             trumps.sort()
             self.assertEqual(trumps_test_set, trumps)
 
