@@ -10,16 +10,27 @@ class SuitGame(Game):
     def __init__(self, suit):
         self.suit = suit
 
-    def trumps(self) -> list[Card]:
-        """Returns a list of trumps for the selected game"""
+    def trump_set(self) -> tuple[Card, ...]:
+        # TODO: option for ascending, descending
+        """Returns a ascending ordered tuple of trumps for the selected game"""
         trumps = list()
-        for j in range(len(SUITS)):
-            trumps.append(Card(j, 3))  # {♦J, ♥J, ♠J, ♣J}
         for i, rank in enumerate(RANKS):
             if i == 3:
-                continue  # skip J, because he's already in the list
+                continue  # skip J, we add him later.
             trumps.append(Card(self.suit, i))
-        return trumps
+        for j in range(len(SUITS)):
+            trumps.append(Card(j, 3))  # add Js {♦J, ♥J, ♠J, ♣J}
+        return tuple(trumps)
+
+    @staticmethod
+    def suit_set(suit) -> tuple[Card, ...]:
+        # TODO: option for ascending, descending
+        suits = list()
+        for i, _ in enumerate(RANKS):
+            if i == 3:
+                continue  # skip J
+            suits.append(Card(suit, i))
+        return tuple(suits)
 
     @property
     def value(self) -> int:
