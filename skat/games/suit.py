@@ -32,7 +32,7 @@ class SuitGame(Game):
             suits.append(Card(suit, i))
         return tuple(suits)
 
-    def is_trump_card(self, card: Card):
+    def is_trump_card(self, card: Card) -> bool:
         """Check if given card is a trump card"""
         card_set: set = {card}  # put the card in a set and compare it
         return card_set < set(self.trump_set())
