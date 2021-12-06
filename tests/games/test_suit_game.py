@@ -109,3 +109,39 @@ class SuitGameTest(unittest.TestCase):
         )
         for non_trump_card in test_non_trump_cards:
             self.assertFalse(hearts_game.is_trump_card(non_trump_card))
+
+    def test_trick_winner_without_trump(self):
+        spades_game = SuitGame(2)
+        trick = Trick(spades_game)
+        trick_cards = (
+            Card(0, 0),
+            Card(0, 7),
+            Card(0, 6),
+        )
+        for i, card in enumerate(trick_cards):
+            trick.append(i, card)
+        self.assertEqual(1, spades_game.trick_winner(trick))
+
+    def test_trick_winner_with_trump(self):
+        clubs_game = SuitGame(3)
+        trick = Trick(clubs_game)
+        trick_cards = (
+            Card(2, 1),
+            Card(2, 4),
+            Card(3, 7),
+        )
+        for i, card in enumerate(trick_cards):
+            trick.append(i, card)
+        self.assertEqual(2, clubs_game.trick_winner(trick))
+
+    def test_trick_winner_with_j(self):
+        diamonds_game = SuitGame(0)
+        trick = Trick(diamonds_game)
+        trick_cards = (
+            Card(2, 1),
+            Card(1, 3),
+            Card(2, 5),
+        )
+        for i, card in enumerate(trick_cards):
+            trick.append(i, card)
+        self.assertEqual(1, diamonds_game.trick_winner(trick))
