@@ -42,7 +42,7 @@ class Trick:
         :return: trick winner's player_id, score
         """
         if self.is_full:
-            return self.game_mode.evaluate_trick(self)
+            return self.game_mode.trick_winner(self), self.value
         else:
             raise Exception("can't evaluate the trick with only "
                             f"{len(self.card_outplays)} cards in trick.")

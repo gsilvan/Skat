@@ -37,6 +37,11 @@ class SuitGame(Game):
         card_set: set = {card}  # put the card in a set and compare it
         return card_set < set(self.trump_set())
 
+    @staticmethod
+    def is_jack_card(card: Card) -> bool:
+        """Return True if given card is a J"""
+        return card.rank == 3
+
     def is_trump_in_trick(self, trick: Trick) -> bool:
         return any(x in self.trump_set() for _, x in trick.card_outplays)
 
@@ -50,3 +55,26 @@ class SuitGame(Game):
         """Trick evaluation for Suit-Game"""
         # TODO: Implementation
         return 0, 0
+
+    def trick_winner(self, trick) -> int:
+        winner: tuple = trick.card_outplays[0]
+        if self.is_trump_in_trick(trick):
+            # then only here can be the winner
+            for player_card in trick.card_outplays[1:]:
+                if self.is_trump_card(player_card[1]):
+                    if self.is_jack_card(player_card[1]):
+                        if self.is_jack_card(winner[1]):
+                            if player_card[1].suit > winner[1].suit:
+                                winner = player_card
+                        else:
+                            winner = player_card
+                    else:
+                        if player_card[1] > winner[1]:
+                            winner = player_card
+            return winner[0]
+        else:
+            for player_card in trick.card_outplays[1:]:
+                if player_card[1].suit == trick.card_outplays[0][1].suit:
+                    if player_card[1] > winner[1]:
+                        winner = player_card
+            return winner[0]

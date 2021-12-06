@@ -18,5 +18,5 @@ class Game(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def find_winner(self, trick) -> int:
+    def trick_winner(self, trick) -> int:
         raise NotImplementedError
