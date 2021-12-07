@@ -15,7 +15,7 @@ class Agent(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def bid(self, state) -> int:
+    def bid(self, current_bid) -> int:
         raise NotImplementedError
 
     @abstractmethod

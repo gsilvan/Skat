@@ -16,6 +16,9 @@ class Player:
     def __del__(self) -> None:
         Player.player_count -= 1
 
+    def __str__(self) -> str:
+        return f"{self.seat_id} hand={self.hand} score={self.trick_value}"
+
     @property
     def trick_value(self) -> int:
         """Returns players current trick value"""
@@ -24,8 +27,8 @@ class Player:
             _sum += card.value
         return _sum
 
-    def bid(self) -> int:
-        return self.strategy.bid(None)
+    def bid(self, current_bid: int) -> int:
+        return self.strategy.bid(current_bid)
 
     def pickup_skat(self) -> bool:
         return self.strategy.pickup_skat(None)

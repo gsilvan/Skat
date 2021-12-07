@@ -1,3 +1,5 @@
+import datetime
+import math
 import random
 
 from skat.card import Card
@@ -12,16 +14,26 @@ class RandomAgent(Agent):
     Random-Agent: An agent that identifies valid moves and chooses on of those
     by an equal distributed random policy.
     """
+    VALID_BIDS = [0, 18, 20, 22, 24, 27, 30, 33, 36, 40, 44, 45, 48, 50, 54, 55,
+                  60, 63, 66, 70, 72, 77, 80, 81, 84, 88, 90, 96, 99, 100, 108,
+                  110, 117, 120, 121, 126, 130, 132, 135, 140, 143, 144, 150,
+                  153, 154, 156, 160, 162, 165, 168, 170, 171, 176, 180, 187,
+                  189, 190, 192, 198, 200, 204, 207, 209, 210, 216, 220, 225,
+                  228, 230, 231, 234, 240, 242, 243, 250, 252, 253, 260, 261,
+                  264]
+
     def __init__(self):
         """Initializes the random agent with a fixed seed."""
-        random.seed(0)
+        self.max_bid = random.choice(self.VALID_BIDS)
+        print(self.max_bid)
 
-    def bid(self, state) -> int:
+    def bid(self, current_bid) -> int:
         """Random Agent selects a bid from a list containing valid bids"""
-        valid_bids = (
-            18, 20, 22, 23, 24, 27, 30, 33, 35, 36, 40, 44, 48
-        )
-        return random.choice(valid_bids)
+        bid_index = self.VALID_BIDS.index(current_bid)
+        max_bid_index = self.VALID_BIDS.index(self.max_bid)
+        if bid_index < max_bid_index:
+            return self.VALID_BIDS[bid_index + 1]
+        return 0
 
     def pickup_skat(self, state) -> bool:
         """Random Agent selects skats equal distributed"""
