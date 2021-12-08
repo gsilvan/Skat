@@ -11,7 +11,6 @@ class Deck:
 
     def __init__(self) -> None:
         """Initialize an empty deck and seed the random function"""
-        random.seed(0)  # use a fixed seed for now
         self.deck: list[Card] = list()
 
     def __len__(self) -> int:

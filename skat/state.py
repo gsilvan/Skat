@@ -1,8 +1,10 @@
-from enum import auto, Enum
+from enum import Enum, auto
 
 from skat.agents.random import RandomAgent
-from skat.player import Player
+from skat.card import Card
 from skat.deck import Deck
+from skat.player import Player
+from skat.trick import Trick
 
 
 class GamePhase(Enum):
@@ -22,6 +24,9 @@ class Round:
         self._highest_bid = 0
         self._highest_bid_seat_id = -42
         self._deck = list()
+        self._won_last_trick = (self._back_hand + 1) % 3
+        self._hand_game: bool = False
+        self._skat: list[Card] = list()
         self.init_players()
 
     @property
@@ -76,3 +81,22 @@ class Round:
                 self._highest_bid_seat_id = stage_one_winner
             else:
                 break
+        # take skat or not
+        self._hand_game = not self._player[
+            self._highest_bid_seat_id].pickup_skat()
+        if not self._hand_game:
+            _cards_in_skat = self._deck.deal_cards(2)
+            print(f"p={self._highest_bid_seat_id} picks the skat: {_cards_in_skat}")
+            self._player[self._highest_bid_seat_id].receive_cards(
+                _cards_in_skat
+            )
+            self._skat = self._player[self._highest_bid_seat_id].press_skat()
+            print(f"p={self._highest_bid_seat_id} puts {self._skat} in skat")
+        else:
+            print(f"p={self._highest_bid_seat_id} discards the skat")
+            self._skat = self._deck.deal_cards(2)
+            print(f"skat={self._skat}")
+        for p in self._player:
+            print(p)
+        print(f"skat={self._skat}")
+        # game declaration
