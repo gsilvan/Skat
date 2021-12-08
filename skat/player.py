@@ -13,6 +13,7 @@ class Player:
 
     def __init__(self, agent: Agent) -> None:
         self.strategy: Agent = agent
+        self.strategy.set_state(state=self)  # we give our agent a pointer
         self.seat_id: int = Player.player_count
         self.hand: list[Card] = list()
         self.tricks: list[Card] = list()
@@ -32,11 +33,18 @@ class Player:
             _sum += card.value
         return _sum
 
+    def receive_cards(self, cards: list[Card]):
+        for card in cards:
+            self.hand.append(card)
+
     def bid(self, current_bid: int) -> int:
         return self.strategy.bid(current_bid)
 
     def pickup_skat(self) -> bool:
         return self.strategy.pickup_skat(None)
+
+    def press_skat(self) -> list[Card]:
+        return self.strategy.press_skat()
 
     def declare_game(self) -> Game:
         return self.strategy.declare_game(None)

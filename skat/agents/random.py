@@ -1,12 +1,10 @@
-import datetime
-import math
 import random
 
+from skat.agents import Agent
 from skat.card import Card
 from skat.games import Game
 from skat.games.suit import SuitGame
-
-from . import Agent
+from skat.player import Player
 
 
 class RandomAgent(Agent):
@@ -24,6 +22,7 @@ class RandomAgent(Agent):
 
     def __init__(self):
         """Initializes the random agent with a fixed seed."""
+        self.state: [Player, None] = None
         self.max_bid = random.choice(self.VALID_BIDS)
         print(self.max_bid)
 
@@ -39,6 +38,13 @@ class RandomAgent(Agent):
         """Random Agent selects skats equal distributed"""
         return bool(random.getrandbits(1))
 
+    def press_skat(self) -> list[Card]:
+        skat = list()
+        for i in range(2):
+            skat.append(self.state.hand.pop(
+                random.randint(0, 11 - i)))
+        return skat
+
     def declare_game(self, state) -> Game:
         """Random Agent declares games equal distributed"""
         available_games = (
@@ -49,3 +55,6 @@ class RandomAgent(Agent):
     def choose_card(self, state) -> Card:
         """Random Agent chooses a random valid move"""
         pass
+
+    def set_state(self, state: Player) -> None:
+        self.state = state

@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from skat.card import Card
 from skat.games import Game
+from skat.player import Player
 
 
 class Agent(ABC):
@@ -20,4 +21,11 @@ class Agent(ABC):
 
     @abstractmethod
     def declare_game(self, state) -> Game:
+        raise NotImplementedError
+
+    @abstractmethod
+    def press_skat(self) -> list[Card]:
+        raise NotImplementedError
+
+    def set_state(self, state: Player) -> None:
         raise NotImplementedError
