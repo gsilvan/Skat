@@ -8,7 +8,7 @@ from skat.player import Player
 class Agent(ABC):
     """Defines a minimal Agent Object"""
     @abstractmethod
-    def choose_card(self, state) -> Card:
+    def choose_card(self) -> Card:
         raise NotImplementedError
 
     @abstractmethod

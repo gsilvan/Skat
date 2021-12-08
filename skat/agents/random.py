@@ -12,7 +12,8 @@ class RandomAgent(Agent):
     Random-Agent: An agent that identifies valid moves and chooses on of those
     by an equal distributed random policy.
     """
-    VALID_BIDS = [0, 18, 20, 22, 24, 27, 30, 33, 36, 40, 44, 45, 48, 50, 54, 55,
+    VALID_BIDS = [0, 18, 20, 22, 24, 27, 30, 33, 36, 40, 44, 45, 48, 50, 54,
+                  55,
                   60, 63, 66, 70, 72, 77, 80, 81, 84, 88, 90, 96, 99, 100, 108,
                   110, 117, 120, 121, 126, 130, 132, 135, 140, 143, 144, 150,
                   153, 154, 156, 160, 162, 165, 168, 170, 171, 176, 180, 187,
@@ -52,9 +53,10 @@ class RandomAgent(Agent):
         )
         return random.choice(available_games)
 
-    def choose_card(self, state) -> Card:
+    def choose_card(self) -> Card:
         """Random Agent chooses a random valid move"""
-        pass
+        return self.state.hand.pop(
+            random.randint(0, len(self.state.hand) - 1))
 
     def set_state(self, state: Player) -> None:
-        self.state = state
+        self.state: Player = state
