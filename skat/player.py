@@ -49,5 +49,5 @@ class Player:
     def declare_game(self) -> Game:
         return self.strategy.declare_game(None)
 
-    def play_card(self):
-        self.strategy.choose_card(None)
+    def play_card(self) -> Card:
+        return self.strategy.choose_card()
