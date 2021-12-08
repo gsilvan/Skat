@@ -1,6 +1,11 @@
-from skat.agents import Agent
-from skat.card import Card
-from skat.games import Game
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from skat.agents import Agent
+    from skat.card import Card
+    from skat.games import Game
 
 
 class Player:
