@@ -59,4 +59,4 @@ class RandomAgent(Agent):
             random.randint(0, len(self.state.hand) - 1))
 
     def set_state(self, state: Player) -> None:
-        self.state: Player = state
+        self.state = state
