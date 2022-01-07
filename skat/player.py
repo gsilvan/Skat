@@ -51,3 +51,7 @@ class Player:
 
     def play_card(self) -> Card:
         return self.strategy.choose_card()
+
+    def take_trick(self, trick) -> None:
+        for _, card in trick.card_outplays:
+            self.tricks.append(card)
