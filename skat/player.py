@@ -12,6 +12,7 @@ class Player:
     player_count = 0
 
     def __init__(self, agent: Agent) -> None:
+        """Initialize a Skat player with a given agent strategy."""
         self.strategy: Agent = agent
         self.strategy.set_state(state=self)  # we give our agent a pointer
         self.seat_id: int = Player.player_count
@@ -27,31 +28,44 @@ class Player:
 
     @property
     def trick_value(self) -> int:
-        """Returns players current trick value"""
+        """Returns the players current trick value."""
         _sum = 0
         for card in self.tricks:
             _sum += card.value
         return _sum
 
     def receive_cards(self, cards: list[Card]):
+        """Append the received cards from the dealer to the own hand."""
         for card in cards:
             self.hand.append(card)
 
     def bid(self, current_bid: int) -> int:
+        """
+        Make a bid given a current bid. This function delegates the bidding to
+        the specified agent. The agent returns a new bid or folds.
+        """
         return self.strategy.bid(current_bid)
 
     def pickup_skat(self) -> bool:
+        """
+        Pick up the Skat or play a hand-game. This function delegates the skat
+        taking decision to the specified agent. The agent returns a bool.
+        """
         return self.strategy.pickup_skat(None)
 
     def press_skat(self) -> list[Card]:
+        """Returns 2 Cards to put them in the Skat. Delegated to the agent."""
         return self.strategy.press_skat()
 
     def declare_game(self) -> Game:
+        """Game declaration. Delegated to the agent strategy."""
         return self.strategy.declare_game(None)
 
     def play_card(self) -> Card:
+        """Select the next card to play. Delegated to the agent strategy."""
         return self.strategy.choose_card()
 
     def take_trick(self, trick) -> None:
+        """Append won trick to the own trick stack."""
         for _, card in trick.card_outplays:
             self.tricks.append(card)
