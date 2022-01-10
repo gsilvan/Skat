@@ -29,6 +29,7 @@ class Round:
         self._hand_game: bool = False
         self._skat: list[Card] = list()
         self._game: [Game, None] = None
+        self._trick: [Trick, None] = None
         self.init_players()
 
     @property
@@ -110,17 +111,17 @@ class Round:
             self._player[self._highest_bid_seat_id].tricks.append(card)
         # card_outplay
         while any(len(p.hand) for p in self._player):
-            trick = Trick(self._game)
-            trick.append(self._won_last_trick,
-                         self._player[self._won_last_trick].play_card())
-            trick.append(self._won_last_trick,
-                         self._player[
-                             (self._won_last_trick + 1) % 3].play_card())
-            trick.append(self._won_last_trick,
-                         self._player[
-                             (self._won_last_trick + 2) % 3].play_card())
-            self._won_last_trick, _ = trick.winner()
-            self._player[self._won_last_trick].take_trick(trick)
+            self._trick = Trick(self._game)
+            self._trick.append(self._won_last_trick,
+                               self._player[self._won_last_trick].play_card())
+            self._trick.append(self._won_last_trick,
+                               self._player[
+                                   (self._won_last_trick + 1) % 3].play_card())
+            self._trick.append(self._won_last_trick,
+                               self._player[
+                                   (self._won_last_trick + 2) % 3].play_card())
+            self._won_last_trick, _ = self._trick.winner()
+            self._player[self._won_last_trick].take_trick(self._trick)
         # counting
         for p in self._player:
             print(f"p={p.seat_id} h={p.hand} points={p.trick_value}")
