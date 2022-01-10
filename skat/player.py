@@ -18,6 +18,7 @@ class Player:
         self.seat_id: int = Player.player_count
         self.hand: list[Card] = list()
         self.tricks: list[Card] = list()
+        self.public_state = None
         Player.player_count += 1
 
     def __del__(self) -> None:
@@ -69,3 +70,6 @@ class Player:
         """Append won trick to the own trick stack."""
         for _, card in trick.card_turn:
             self.tricks.append(card)
+
+    def set_state(self, state) -> None:
+        self.public_state = state

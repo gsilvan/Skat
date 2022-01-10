@@ -39,6 +39,8 @@ class Round:
     def init_players(self):
         for _ in range(3):
             self._player.append(Player(RandomAgent()))
+        for player in self._player:
+            player.set_state(self)
 
     def start(self):
         # Wait for players
