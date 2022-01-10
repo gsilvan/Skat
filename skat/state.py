@@ -22,10 +22,10 @@ class Round:
         self._phase: GamePhase = GamePhase.WAITING
         self._player: list[Player] = list()
         self._back_hand: int = 0  # aka the "dealer"
-        self._highest_bid = 0
-        self._highest_bid_seat_id = -42
-        self._deck = list()
-        self._won_last_trick = (self._back_hand + 1) % 3
+        self._highest_bid: int = 0
+        self._highest_bid_seat_id: int = -42
+        self._deck: list[Card] = list()
+        self._won_last_trick: int = (self._back_hand + 1) % 3
         self._hand_game: bool = False
         self._skat: list[Card] = list()
         self._game: [Game, None] = None
