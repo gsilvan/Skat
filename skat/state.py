@@ -3,9 +3,9 @@ from enum import Enum, auto
 from skat.agents.random import RandomAgent
 from skat.card import Card
 from skat.deck import Deck
+from skat.games import Game
 from skat.player import Player
 from skat.trick import Trick
-from skat.games import Game
 
 
 class GamePhase(Enum):
@@ -89,7 +89,8 @@ class Round:
         if not self._hand_game:
             _cards_in_skat = self._deck.deal_cards(2)
             print(
-                f"p={self._highest_bid_seat_id} picks the skat: {_cards_in_skat}")
+                f"p={self._highest_bid_seat_id} picks the skat: "
+                f"{_cards_in_skat}")
             self._player[self._highest_bid_seat_id].receive_cards(
                 _cards_in_skat
             )
@@ -104,6 +105,9 @@ class Round:
         print(f"skat={self._skat}")
         # game declaration
         self._game = self._player[self._highest_bid_seat_id].declare_game()
+        # add skat to tricks
+        for card in self._skat:
+            self._player[self._highest_bid_seat_id].tricks.append(card)
         # card_outplay
         while any(len(p.hand) for p in self._player):
             trick = Trick(self._game)
