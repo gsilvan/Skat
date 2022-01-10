@@ -41,10 +41,8 @@ class TrickTest(unittest.TestCase):
 
     def test_winner(self) -> None:
         self.add_test_cards()
-        winning_player, score = self.trick.winner()
+        winning_player = self.trick.winner
         self.assertEqual(2, winning_player)
-        self.assertEqual(15, score)
 
     def test_winner_with_empty_trick(self) -> None:
-        with self.assertRaises(Exception):
-            self.trick.winner()
+        self.assertIsNone(self.trick.winner)
