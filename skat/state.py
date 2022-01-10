@@ -18,19 +18,33 @@ class GamePhase(Enum):
 
 
 class Round:
-    def __init__(self):
+    def __init__(self, dealer: int = 0):
         self._phase: GamePhase = GamePhase.WAITING
         self._player: list[Player] = list()
-        self._back_hand: int = 0  # aka the "dealer"
+        self._dealer: int = dealer
         self._highest_bid: int = 0
         self._highest_bid_seat_id: int = -42
         self._deck: list[Card] = list()
-        self._won_last_trick: int = (self._back_hand + 1) % 3
         self._hand_game: bool = False
         self._skat: list[Card] = list()
         self._game: [Game, None] = None
         self._trick_history: list[Trick] = list()
         self.init_players()
+
+    @property
+    def front_hand(self):
+        if len(self._trick_history) > 0:
+            return self._trick_history[-1].winner
+        else:
+            return (self._dealer + 1) % 3
+
+    @property
+    def middle_hand(self):
+        return (self.front_hand + 1) % 3
+
+    @property
+    def back_hand(self):
+        return (self.front_hand + 2) % 3
 
     @property
     def phase(self):
@@ -59,28 +73,27 @@ class Round:
             player.hand = self._deck.deal_cards()
         self._phase = GamePhase.BIDDING
         # game bidding
-        front_hand = (self._back_hand + 1) % 3  # Vorhand
-        middle_hand = (self._back_hand + 2) % 3  # Mittelhand
-        back_hand = self._back_hand  # Hinterhand
         while True:
-            middle_hand_bid = self._player[middle_hand].bid(self._highest_bid)
+            middle_hand_bid = self._player[self.middle_hand].bid(
+                self._highest_bid)
             if middle_hand_bid > self._highest_bid:
                 self._highest_bid = middle_hand_bid
-                self._highest_bid_seat_id = middle_hand
+                self._highest_bid_seat_id = self.middle_hand
             else:
                 break
-            front_hand_bid = self._player[front_hand].bid(self._highest_bid)
+            front_hand_bid = self._player[self.front_hand].bid(
+                self._highest_bid)
             if front_hand_bid > self._highest_bid:
                 self._highest_bid = front_hand_bid
-                self._highest_bid_seat_id = front_hand
+                self._highest_bid_seat_id = self.front_hand
             else:
                 break
         stage_one_winner = self._highest_bid_seat_id
         while True:
-            back_hand_bid = self._player[back_hand].bid(self._highest_bid)
+            back_hand_bid = self._player[self.back_hand].bid(self._highest_bid)
             if back_hand_bid > self._highest_bid:
                 self._highest_bid = back_hand_bid
-                self._highest_bid_seat_id = back_hand
+                self._highest_bid_seat_id = self.back_hand
             else:
                 break
             stage_one_winner_bid = self._player[stage_one_winner].bid(
@@ -117,16 +130,15 @@ class Round:
             self._player[self._highest_bid_seat_id].tricks.append(card)
         # card_outplay
         while any(len(p.hand) for p in self._player):
-            front_hand = self._won_last_trick  # Vorhand
-            middle_hand = (self._won_last_trick + 1) % 3  # Mittelhand
-            back_hand = (self._won_last_trick + 2) % 3  # Hinterhand
             trick = Trick(self._game)
-            trick.append(front_hand, self._player[front_hand].play_card())
-            trick.append(middle_hand, self._player[middle_hand].play_card())
-            trick.append(back_hand, self._player[back_hand].play_card())
+            trick.append(self.front_hand,
+                         self._player[self.front_hand].play_card())
+            trick.append(self.middle_hand,
+                         self._player[self.middle_hand].play_card())
+            trick.append(self.back_hand,
+                         self._player[self.back_hand].play_card())
             self._trick_history.append(trick)
-            self._won_last_trick = trick.winner
-            self._player[self._won_last_trick].take_trick(trick)
+            self._player[trick.winner].take_trick(trick)
         # counting
         for p in self._player:
             print(f"p={p.seat_id} h={p.hand} points={p.trick_value}")
