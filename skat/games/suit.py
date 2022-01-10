@@ -43,7 +43,7 @@ class SuitGame(Game):
         return card.rank == 3
 
     def is_trump_in_trick(self, trick: Trick) -> bool:
-        return any(x in self.trump_set() for _, x in trick.card_outplays)
+        return any(x in self.trump_set() for _, x in trick.card_turn)
 
     @property
     def value(self) -> int:
@@ -57,10 +57,10 @@ class SuitGame(Game):
         return 0, 0
 
     def trick_winner(self, trick) -> int:
-        winner: tuple = trick.card_outplays[0]
+        winner: tuple = trick.card_turn[0]
         if self.is_trump_in_trick(trick):
             # then only here can be the winner
-            for player_card in trick.card_outplays[1:]:
+            for player_card in trick.card_turn[1:]:
                 if self.is_trump_card(player_card[1]):
                     if self.is_jack_card(player_card[1]):
                         if self.is_jack_card(winner[1]):
@@ -73,8 +73,8 @@ class SuitGame(Game):
                             winner = player_card
             return winner[0]
         else:
-            for player_card in trick.card_outplays[1:]:
-                if player_card[1].suit == trick.card_outplays[0][1].suit:
+            for player_card in trick.card_turn[1:]:
+                if player_card[1].suit == trick.card_turn[0][1].suit:
                     if player_card[1] > winner[1]:
                         winner = player_card
             return winner[0]

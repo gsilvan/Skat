@@ -67,5 +67,5 @@ class Player:
 
     def take_trick(self, trick) -> None:
         """Append won trick to the own trick stack."""
-        for _, card in trick.card_outplays:
+        for _, card in trick.card_turn:
             self.tricks.append(card)
