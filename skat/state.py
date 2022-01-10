@@ -117,15 +117,13 @@ class Round:
             self._player[self._highest_bid_seat_id].tricks.append(card)
         # card_outplay
         while any(len(p.hand) for p in self._player):
+            front_hand = self._won_last_trick  # Vorhand
+            middle_hand = (self._won_last_trick + 1) % 3  # Mittelhand
+            back_hand = (self._won_last_trick + 2) % 3  # Hinterhand
             trick = Trick(self._game)
-            trick.append(self._won_last_trick,
-                         self._player[self._won_last_trick].play_card())
-            trick.append(self._won_last_trick,
-                         self._player[
-                             (self._won_last_trick + 1) % 3].play_card())
-            trick.append(self._won_last_trick,
-                         self._player[
-                             (self._won_last_trick + 2) % 3].play_card())
+            trick.append(front_hand, self._player[front_hand].play_card())
+            trick.append(middle_hand, self._player[middle_hand].play_card())
+            trick.append(back_hand, self._player[back_hand].play_card())
             self._trick_history.append(trick)
             self._won_last_trick, _ = trick.winner()
             self._player[self._won_last_trick].take_trick(trick)
