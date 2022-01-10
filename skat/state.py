@@ -125,7 +125,7 @@ class Round:
             trick.append(middle_hand, self._player[middle_hand].play_card())
             trick.append(back_hand, self._player[back_hand].play_card())
             self._trick_history.append(trick)
-            self._won_last_trick, _ = trick.winner()
+            self._won_last_trick = trick.winner
             self._player[self._won_last_trick].take_trick(trick)
         # counting
         for p in self._player:

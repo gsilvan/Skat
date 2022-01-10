@@ -1,3 +1,5 @@
+from typing import Union
+
 from skat.card import Card
 from skat.games import Game
 
@@ -22,6 +24,13 @@ class Trick:
             # TODO: Use a more specific Exception.
 
     @property
+    def is_full(self) -> bool:
+        """
+        Returns true if the trick is full, meaning all players placed their
+        card. Returns false if cards missing."""
+        return len(self.card_turn) == 3
+
+    @property
     def value(self) -> int:
         """Returns the {current, final} value of a trick"""
         _sum = 0
@@ -30,20 +39,9 @@ class Trick:
         return _sum
 
     @property
-    def is_full(self) -> bool:
-        """
-        Returns true if the trick is full, meaning all players placed their
-        card. Returns false if cards missing."""
-        return len(self.card_turn) == 3
-
-    def winner(self) -> tuple[int, int]:
-        """
-        Evaluates the winner of the current trick
-        :return: trick winner's player_id, score
-        """
+    def winner(self) -> Union[int, None]:
+        """Returns the trick winner's player_id"""
         if self.is_full:
-            return self.game_mode.trick_winner(self), self.value
+            return self.game_mode.trick_winner(self)
         else:
-            raise Exception("can't evaluate the trick with only "
-                            f"{len(self.card_turn)} cards in trick.")
-            # TODO: Use a more specific Exception
+            return None
