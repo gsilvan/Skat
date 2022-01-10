@@ -30,6 +30,11 @@ class TrickTest(unittest.TestCase):
         with self.assertRaises(Exception):
             self.trick.append(4, Card(0, 0))
 
+    def test_color(self) -> None:
+        self.assertIsNone(self.trick.color)
+        self.add_test_cards()
+        self.assertEqual('♣', self.trick.color)
+
     def test_value(self) -> None:
         self.add_test_cards()
         self.assertEqual(15, self.trick.value)
