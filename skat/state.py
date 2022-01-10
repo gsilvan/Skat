@@ -120,6 +120,7 @@ class Round:
                          self._player[
                              (self._won_last_trick + 2) % 3].play_card())
             self._won_last_trick, _ = trick.winner()
+            self._player[self._won_last_trick].take_trick(trick)
         # counting
         for p in self._player:
             print(f"p={p.seat_id} h={p.hand} points={p.trick_value}")
