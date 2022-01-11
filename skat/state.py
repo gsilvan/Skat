@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from typing import Union
 
 from skat.agents.random import RandomAgent
 from skat.card import Card
@@ -27,7 +28,7 @@ class Round:
         self._deck: list[Card] = list()
         self._hand_game: bool = False
         self._skat: list[Card] = list()
-        self._game: [Game, None] = None
+        self._game: Union[Game, None] = None
         self._trick_history: list[Trick] = list()
         self.init_players()
 
