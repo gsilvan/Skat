@@ -57,3 +57,7 @@ class Card:
 
     def __repr__(self) -> str:
         return f"{self.suit}{self.rank}"
+
+    @property
+    def is_jack(self) -> bool:
+        return self.rank == 3
