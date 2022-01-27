@@ -9,14 +9,15 @@ class Game(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def trump_set(self) -> tuple[Card, ...]:
+    def new_trick(self):
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def trump_cards(suit) -> tuple[Card, ...]:
         raise NotImplementedError
 
     @property
     @abstractmethod
     def value(self) -> int:
-        raise NotImplementedError
-
-    @abstractmethod
-    def trick_winner(self, trick) -> int:
         raise NotImplementedError
