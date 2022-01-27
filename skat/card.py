@@ -60,4 +60,4 @@ class Card:
 
     @property
     def is_jack(self) -> bool:
-        return self.rank == 3
+        return self.rank == 'J'
