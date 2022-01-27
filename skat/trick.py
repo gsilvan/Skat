@@ -1,13 +1,12 @@
+from abc import ABC, abstractmethod
 from typing import Union
 
 from skat.card import Card
-from skat.games import Game
 
 
-class Trick:
-    def __init__(self, game_mode: Game) -> None:
+class Trick(ABC):
+    def __init__(self) -> None:
         self.card_turn: list[tuple[int, Card]] = list()
-        self.game_mode: Game = game_mode
 
     def __len__(self) -> int:
         return len(self.card_turn)
@@ -19,14 +18,6 @@ class Trick:
         else:
             raise Exception("can't add more than 3 cards for a single trick")
             # TODO: Use a more specific Exception.
-
-    @property
-    def color(self):
-        """Returns the color of this trick."""
-        if len(self.card_turn) > 0:
-            return self.card_turn[0][1].suit
-        else:
-            return None
 
     @property
     def is_full(self) -> bool:
@@ -44,9 +35,6 @@ class Trick:
         return _sum
 
     @property
+    @abstractmethod
     def winner(self) -> Union[int, None]:
-        """Returns the trick winner's player_id"""
-        if self.is_full:
-            return self.game_mode.trick_winner(self)
-        else:
-            return None
+        raise NotImplementedError

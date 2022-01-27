@@ -1,3 +1,4 @@
+import copy
 from enum import Enum, auto
 from typing import Union
 
@@ -131,15 +132,15 @@ class Round:
             self._player[self._highest_bid_seat_id].tricks.append(card)
         # card_outplay
         while any(len(p.hand) for p in self._player):
-            trick = Trick(self._game)
-            trick.append(self.front_hand,
-                         self._player[self.front_hand].play_card())
-            trick.append(self.middle_hand,
-                         self._player[self.middle_hand].play_card())
-            trick.append(self.back_hand,
-                         self._player[self.back_hand].play_card())
-            self._trick_history.append(trick)
-            self._player[trick.winner].take_trick(trick)
+            self._game.new_trick()
+            self._game.trick.append(self.front_hand,
+                                    self._player[self.front_hand].play_card())
+            self._game.trick.append(self.middle_hand,
+                                    self._player[self.middle_hand].play_card())
+            self._game.trick.append(self.back_hand,
+                                    self._player[self.back_hand].play_card())
+            self._trick_history.append(copy.deepcopy(self._game.trick))
+            self._player[self._game.trick.winner].take_trick(self._game.trick)
         # counting
         for p in self._player:
             print(f"p={p.seat_id} h={p.hand} points={p.trick_value}")
