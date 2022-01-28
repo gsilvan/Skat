@@ -108,3 +108,15 @@ class SuitGameTrickTest(unittest.TestCase):
             for i, card in enumerate(t[0]):
                 trick.append(i, card)
             self.assertEqual(t[2], trick.winner, msg=t)
+
+    def test_is_trump(self):
+        test_set = (
+            ((Card(2, 0), Card(2, 1), Card(2, 2)), True),  # color trump
+            ((Card(0, 3), Card(2, 1), Card(2, 4)), True),  # j trump
+            ((Card(0, 4), Card(0, 5), Card(1, 3)), False)  # no trump in [0]
+        )
+        for test, is_trump in test_set:
+            trick = SuitGameTrick(2)
+            for idx, card in enumerate(test):
+                trick.append(player_id=idx, card=card)
+            self.assertIs(is_trump, trick.is_trump, msg=test)

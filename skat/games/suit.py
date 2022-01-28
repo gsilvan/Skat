@@ -22,6 +22,10 @@ class SuitGameTrick(Trick):
                    self.card_turn)
 
     @property
+    def is_trump(self) -> bool:
+        return self._is_trump_card(self.card_turn[0][1])
+
+    @property
     def winner(self) -> Union[int, None]:
         """Returns the trick winner's player_id"""
         if not self.is_full:
