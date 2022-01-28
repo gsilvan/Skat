@@ -27,7 +27,7 @@ class Trick(ABC):
         return len(self.card_turn) == 3
 
     @property
-    def forced_cards(self):
+    def forced_cards(self) -> set[Card]:
         raise NotImplementedError
 
     @property
