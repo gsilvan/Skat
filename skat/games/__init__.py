@@ -20,6 +20,10 @@ class Game(ABC):
     def trump_cards(suit) -> tuple[Card, ...]:
         raise NotImplementedError
 
+    @staticmethod
+    def suit_cards(suit) -> tuple[Card, ...]:
+        raise NotImplementedError
+
     @property
     @abstractmethod
     def value(self) -> int:

@@ -27,6 +27,10 @@ class Trick(ABC):
         return len(self.card_turn) == 3
 
     @property
+    def forced_cards(self):
+        raise NotImplementedError
+
+    @property
     def is_trump(self) -> bool:
         """Returns True if first card in Trick is a trump card"""
         raise NotImplementedError

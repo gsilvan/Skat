@@ -22,6 +22,17 @@ class SuitGameTrick(Trick):
                    self.card_turn)
 
     @property
+    def forced_cards(self) -> set[Card]:
+        if len(self.card_turn) == 0:
+            return set()
+        else:
+            if self.is_trump:
+                return set(SuitGame.trump_cards(self.trump_suit))
+            else:
+                return set(SuitGame.suit_cards(
+                    SUITS.index(self.card_turn[0][1].suit)))
+
+    @property
     def is_trump(self) -> bool:
         if len(self.card_turn) <= 0:
             raise Exception("No card in trick")
