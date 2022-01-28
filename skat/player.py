@@ -17,7 +17,7 @@ class Player:
         self.strategy.set_state(state=self)  # we give our agent a pointer
         self.seat_id: int = Player.player_count
         self.hand: list[Card] = list()
-        self.tricks: list[Card] = list()
+        self.trick_stack: list[Card] = list()
         self.public_state = None
         Player.player_count += 1
 
@@ -32,7 +32,7 @@ class Player:
     def trick_stack_value(self) -> int:
         """Returns the players current trick value."""
         _sum = 0
-        for card in self.tricks:
+        for card in self.trick_stack:
             _sum += card.value
         return _sum
 
@@ -70,7 +70,7 @@ class Player:
     def take_trick(self, trick) -> None:
         """Append won trick to the own trick stack."""
         for _, card in trick.card_turn:
-            self.tricks.append(card)
+            self.trick_stack.append(card)
 
     def set_state(self, state) -> None:
         self.public_state = state
