@@ -72,7 +72,7 @@ class SuitGameTrickTest(unittest.TestCase):
             Card(0, 6)
         )
         for i, card in enumerate(true_trick_cards):
-            true_trick.append(i+1, card)
+            true_trick.append(i + 1, card)
         self.assertTrue(true_trick._is_trump_in_trick())
         # False test
         false_trick = SuitGameTrick(1)
@@ -82,7 +82,7 @@ class SuitGameTrickTest(unittest.TestCase):
             Card(2, 2)
         )
         for i, card in enumerate(false_trick_cards):
-            false_trick.append(i+1, card)
+            false_trick.append(i + 1, card)
         self.assertFalse(false_trick._is_trump_in_trick())
         # J test
         diamonds_trick = SuitGameTrick(3)
@@ -92,10 +92,10 @@ class SuitGameTrickTest(unittest.TestCase):
             Card(2, 6),
         )
         for i, card in enumerate(diamonds_trick_cards):
-            diamonds_trick.append(i+1, card)
+            diamonds_trick.append(i + 1, card)
         self.assertTrue(diamonds_trick._is_trump_in_trick())
 
-    def test_trick_winner(self):
+    def test_trick_winner(self) -> None:
         test_set = (
             # cards, trump_suit, winner
             ((Card(2, 1), Card(1, 3), Card(2, 5)), 0, 1),  # with j trump
@@ -109,7 +109,7 @@ class SuitGameTrickTest(unittest.TestCase):
                 trick.append(i, card)
             self.assertEqual(t[2], trick.winner, msg=t)
 
-    def test_is_trump(self):
+    def test_is_trump(self) -> None:
         test_set = (
             ((Card(2, 0), Card(2, 1), Card(2, 2)), True),  # color trump
             ((Card(0, 3), Card(2, 1), Card(2, 4)), True),  # j trump
