@@ -131,7 +131,7 @@ class Round:
         self._game = self._player[self._highest_bid_seat_id].declare_game()
         # add skat to tricks
         for card in self._skat:
-            self._player[self._highest_bid_seat_id].tricks.append(card)
+            self._player[self._highest_bid_seat_id].trick_stack.append(card)
         # card_outplay
         while any(len(p.hand) for p in self._player):
             self._game.new_trick()
