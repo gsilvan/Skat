@@ -23,6 +23,8 @@ class SuitGameTrick(Trick):
 
     @property
     def is_trump(self) -> bool:
+        if len(self.card_turn) <= 0:
+            raise Exception("No card in trick")
         return self._is_trump_card(self.card_turn[0][1])
 
     @property
