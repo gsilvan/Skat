@@ -52,6 +52,3 @@ class RandomAgent(Agent):
         choice = random.choice(list(valid_moves))
         self.state.hand.remove(choice)
         return choice
-
-    def set_state(self, state: Player) -> None:
-        self.state = state

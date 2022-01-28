@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Union
 
 from skat.card import Card
 from skat.games import Game
@@ -6,6 +7,7 @@ from skat.player import Player
 
 
 class Agent(ABC):
+    state: Union[Player, None]
     """Defines a minimal Agent Object"""
 
     VALID_BIDS = [
@@ -112,4 +114,4 @@ class Agent(ABC):
         raise NotImplementedError
 
     def set_state(self, state: Player) -> None:
-        raise NotImplementedError
+        self.state = state
