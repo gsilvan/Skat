@@ -136,11 +136,11 @@ class Round:
         while any(len(p.hand) for p in self._player):
             self._game.new_trick()
             self._game.trick.append(self.front_hand,
-                                    self._player[self.front_hand].play_card())
+                                    self._player[self.front_hand].play_card(self._game.trick))
             self._game.trick.append(self.middle_hand,
-                                    self._player[self.middle_hand].play_card())
+                                    self._player[self.middle_hand].play_card(self._game.trick))
             self._game.trick.append(self.back_hand,
-                                    self._player[self.back_hand].play_card())
+                                    self._player[self.back_hand].play_card(self._game.trick))
             self._trick_history.append(copy.deepcopy(self._game.trick))
             self._player[self._game.trick.winner].take_trick(self._game.trick)
         # counting

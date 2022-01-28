@@ -48,12 +48,13 @@ class RandomAgent(Agent):
         )
         return random.choice(available_games)
 
-    def choose_card(self) -> Card:
+    def choose_card(self, valid_moves: set[Card]) -> Card:
         """Random Agent chooses a random valid move"""
         if self.state is None:
             raise Exception("Can't choose a card without having a state.")
-        return self.state.hand.pop(
-            random.randint(0, len(self.state.hand) - 1))
+        choice = random.choice(list(valid_moves))
+        self.state.hand.remove(choice)
+        return choice
 
     def set_state(self, state: Player) -> None:
         self.state = state

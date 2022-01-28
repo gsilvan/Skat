@@ -37,12 +37,11 @@ class Player:
             _sum += card.value
         return _sum
 
-    @staticmethod
-    def valid_moves(trick: Trick, hand: list[Card]):
+    def valid_moves(self, trick: Trick):
         """Returns a set of valid moves given a trick and a hand"""
-        card_set = set(hand) & trick.forced_cards
+        card_set = set(self.hand) & trick.forced_cards
         if len(card_set) == 0:
-            return set(hand)
+            return set(self.hand)
         else:
             return card_set
 
@@ -73,9 +72,10 @@ class Player:
         """Game declaration. Delegated to the agent strategy."""
         return self.strategy.declare_game(None)
 
-    def play_card(self) -> Card:
+    def play_card(self, current_trick: Trick) -> Card:
         """Select the next card to play. Delegated to the agent strategy."""
-        return self.strategy.choose_card()
+        valid_moves = self.valid_moves(trick=current_trick)
+        return self.strategy.choose_card(valid_moves)
 
     def take_trick(self, trick) -> None:
         """Append won trick to the own trick stack."""
