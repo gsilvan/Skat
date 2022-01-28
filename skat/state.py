@@ -20,13 +20,13 @@ class GamePhase(Enum):
 
 
 class Round:
-    def __init__(self, dealer: int = 0):
+    def __init__(self, dealer: int = 0) -> None:
         self._phase: GamePhase = GamePhase.WAITING
         self._player: list[Player] = list()
         self._dealer: int = dealer
         self._highest_bid: int = 0
         self._highest_bid_seat_id: int = -42
-        self._deck: list[Card] = list()
+        self._deck: Deck = Deck()
         self._hand_game: bool = False
         self._skat: list[Card] = list()
         self._game: Union[Game, None] = None
@@ -34,29 +34,31 @@ class Round:
         self.init_players()
 
     @property
-    def front_hand(self):
+    def front_hand(self) -> int:
         if len(self._trick_history) > 0:
+            if self._trick_history[-1].winner is None:
+                raise Exception("There is no winner yet.")
             return self._trick_history[-1].winner
         else:
             return (self._dealer + 1) % 3
 
     @property
-    def middle_hand(self):
+    def middle_hand(self) -> int:
         return (self.front_hand + 1) % 3
 
     @property
-    def back_hand(self):
+    def back_hand(self) -> int:
         return (self.front_hand + 2) % 3
 
     @property
-    def phase(self):
+    def phase(self) -> GamePhase:
         return self._phase
 
     @property
-    def trick_history(self):
+    def trick_history(self) -> list[Trick]:
         return self._trick_history
 
-    def init_players(self):
+    def init_players(self) -> None:
         for _ in range(3):
             self._player.append(Player(RandomAgent()))
         for player in self._player:

@@ -12,7 +12,7 @@ class Game(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def new_trick(self):
+    def new_trick(self) -> None:
         raise NotImplementedError
 
     @staticmethod
