@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
 
 from skat.card import Card
+from skat.trick import Trick
 
 
 class Game(ABC):
+    trick: Trick
+
     @abstractmethod
     def __init__(self) -> None:
         raise NotImplementedError
