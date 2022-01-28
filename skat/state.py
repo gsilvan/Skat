@@ -145,4 +145,4 @@ class Round:
             self._player[self._game.trick.winner].take_trick(self._game.trick)
         # counting
         for p in self._player:
-            print(f"p={p.seat_id} h={p.hand} points={p.trick_value}")
+            print(f"p={p.seat_id} h={p.hand} points={p.trick_stack_value}")

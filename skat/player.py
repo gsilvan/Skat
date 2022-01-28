@@ -25,10 +25,11 @@ class Player:
         Player.player_count -= 1
 
     def __str__(self) -> str:
-        return f"{self.seat_id} hand={self.hand} score={self.trick_value}"
+        return f"{self.seat_id} hand={self.hand} " \
+               f"score={self.trick_stack_value}"
 
     @property
-    def trick_value(self) -> int:
+    def trick_stack_value(self) -> int:
         """Returns the players current trick value."""
         _sum = 0
         for card in self.tricks:
