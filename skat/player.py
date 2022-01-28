@@ -6,6 +6,7 @@ if TYPE_CHECKING:
     from skat.agents import Agent
     from skat.card import Card
     from skat.games import Game
+    from skat.trick import Trick
 
 
 class Player:
@@ -35,6 +36,15 @@ class Player:
         for card in self.trick_stack:
             _sum += card.value
         return _sum
+
+    @staticmethod
+    def valid_moves(trick: Trick, hand: list[Card]):
+        """Returns a set of valid moves given a trick and a hand"""
+        card_set = set(hand) & trick.forced_cards
+        if len(card_set) == 0:
+            return set(hand)
+        else:
+            return card_set
 
     def receive_cards(self, cards: list[Card]):
         """Append the received cards from the dealer to the own hand."""
