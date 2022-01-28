@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class Player:
-    player_count = 0
+    player_count: int = 0
 
     def __init__(self, agent: Agent) -> None:
         """Initialize a Skat player with a given agent strategy."""

@@ -1,4 +1,5 @@
 import random
+from typing import Union
 
 from skat.agents import Agent
 from skat.card import Card
@@ -13,9 +14,9 @@ class RandomAgent(Agent):
     by an equal distributed random policy.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initializes the random agent with a fixed seed."""
-        self.state: [Player, None] = None
+        self.state: Union[Player, None] = None
         self.max_bid = random.choice(self.VALID_BIDS)
         print(self.max_bid)
 
@@ -32,6 +33,8 @@ class RandomAgent(Agent):
         return bool(random.getrandbits(1))
 
     def press_skat(self) -> list[Card]:
+        if self.state is None:
+            raise Exception("Can't choose a card without having a state.")
         skat = list()
         for i in range(2):
             skat.append(self.state.hand.pop(
@@ -47,6 +50,8 @@ class RandomAgent(Agent):
 
     def choose_card(self) -> Card:
         """Random Agent chooses a random valid move"""
+        if self.state is None:
+            raise Exception("Can't choose a card without having a state.")
         return self.state.hand.pop(
             random.randint(0, len(self.state.hand) - 1))
 
