@@ -27,6 +27,11 @@ class Trick(ABC):
         return len(self.card_turn) == 3
 
     @property
+    def is_trump(self) -> bool:
+        """Returns True if first card in Trick is a trump card"""
+        raise NotImplementedError
+
+    @property
     def value(self) -> int:
         """Returns the {current, final} value of a trick"""
         _sum = 0
