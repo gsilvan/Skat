@@ -16,7 +16,7 @@ class Agent(ABC):
                   261, 264]
 
     @abstractmethod
-    def choose_card(self) -> Card:
+    def choose_card(self, valid_moves: set[Card]) -> Card:
         raise NotImplementedError
 
     @abstractmethod
