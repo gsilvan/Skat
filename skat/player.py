@@ -26,8 +26,7 @@ class Player:
         Player.player_count -= 1
 
     def __str__(self) -> str:
-        return f"{self.seat_id} hand={self.hand} " \
-               f"score={self.trick_stack_value}"
+        return f"{self.seat_id} hand={self.hand} " f"score={self.trick_stack_value}"
 
     @property
     def trick_stack_value(self) -> int:

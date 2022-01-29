@@ -30,7 +30,7 @@ class Deck:
 
     def __str__(self) -> str:
         """String representation of cards in self.deck"""
-        return f'{self.deck}'
+        return f"{self.deck}"
 
     def initialize_cards(self) -> None:
         """

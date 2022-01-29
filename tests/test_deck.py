@@ -4,7 +4,6 @@ from skat.deck import Deck
 
 
 class DeckTest(unittest.TestCase):
-
     def setUp(self) -> None:
         self.deck = Deck()
 

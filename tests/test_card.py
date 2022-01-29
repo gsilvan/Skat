@@ -4,7 +4,6 @@ from skat.card import Card
 
 
 class CardTest(unittest.TestCase):
-
     def setUp(self) -> None:
         self.lower_card = Card(0, 0)
         self.higher_card = Card(0, 1)

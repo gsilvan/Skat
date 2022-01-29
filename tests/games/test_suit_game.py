@@ -5,7 +5,6 @@ from skat.games.suit import SuitGame
 
 
 class SuitGameTest(unittest.TestCase):
-
     def test_find_all_trump_cards(self) -> None:
         for i in range(4):
             suit_game = SuitGame(i)

@@ -18,8 +18,9 @@ class SuitGameTrick(Trick):
         return card_set < set(SuitGame.trump_cards(self.trump_suit))
 
     def _is_trump_in_trick(self) -> bool:
-        return any(x in SuitGame.trump_cards(self.trump_suit) for _, x in
-                   self.card_turn)
+        return any(
+            x in SuitGame.trump_cards(self.trump_suit) for _, x in self.card_turn
+        )
 
     @property
     def forced_cards(self) -> set[Card]:
@@ -29,8 +30,7 @@ class SuitGameTrick(Trick):
             if self.is_trump:
                 return set(SuitGame.trump_cards(self.trump_suit))
             else:
-                return set(SuitGame.suit_cards(
-                    SUITS.index(self.card_turn[0][1].suit)))
+                return set(SuitGame.suit_cards(SUITS.index(self.card_turn[0][1].suit)))
 
     @property
     def is_trump(self) -> bool:
