@@ -2,6 +2,7 @@ import copy
 from enum import Enum, auto
 from typing import Union
 
+from skat.agents.command_line import CommandLineAgent
 from skat.agents.random import RandomAgent
 from skat.card import Card
 from skat.deck import Deck
@@ -59,7 +60,8 @@ class Round:
         return self._trick_history
 
     def init_players(self) -> None:
-        for _ in range(3):
+        self._player.append(Player(CommandLineAgent()))
+        for _ in range(2):
             self._player.append(Player(RandomAgent()))
         for player in self._player:
             player.set_state(self)
