@@ -27,7 +27,7 @@ class CommandLineAgent(Agent):
         return choice
 
     def pickup_skat(self, state) -> bool:
-        user_input = input(f"pick up the skat? [y/n]: ")  # TODO: input sanitation
+        user_input = input("pick up the skat? [y/n]: ")  # TODO: input sanitation
         if user_input == "y":
             return True
         elif user_input == "n":
