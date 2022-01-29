@@ -66,21 +66,13 @@ class SuitGameTrickTest(unittest.TestCase):
     def test__is_trump_in_trick(self) -> None:
         # True test
         true_trick = SuitGameTrick(0)
-        true_trick_cards = (
-            Card(1, 1),
-            Card(1, 1),
-            Card(0, 6)
-        )
+        true_trick_cards = (Card(1, 1), Card(1, 1), Card(0, 6))
         for i, card in enumerate(true_trick_cards):
             true_trick.append(i + 1, card)
         self.assertTrue(true_trick._is_trump_in_trick())
         # False test
         false_trick = SuitGameTrick(1)
-        false_trick_cards = (
-            Card(2, 0),
-            Card(2, 5),
-            Card(2, 2)
-        )
+        false_trick_cards = (Card(2, 0), Card(2, 5), Card(2, 2))
         for i, card in enumerate(false_trick_cards):
             false_trick.append(i + 1, card)
         self.assertFalse(false_trick._is_trump_in_trick())
@@ -113,7 +105,7 @@ class SuitGameTrickTest(unittest.TestCase):
         test_set = (
             ((Card(2, 0), Card(2, 1), Card(2, 2)), True),  # color trump
             ((Card(0, 3), Card(2, 1), Card(2, 4)), True),  # j trump
-            ((Card(0, 4), Card(0, 5), Card(1, 3)), False)  # no trump in [0]
+            ((Card(0, 4), Card(0, 5), Card(1, 3)), False),  # no trump in [0]
         )
         for test, is_trump in test_set:
             trick = SuitGameTrick(2)
@@ -125,15 +117,32 @@ class SuitGameTrickTest(unittest.TestCase):
         trick = SuitGameTrick(0)
         self.assertEqual(set(), trick.forced_cards)
         trick.append(0, Card(1, 0))
-        color_set = {Card(1, 0), Card(1, 1), Card(1, 2), Card(1, 4),
-                     Card(1, 5), Card(1, 6), Card(1, 7)}
+        color_set = {
+            Card(1, 0),
+            Card(1, 1),
+            Card(1, 2),
+            Card(1, 4),
+            Card(1, 5),
+            Card(1, 6),
+            Card(1, 7),
+        }
         self.assertEqual(color_set, trick.forced_cards)
 
         trick = SuitGameTrick(0)  # renew trick
         trick.append(0, Card(0, 0))
-        trump_set = {Card(0, 0), Card(0, 1), Card(0, 2), Card(0, 4),
-                     Card(0, 5), Card(0, 6), Card(0, 7), Card(0, 3),
-                     Card(1, 3), Card(2, 3), Card(3, 3)}
+        trump_set = {
+            Card(0, 0),
+            Card(0, 1),
+            Card(0, 2),
+            Card(0, 4),
+            Card(0, 5),
+            Card(0, 6),
+            Card(0, 7),
+            Card(0, 3),
+            Card(1, 3),
+            Card(2, 3),
+            Card(3, 3),
+        }
         self.assertEqual(trump_set, trick.forced_cards)
 
         trick = SuitGameTrick(0)  # renew trick

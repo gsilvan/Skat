@@ -1,5 +1,5 @@
-SUITS = ('♦', '♥', '♠', '♣')
-RANKS = ('7', '8', '9', 'J', 'Q', 'K', 'X', 'A')
+SUITS = ("♦", "♥", "♠", "♣")
+RANKS = ("7", "8", "9", "J", "Q", "K", "X", "A")
 
 
 class Card:
@@ -47,17 +47,19 @@ class Card:
         return hash((self.suit, self.rank))
 
     def __str__(self) -> str:
-        return "┌───────┐\n" \
-               f"| {self.rank}     |\n" \
-               "|       |\n" \
-               f"|   {self.suit}   |\n" \
-               "|       |\n" \
-               f"|     {self.rank} |\n" \
-               "└───────┘"
+        return (
+            "┌───────┐\n"
+            f"| {self.rank}     |\n"
+            "|       |\n"
+            f"|   {self.suit}   |\n"
+            "|       |\n"
+            f"|     {self.rank} |\n"
+            "└───────┘"
+        )
 
     def __repr__(self) -> str:
         return f"{self.suit}{self.rank}"
 
     @property
     def is_jack(self) -> bool:
-        return self.rank == 'J'
+        return self.rank == "J"

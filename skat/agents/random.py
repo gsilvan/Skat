@@ -37,15 +37,12 @@ class RandomAgent(Agent):
             raise Exception("Can't choose a card without having a state.")
         skat = list()
         for i in range(2):
-            skat.append(self.state.hand.pop(
-                random.randint(0, 11 - i)))
+            skat.append(self.state.hand.pop(random.randint(0, 11 - i)))
         return skat
 
     def declare_game(self, state) -> Game:
         """Random Agent declares games equal distributed"""
-        available_games = (
-            SuitGame(random.randint(0, 3)),
-        )
+        available_games = (SuitGame(random.randint(0, 3)),)
         return random.choice(available_games)
 
     def choose_card(self, valid_moves: set[Card]) -> Card:

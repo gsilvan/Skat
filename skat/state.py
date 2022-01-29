@@ -78,15 +78,13 @@ class Round:
         self._phase = GamePhase.BIDDING
         # game bidding
         while True:
-            middle_hand_bid = self._player[self.middle_hand].bid(
-                self._highest_bid)
+            middle_hand_bid = self._player[self.middle_hand].bid(self._highest_bid)
             if middle_hand_bid > self._highest_bid:
                 self._highest_bid = middle_hand_bid
                 self._highest_bid_seat_id = self.middle_hand
             else:
                 break
-            front_hand_bid = self._player[self.front_hand].bid(
-                self._highest_bid)
+            front_hand_bid = self._player[self.front_hand].bid(self._highest_bid)
             if front_hand_bid > self._highest_bid:
                 self._highest_bid = front_hand_bid
                 self._highest_bid_seat_id = self.front_hand
@@ -100,24 +98,18 @@ class Round:
                 self._highest_bid_seat_id = self.back_hand
             else:
                 break
-            stage_one_winner_bid = self._player[stage_one_winner].bid(
-                self._highest_bid)
+            stage_one_winner_bid = self._player[stage_one_winner].bid(self._highest_bid)
             if stage_one_winner_bid > self._highest_bid:
                 self._highest_bid = stage_one_winner_bid
                 self._highest_bid_seat_id = stage_one_winner
             else:
                 break
         # take skat or not
-        self._hand_game = not self._player[
-            self._highest_bid_seat_id].pickup_skat()
+        self._hand_game = not self._player[self._highest_bid_seat_id].pickup_skat()
         if not self._hand_game:
             _cards_in_skat = self._deck.deal_cards(2)
-            print(
-                f"p={self._highest_bid_seat_id} picks the skat: "
-                f"{_cards_in_skat}")
-            self._player[self._highest_bid_seat_id].receive_cards(
-                _cards_in_skat
-            )
+            print(f"p={self._highest_bid_seat_id} picks the skat: " f"{_cards_in_skat}")
+            self._player[self._highest_bid_seat_id].receive_cards(_cards_in_skat)
             self._skat = self._player[self._highest_bid_seat_id].press_skat()
             print(f"p={self._highest_bid_seat_id} puts {self._skat} in skat")
         else:
@@ -135,12 +127,17 @@ class Round:
         # card_outplay
         while any(len(p.hand) for p in self._player):
             self._game.new_trick()
-            self._game.trick.append(self.front_hand,
-                                    self._player[self.front_hand].play_card(self._game.trick))
-            self._game.trick.append(self.middle_hand,
-                                    self._player[self.middle_hand].play_card(self._game.trick))
-            self._game.trick.append(self.back_hand,
-                                    self._player[self.back_hand].play_card(self._game.trick))
+            self._game.trick.append(
+                self.front_hand,
+                self._player[self.front_hand].play_card(self._game.trick),
+            )
+            self._game.trick.append(
+                self.middle_hand,
+                self._player[self.middle_hand].play_card(self._game.trick),
+            )
+            self._game.trick.append(
+                self.back_hand, self._player[self.back_hand].play_card(self._game.trick)
+            )
             self._trick_history.append(copy.deepcopy(self._game.trick))
             self._player[self._game.trick.winner].take_trick(self._game.trick)
         # counting
