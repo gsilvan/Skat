@@ -73,6 +73,7 @@ class Player:
 
     def play_card(self, current_trick: Trick) -> Card:
         """Select the next card to play. Delegated to the agent strategy."""
+        print(f"trick: {current_trick}")
         valid_moves = self.valid_moves(trick=current_trick)
         return self.strategy.choose_card(valid_moves)
 

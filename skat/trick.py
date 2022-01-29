@@ -11,6 +11,9 @@ class Trick(ABC):
     def __len__(self) -> int:
         return len(self.card_turn)
 
+    def __str__(self) -> str:
+        return str(self.card_turn)
+
     def append(self, player_id: int, card: Card) -> None:
         """Adds a (player, card)-tuple to current trick"""
         if len(self.card_turn) < 3:
