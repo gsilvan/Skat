@@ -21,21 +21,44 @@ class GamePhase(Enum):
 
 
 class Round:
-    def __init__(self, dealer: int = 0) -> None:
-        self._phase: GamePhase = GamePhase.WAITING
+    def __init__(
+        self,
+        dealer: int = 0,
+        skip_bidding: bool = False,
+        solo_player_id: int = -42,
+        declare_game: Game = None,
+        pickup_skat: bool = False,
+        agents=None,
+        deck=Deck(),
+        start=True,
+    ) -> None:
+        if agents is None:
+            agents = list()
         self._player: list[Player] = list()
+        self._phase: GamePhase = GamePhase.WAITING
         self._dealer: int = dealer
         self._highest_bid: int = 0
-        self._highest_bid_seat_id: int = -42
-        self._deck: Deck = Deck()
-        self._hand_game: bool = False
+        self._highest_bid_seat_id: int = solo_player_id
+        self._deck: Deck = deck
+        self._hand_game: bool = pickup_skat
         self._skat: list[Card] = list()
-        self._game: Union[Game, None] = None
+        self._game: Union[Game, None] = declare_game
+        self._skip_bidding: bool = skip_bidding
         self._trick_history: list[Trick] = list()
-        self.init_players()
+        if len(agents) > 0 and len(agents) != 3:
+            raise Exception("specify either 3 players or None")
+        elif len(agents) == 0:
+            # init default agents
+            self.init_players()
+        elif len(agents) == 3:
+            self.init_players(agents)
+        if start:
+            # start the game with selected features immediately
+            self.start()
 
     @property
     def front_hand(self) -> int:
+        """Return player_id in front-hand-position"""
         if len(self._trick_history) > 0:
             if self._trick_history[-1].winner is None:
                 raise Exception("There is no winner yet.")
@@ -45,10 +68,12 @@ class Round:
 
     @property
     def middle_hand(self) -> int:
+        """Return player_id in middle-hand-position"""
         return (self.front_hand + 1) % 3
 
     @property
     def back_hand(self) -> int:
+        """Return player_id in back-hand-position"""
         return (self.front_hand + 2) % 3
 
     @property
@@ -59,10 +84,14 @@ class Round:
     def trick_history(self) -> list[Trick]:
         return self._trick_history
 
-    def init_players(self) -> None:
-        self._player.append(Player(CommandLineAgent()))
-        for _ in range(2):
-            self._player.append(Player(RandomAgent()))
+    def init_players(self, agents=None) -> None:
+        if agents is None:
+            self._player.append(Player(CommandLineAgent()))
+            for _ in range(2):
+                self._player.append(Player(RandomAgent()))
+        else:
+            for agent in agents:
+                self._player.append(Player(agent))
         for player in self._player:
             player.set_state(self)
 
@@ -77,35 +106,38 @@ class Round:
         self._deck.shuffle()
         for player in self._player:
             player.hand = self._deck.deal_cards()
-        self._phase = GamePhase.BIDDING
-        # game bidding
-        while True:
-            middle_hand_bid = self._player[self.middle_hand].bid(self._highest_bid)
-            if middle_hand_bid > self._highest_bid:
-                self._highest_bid = middle_hand_bid
-                self._highest_bid_seat_id = self.middle_hand
-            else:
-                break
-            front_hand_bid = self._player[self.front_hand].bid(self._highest_bid)
-            if front_hand_bid > self._highest_bid:
-                self._highest_bid = front_hand_bid
-                self._highest_bid_seat_id = self.front_hand
-            else:
-                break
-        stage_one_winner = self._highest_bid_seat_id
-        while True:
-            back_hand_bid = self._player[self.back_hand].bid(self._highest_bid)
-            if back_hand_bid > self._highest_bid:
-                self._highest_bid = back_hand_bid
-                self._highest_bid_seat_id = self.back_hand
-            else:
-                break
-            stage_one_winner_bid = self._player[stage_one_winner].bid(self._highest_bid)
-            if stage_one_winner_bid > self._highest_bid:
-                self._highest_bid = stage_one_winner_bid
-                self._highest_bid_seat_id = stage_one_winner
-            else:
-                break
+        if not self._skip_bidding:
+            self._phase = GamePhase.BIDDING
+            # game bidding
+            while True:
+                middle_hand_bid = self._player[self.middle_hand].bid(self._highest_bid)
+                if middle_hand_bid > self._highest_bid:
+                    self._highest_bid = middle_hand_bid
+                    self._highest_bid_seat_id = self.middle_hand
+                else:
+                    break
+                front_hand_bid = self._player[self.front_hand].bid(self._highest_bid)
+                if front_hand_bid > self._highest_bid:
+                    self._highest_bid = front_hand_bid
+                    self._highest_bid_seat_id = self.front_hand
+                else:
+                    break
+            stage_one_winner = self._highest_bid_seat_id
+            while True:
+                back_hand_bid = self._player[self.back_hand].bid(self._highest_bid)
+                if back_hand_bid > self._highest_bid:
+                    self._highest_bid = back_hand_bid
+                    self._highest_bid_seat_id = self.back_hand
+                else:
+                    break
+                stage_one_winner_bid = self._player[stage_one_winner].bid(
+                    self._highest_bid
+                )
+                if stage_one_winner_bid > self._highest_bid:
+                    self._highest_bid = stage_one_winner_bid
+                    self._highest_bid_seat_id = stage_one_winner
+                else:
+                    break
         # take skat or not
         self._hand_game = not self._player[self._highest_bid_seat_id].pickup_skat()
         if not self._hand_game:
