@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Optional
 
 from skat.card import Card
 
@@ -48,5 +48,5 @@ class Trick(ABC):
 
     @property
     @abstractmethod
-    def winner(self) -> Union[int, None]:
+    def winner(self) -> Optional[int]:
         raise NotImplementedError

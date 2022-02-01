@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 
 from skat.agents import Agent
 from skat.card import Card
@@ -9,7 +9,7 @@ from skat.player import Player
 
 class CommandLineAgent(Agent):
     def __init__(self) -> None:
-        self.state: Union[Player, None] = None
+        self.state: Optional[Player] = None
 
     def choose_card(self, valid_moves: set[Card]) -> Card:
         print(f"choose one of {list(valid_moves)}:")

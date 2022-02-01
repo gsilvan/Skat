@@ -1,5 +1,5 @@
 import random
-from typing import Union
+from typing import Optional
 
 from skat.agents import Agent
 from skat.card import Card
@@ -16,7 +16,7 @@ class RandomAgent(Agent):
 
     def __init__(self) -> None:
         """Initializes the random agent with a fixed seed."""
-        self.state: Union[Player, None] = None
+        self.state: Optional[Player] = None
         self.max_bid = random.choice(self.VALID_BIDS)
         print(self.max_bid)
 

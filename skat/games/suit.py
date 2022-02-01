@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 
 from skat.card import RANKS, SUITS, Card
 from skat.games import Game
@@ -39,7 +39,7 @@ class SuitGameTrick(Trick):
         return self._is_trump_card(self.card_turn[0][1])
 
     @property
-    def winner(self) -> Union[int, None]:
+    def winner(self) -> Optional[int]:
         """Returns the trick winner's player_id"""
         if not self.is_full:
             return None
