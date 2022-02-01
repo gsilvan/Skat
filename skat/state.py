@@ -1,6 +1,6 @@
 import copy
 from enum import Enum, auto
-from typing import Union
+from typing import Optional
 
 from skat.agents.command_line import CommandLineAgent
 from skat.agents.random import RandomAgent
@@ -42,7 +42,7 @@ class Round:
         self._deck: Deck = deck
         self._hand_game: bool = pickup_skat
         self._skat: list[Card] = list()
-        self._game: Union[Game, None] = declare_game
+        self._game: Optional[Game] = declare_game
         self._skip_bidding: bool = skip_bidding
         self._trick_history: list[Trick] = list()
         if len(agents) > 0 and len(agents) != 3:

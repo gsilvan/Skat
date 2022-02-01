@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Optional
 
 from skat.card import Card
 from skat.games import Game
@@ -7,7 +7,7 @@ from skat.player import Player
 
 
 class Agent(ABC):
-    state: Union[Player, None]
+    state: Optional[Player]
     """Defines a minimal Agent Object"""
 
     VALID_BIDS = [
