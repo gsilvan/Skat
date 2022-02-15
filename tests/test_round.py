@@ -1,7 +1,7 @@
 import unittest
 
 from skat.agents.random import RandomAgent
-from skat.state import Round
+from skat.game import Round
 
 
 class RoundTest(unittest.TestCase):
