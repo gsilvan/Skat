@@ -31,3 +31,14 @@ class DeckTest(unittest.TestCase):
         hand = self.deck.deal_cards()
         self.assertEqual(10, len(hand))
         self.assertEqual(22, len(self.deck))
+
+    def test_shuffle(self) -> None:
+        decks = [Deck(), Deck(), Deck()]
+        for deck in decks[:2]:
+            deck.initialize_cards()
+            if deck in decks[:2]:
+                deck.shuffle(42)
+            else:
+                deck.shuffle()
+        self.assertEqual(decks[0], decks[1])
+        self.assertNotEqual(decks[0], decks[2])
