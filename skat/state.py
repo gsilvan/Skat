@@ -20,6 +20,32 @@ class GamePhase(Enum):
     COUNTING = auto()
 
 
+class Tournament:
+    def __init__(
+        self,
+        rounds=32,
+    ) -> None:
+        self.rounds = rounds
+        self.scores = [0, 0, 0]
+        self.dealer = 0
+
+    def start(self):
+        for _ in range(self.rounds):
+            r = Round(
+                dealer=self.dealer,
+                skip_bidding=True,
+                solo_player_id=self.dealer,
+                start=False,
+                verbose=False,
+                agents=[RandomAgent(), RandomAgent(), RandomAgent()],
+            )
+            soloist, points = r.start()
+            self.scores[soloist] += points
+            self.scores[(soloist + 1) % 3] += -points / 2
+            self.scores[(soloist + 2) % 3] += -points / 2
+            self.dealer = (self.dealer + 1) % 3
+
+
 class Round:
     def __init__(
         self,
@@ -120,7 +146,6 @@ class Round:
             if len(self._player) == 3:
                 self._phase = GamePhase.DEALING
         # card dealing
-        self._deck = Deck()
         self._deck.initialize_cards()
         self._deck.shuffle()
         for player in self._player:
@@ -162,7 +187,10 @@ class Round:
         if not self._hand_game:
             _cards_in_skat = self._deck.deal_cards(2)
             if self._verbose:
-                print(f"p={self._highest_bid_seat_id} picks the skat: " f"{_cards_in_skat}")
+                print(
+                    f"p={self._highest_bid_seat_id} picks the skat: "
+                    f"{_cards_in_skat}"
+                )
             self._player[self._highest_bid_seat_id].receive_cards(_cards_in_skat)
             self._skat = self._player[self._highest_bid_seat_id].press_skat()
             if self._verbose:
@@ -203,8 +231,14 @@ class Round:
         for p in self._player:
             is_soloist = p.seat_id == self._highest_bid_seat_id
             if self._verbose:
-                print(f"p={p.seat_id} {'*' if is_soloist else ' '} h={p.hand} points={p.trick_stack_value}")
+                print(
+                    f"p={p.seat_id} {'*' if is_soloist else ' '} h={p.hand} points={p.trick_stack_value}"
+                )
         # winner
         soloist_won = self.points_soloist > self.points_defenders
         if self._verbose:
             print(f"p={self._highest_bid_seat_id} {'won' if soloist_won else 'lost'}")
+        if soloist_won:
+            return self._highest_bid_seat_id, 1
+        elif not soloist_won:
+            return self._highest_bid_seat_id, -2
