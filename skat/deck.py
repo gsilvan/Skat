@@ -28,6 +28,9 @@ class Deck:
         """
         return hash(str(self.deck))
 
+    def __eq__(self, other) -> bool:
+        return hash(self) == hash(other)
+
     def __str__(self) -> str:
         """String representation of cards in self.deck"""
         return f"{self.deck}"
@@ -42,10 +45,11 @@ class Deck:
             for j, _ in enumerate(RANKS):
                 self.deck.append(Card(i, j))
 
-    def shuffle(self) -> None:
+    def shuffle(self, seed=None) -> None:
         """
         Shuffle the deck randomly.
         """
+        random.seed(a=seed)
         random.shuffle(self.deck)
 
     def deal_cards(self, quantity=10) -> list[Card]:
