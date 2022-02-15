@@ -31,6 +31,7 @@ class Round:
         agents=None,
         deck=Deck(),
         start=True,
+        verbose=False,
     ) -> None:
         if agents is None:
             agents = list()
@@ -40,6 +41,7 @@ class Round:
         self._highest_bid: int = 0
         self._highest_bid_seat_id: int = solo_player_id
         self._deck: Deck = deck
+        self._verbose = verbose
         self._hand_game: bool = pickup_skat
         self._skat: list[Card] = list()
         self._game: Optional[Game] = declare_game
@@ -159,17 +161,23 @@ class Round:
         self._hand_game = not self._player[self._highest_bid_seat_id].pickup_skat()
         if not self._hand_game:
             _cards_in_skat = self._deck.deal_cards(2)
-            print(f"p={self._highest_bid_seat_id} picks the skat: " f"{_cards_in_skat}")
+            if self._verbose:
+                print(f"p={self._highest_bid_seat_id} picks the skat: " f"{_cards_in_skat}")
             self._player[self._highest_bid_seat_id].receive_cards(_cards_in_skat)
             self._skat = self._player[self._highest_bid_seat_id].press_skat()
-            print(f"p={self._highest_bid_seat_id} puts {self._skat} in skat")
+            if self._verbose:
+                print(f"p={self._highest_bid_seat_id} puts {self._skat} in skat")
         else:
-            print(f"p={self._highest_bid_seat_id} discards the skat")
+            if self._verbose:
+                print(f"p={self._highest_bid_seat_id} discards the skat")
             self._skat = self._deck.deal_cards(2)
-            print(f"skat={self._skat}")
+            if self._verbose:
+                print(f"skat={self._skat}")
         for p in self._player:
-            print(p)
-        print(f"skat={self._skat}")
+            if self._verbose:
+                print(p)
+        if self._verbose:
+            print(f"skat={self._skat}")
         # game declaration
         self._game = self._player[self._highest_bid_seat_id].declare_game()
         # add skat to tricks
@@ -193,4 +201,10 @@ class Round:
             self._player[self._game.trick.winner].take_trick(self._game.trick)
         # counting
         for p in self._player:
-            print(f"p={p.seat_id} h={p.hand} points={p.trick_stack_value}")
+            is_soloist = p.seat_id == self._highest_bid_seat_id
+            if self._verbose:
+                print(f"p={p.seat_id} {'*' if is_soloist else ' '} h={p.hand} points={p.trick_stack_value}")
+        # winner
+        soloist_won = self.points_soloist > self.points_defenders
+        if self._verbose:
+            print(f"p={self._highest_bid_seat_id} {'won' if soloist_won else 'lost'}")
