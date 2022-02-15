@@ -130,13 +130,12 @@ class Round:
         )
 
     def init_players(self, agents=None) -> None:
-        if agents is None:
-            self._player.append(Player(CommandLineAgent()))
-            for _ in range(2):
-                self._player.append(Player(RandomAgent()))
+        if not agents:
+            for i in range(3):
+                self._player.append(Player(RandomAgent(), i))
         else:
-            for agent in agents:
-                self._player.append(Player(agent))
+            for idx, agent in enumerate(agents):
+                self._player.append(Player(agent, idx))
         for player in self._player:
             player.set_state(self)
 
