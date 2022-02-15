@@ -10,20 +10,14 @@ if TYPE_CHECKING:
 
 
 class Player:
-    player_count: int = 0
-
-    def __init__(self, agent: Agent) -> None:
+    def __init__(self, agent: Agent, seat_id: int) -> None:
         """Initialize a Skat player with a given agent strategy."""
         self.strategy: Agent = agent
         self.strategy.set_state(state=self)  # we give our agent a pointer
-        self.seat_id: int = Player.player_count
+        self.seat_id: int = seat_id
         self.hand: list[Card] = list()
         self.trick_stack: list[Card] = list()
         self.public_state = None
-        Player.player_count += 1
-
-    def __del__(self) -> None:
-        Player.player_count -= 1
 
     def __str__(self) -> str:
         return f"{self.seat_id} hand={self.hand} " f"score={self.trick_stack_value}"
