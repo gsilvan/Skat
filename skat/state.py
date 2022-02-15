@@ -84,6 +84,23 @@ class Round:
     def trick_history(self) -> list[Trick]:
         return self._trick_history
 
+    @property
+    def points_soloist(self) -> int:
+        soloist = self._highest_bid_seat_id
+        if soloist == -42:
+            return 0
+        return self._player[soloist].trick_stack_value
+
+    @property
+    def points_defenders(self):
+        soloist = self._highest_bid_seat_id
+        if soloist == -42:
+            return 0
+        return (
+            self._player[(soloist + 1) % 3].trick_stack_value
+            + self._player[(soloist + 2) % 3].trick_stack_value
+        )
+
     def init_players(self, agents=None) -> None:
         if agents is None:
             self._player.append(Player(CommandLineAgent()))
