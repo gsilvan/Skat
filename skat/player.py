@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from skat.agents import Agent
@@ -17,7 +17,7 @@ class Player:
         self.seat_id: int = seat_id
         self.hand: list[Card] = list()
         self.trick_stack: list[Card] = list()
-        self.public_state = None
+        self.public_state: Optional[Game] = None
 
     def __str__(self) -> str:
         return f"{self.seat_id} hand={self.hand} " f"score={self.trick_stack_value}"
