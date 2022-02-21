@@ -24,8 +24,10 @@ class Tournament:
     def __init__(
         self,
         rounds=32,
+        agents=(RandomAgent(), RandomAgent(), RandomAgent()),
     ) -> None:
         self.rounds = rounds
+        self.agents = agents
         self.scores = [0, 0, 0]
         self.dealer = 0
 
@@ -37,7 +39,7 @@ class Tournament:
                 solo_player_id=self.dealer,
                 start=False,
                 verbose=False,
-                agents=[RandomAgent(), RandomAgent(), RandomAgent()],
+                agents=self.agents,
             )
             soloist, points = r.start()
             self.scores[soloist] += points
