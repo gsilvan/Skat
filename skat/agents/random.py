@@ -18,7 +18,6 @@ class RandomAgent(Agent):
         """Initializes the random agent with a fixed seed."""
         self.state: Optional[Player] = None
         self.max_bid = random.choice(self.VALID_BIDS)
-        print(self.max_bid)
 
     def bid(self, current_bid) -> int:
         """Random Agent selects a bid from a list containing valid bids"""
