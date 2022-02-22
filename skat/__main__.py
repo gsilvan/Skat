@@ -1,8 +1,17 @@
-from .agents.command_line import CommandLineAgent
-from .agents.random import RandomAgent
-from .game import Round
+import argparse
+
+from skat.game import Tournament
+
+
+def cli():
+    parser = argparse.ArgumentParser(description="The Skat program.")
+    parser.add_argument("--rounds", type=int, default=33)
+    return parser.parse_args()
+
 
 if __name__ == "__main__":
-    a = [CommandLineAgent(), RandomAgent(), RandomAgent()]
-    r = Round(skip_bidding=True, solo_player_id=0, agents=a, start=False, verbose=True)
-    r.start()
+    args = cli()
+    rounds = args.rounds
+    t = Tournament(rounds)
+    t.start()
+    print(f"{t.scores}")
