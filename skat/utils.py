@@ -1,6 +1,6 @@
 import numpy as np
 
-from skat.card import Card, RANKS, SUITS
+from skat.card import RANKS, SUITS, Card
 
 
 def to_numpy(hand: list[Card]):
