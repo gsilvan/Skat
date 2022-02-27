@@ -158,6 +158,34 @@ class Round:
         else:
             raise Exception("more than 3 cards in trick, that smells!")
 
+    @property
+    def soloist_leading(self) -> Optional[bool]:
+        return self.points_soloist > self.points_defenders
+
+    @property
+    def soloist_won(self) -> Optional[bool]:
+        if self.is_finished:
+            return self.points_soloist > self.points_defenders
+        else:
+            return None
+
+    @property
+    def is_finished(self) -> bool:
+        return not any(len(p.hand) for p in self._player)
+
+    def step(self) -> None:
+        if self._phase == GamePhase.PLAYING:
+            self._game.trick.append(
+                self.next_player,
+                self._player[self.next_player].play_card(self._game.trick),
+            )
+            if self._verbose:
+                print(f"trick={self._game.trick}")
+            if self._game.trick.is_full:
+                self._trick_history.append(copy.deepcopy(self._game.trick))
+                self._player[self._game.trick.winner].take_trick(self._game.trick)
+                self._game.new_trick()
+
     def start(self):
         # Wait for players
         while self._phase == GamePhase.WAITING:
@@ -230,18 +258,11 @@ class Round:
         for card in self._skat:
             self._player[self._highest_bid_seat_id].trick_stack.append(card)
         # card_outplay
-        while any(len(p.hand) for p in self._player):
-            self._game.new_trick()
-            while not self._game.trick.is_full:
-                self._game.trick.append(
-                    self.next_player,
-                    self._player[self.next_player].play_card(self._game.trick),
-                )
-                if self._verbose:
-                    print(f"trick={self._game.trick}")
-            self._trick_history.append(copy.deepcopy(self._game.trick))
-            self._player[self._game.trick.winner].take_trick(self._game.trick)
+        self._phase = GamePhase.PLAYING
+        while not self.is_finished:
+            self.step()
         # counting
+        self._phase = GamePhase.COUNTING
         for p in self._player:
             is_soloist = p.seat_id == self._highest_bid_seat_id
             if self._verbose:
