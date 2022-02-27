@@ -17,7 +17,7 @@ class Game(ABC):
 
     @staticmethod
     @abstractmethod
-    def trump_cards(suit) -> tuple[Card, ...]:
+    def trump_cards(suit=None) -> tuple[Card, ...]:
         raise NotImplementedError
 
     @staticmethod

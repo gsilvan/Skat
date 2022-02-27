@@ -49,7 +49,7 @@ class Null(Game):
         self.trick = NullTrick()
 
     @staticmethod
-    def trump_cards() -> tuple[Card, ...]:
+    def trump_cards(suit=None) -> tuple[Card, ...]:
         """There are no trumps, return always empty tuple"""
         return tuple()
 
