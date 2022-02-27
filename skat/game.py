@@ -2,7 +2,6 @@ import copy
 from enum import Enum, auto
 from typing import Optional
 
-from skat.agents.command_line import CommandLineAgent
 from skat.agents.random import RandomAgent
 from skat.card import Card
 from skat.deck import Deck
@@ -146,6 +145,8 @@ class Round:
     @property
     def next_player(self) -> Optional[int]:
         """Next player to play a card"""
+        if self._game is None:
+            return None
         if len(self._game.trick) == 0:
             return self.front_hand
         elif len(self._game.trick) == 1:
