@@ -141,6 +141,20 @@ class Round:
         for player in self._player:
             player.set_state(self)
 
+    @property
+    def next_player(self) -> Optional[int]:
+        """Next player to play a card"""
+        if len(self._game.trick) == 0:
+            return self.front_hand
+        elif len(self._game.trick) == 1:
+            return self.middle_hand
+        elif len(self._game.trick) == 2:
+            return self.back_hand
+        elif len(self._game.trick) == 3:
+            return None
+        else:
+            raise Exception("more than 3 cards in trick, that smells!")
+
     def start(self):
         # Wait for players
         while self._phase == GamePhase.WAITING:
@@ -215,17 +229,13 @@ class Round:
         # card_outplay
         while any(len(p.hand) for p in self._player):
             self._game.new_trick()
-            self._game.trick.append(
-                self.front_hand,
-                self._player[self.front_hand].play_card(self._game.trick),
-            )
-            self._game.trick.append(
-                self.middle_hand,
-                self._player[self.middle_hand].play_card(self._game.trick),
-            )
-            self._game.trick.append(
-                self.back_hand, self._player[self.back_hand].play_card(self._game.trick)
-            )
+            while not self._game.trick.is_full:
+                self._game.trick.append(
+                    self.next_player,
+                    self._player[self.next_player].play_card(self._game.trick),
+                )
+                if self._verbose:
+                    print(f"trick={self._game.trick}")
             self._trick_history.append(copy.deepcopy(self._game.trick))
             self._player[self._game.trick.winner].take_trick(self._game.trick)
         # counting
