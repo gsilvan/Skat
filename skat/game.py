@@ -124,7 +124,7 @@ class Round:
         return self._player[soloist].trick_stack_value
 
     @property
-    def points_defenders(self):
+    def points_defenders(self) -> int:
         soloist = self._highest_bid_seat_id
         if soloist == -42:
             return 0
