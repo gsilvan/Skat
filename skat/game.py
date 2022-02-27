@@ -60,6 +60,7 @@ class Round:
         deck=Deck(),
         start=True,
         verbose=False,
+        seed=None,
     ) -> None:
         if agents is None:
             agents = list()
@@ -75,6 +76,7 @@ class Round:
         self._game: Optional[Game] = declare_game
         self._skip_bidding: bool = skip_bidding
         self._trick_history: list[Trick] = list()
+        self._seed = seed
         if len(agents) > 0 and len(agents) != 3:
             raise Exception("specify either 3 players or None")
         elif len(agents) == 0:
@@ -162,7 +164,7 @@ class Round:
                 self._phase = GamePhase.DEALING
         # card dealing
         self._deck.initialize_cards()
-        self._deck.shuffle()
+        self._deck.shuffle(seed=self._seed)
         for player in self._player:
             player.hand = self._deck.deal_cards()
         if not self._skip_bidding:
