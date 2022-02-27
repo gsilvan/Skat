@@ -55,7 +55,7 @@ class Grand(Game):
         self.trick = GrandTrick()
 
     @staticmethod
-    def trump_cards() -> tuple[Card, ...]:
+    def trump_cards(suit=None) -> tuple[Card, ...]:
         trumps = list()
         for i, _ in enumerate(SUITS):
             trumps.append(Card(i, 3))

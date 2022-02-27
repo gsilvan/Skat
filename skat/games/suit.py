@@ -77,7 +77,7 @@ class SuitGame(Game):
         self.trick = SuitGameTrick(self.suit)
 
     @staticmethod
-    def trump_cards(suit) -> tuple[Card, ...]:
+    def trump_cards(suit=None) -> tuple[Card, ...]:
         # TODO: option for ascending, descending
         """
         Returns an ascending ordered tuple of trumps for the selected game
