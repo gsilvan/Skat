@@ -46,6 +46,8 @@ class CommandLineAgent(Agent):
         return SuitGame(int(user_input))
 
     def press_skat(self) -> list[Card]:
+        if self.state is None:
+            raise Exception("a state is missing")
         skat = list()
         for _ in range(2):
             user_input = input(f"select one of {self.state.hand}")  # TODO: input sanit.
