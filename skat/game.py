@@ -143,10 +143,10 @@ class Round:
             player.set_state(self)
 
     @property
-    def next_player(self) -> Optional[int]:
+    def next_player(self) -> int:
         """Next player to play a card"""
         if self._game is None:
-            return None
+            return self.front_hand
         if len(self._game.trick) == 0:
             return self.front_hand
         elif len(self._game.trick) == 1:
@@ -154,7 +154,7 @@ class Round:
         elif len(self._game.trick) == 2:
             return self.back_hand
         elif len(self._game.trick) == 3:
-            return None
+            return self.front_hand
         else:
             raise Exception("more than 3 cards in trick, that smells!")
 
@@ -175,6 +175,8 @@ class Round:
 
     def step(self) -> None:
         if self._phase == GamePhase.PLAYING:
+            if self._game is None:
+                raise Exception("ur doin it worng")
             self._game.trick.append(
                 self.next_player,
                 self._player[self.next_player].play_card(self._game.trick),
@@ -182,6 +184,7 @@ class Round:
             if self._verbose:
                 print(f"trick={self._game.trick}")
             if self._game.trick.is_full:
+                assert self._game.trick.winner is not None  # type safety
                 self._trick_history.append(copy.deepcopy(self._game.trick))
                 self._player[self._game.trick.winner].take_trick(self._game.trick)
                 self._game.new_trick()
