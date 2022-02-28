@@ -173,6 +173,12 @@ class Round:
     def is_finished(self) -> bool:
         return not any(len(p.hand) for p in self._player)
 
+    def deal(self) -> None:
+        self._deck.initialize_cards()
+        self._deck.shuffle(seed=self._seed)
+        for player in self._player:
+            player.hand = self._deck.deal_cards()
+
     def step(self) -> None:
         if self._phase == GamePhase.PLAYING:
             if self._game is None:
@@ -195,10 +201,7 @@ class Round:
             if len(self._player) == 3:
                 self._phase = GamePhase.DEALING
         # card dealing
-        self._deck.initialize_cards()
-        self._deck.shuffle(seed=self._seed)
-        for player in self._player:
-            player.hand = self._deck.deal_cards()
+        self.deal()
         if not self._skip_bidding:
             self._phase = GamePhase.BIDDING
             # game bidding
