@@ -19,7 +19,7 @@ class RandomAgent(Agent):
         self.state: Optional[Player] = None
         self.max_bid = random.choice(self.VALID_BIDS)
 
-    def bid(self, current_bid) -> int:
+    def bid(self, current_bid, offer=False) -> int:
         """Random Agent selects a bid from a list containing valid bids"""
         bid_index = self.VALID_BIDS.index(current_bid)
         max_bid_index = self.VALID_BIDS.index(self.max_bid)

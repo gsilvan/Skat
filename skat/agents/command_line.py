@@ -35,7 +35,7 @@ class CommandLineAgent(Agent):
         else:
             return True
 
-    def bid(self, current_bid) -> int:
+    def bid(self, current_bid, offer=False) -> int:
         print(f"current bid: {current_bid}")
         user_input = input("your bid: ")  # TODO: input sanitation
         return int(user_input)

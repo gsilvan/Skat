@@ -43,12 +43,12 @@ class Player:
         for card in cards:
             self.hand.append(card)
 
-    def bid(self, current_bid: int) -> int:
+    def bid(self, current_bid: int, offer=False) -> int:
         """
         Make a bid given a current bid. This function delegates the bidding to
         the specified agent. The agent returns a new bid or folds.
         """
-        return self.strategy.bid(current_bid)
+        return self.strategy.bid(current_bid, offer)
 
     def pickup_skat(self) -> bool:
         """
