@@ -163,6 +163,7 @@ class Round:
     def next_player(self) -> int:
         """Return player_id of the next player who has to act."""
         if self._game is None:
+            # if the game is not declared, there is no trick to look up.
             return self.front_hand
         if len(self._game.trick) == 0:
             return self.front_hand
