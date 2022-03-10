@@ -1,6 +1,6 @@
 import copy
 from enum import Enum, auto
-from typing import Optional
+from typing import Optional, Union
 
 from skat.agents.random import RandomAgent
 from skat.card import Card
@@ -8,6 +8,7 @@ from skat.deck import Deck
 from skat.games import Game
 from skat.player import Player
 from skat.trick import Trick
+from skat.utils import disjoint
 
 
 class GamePhase(Enum):
@@ -61,6 +62,7 @@ class Round:
         verbose: bool = False,
         seed=None,
         phase: GamePhase = GamePhase.WAITING,
+        initial_cards: Optional[Union[list, tuple]] = None,
     ) -> None:
         if agents is None:
             agents = list()
@@ -70,6 +72,8 @@ class Round:
         self._highest_bid: int = 0
         self._highest_bid_seat_id: int = solo_player_id
         self._deck: Deck = deck
+        self._deal_deck: bool = True
+        self._initial_cards = initial_cards
         self._verbose = verbose
         self._hand_game: bool = pickup_skat
         self._skat: list[Card] = list()
@@ -84,6 +88,14 @@ class Round:
             self.init_players()
         elif len(agents) == 3:
             self.init_players(agents)
+        if self._initial_cards:
+            if len(self._initial_cards) == 4:
+                # 4 seems good, but are 0,1,2,3 disjoint?
+                if not disjoint(self._initial_cards):
+                    raise Exception("initial cards are not disjoint!")
+            else:
+                raise Exception("provide 4 items, initial_cards=(p0, p1, p2, skat)")
+            self._deal_deck = False
         if start:
             # start the game with selected features immediately
             self.start()
@@ -186,10 +198,15 @@ class Round:
 
     def deal(self) -> None:
         """Deal cards."""
-        self._deck.initialize_cards()
-        self._deck.shuffle(seed=self._seed)
-        for player in self._player:
-            player.hand = self._deck.deal_cards()
+        if self._deal_deck:
+            self._deck.initialize_cards()
+            self._deck.shuffle(seed=self._seed)
+            for player in self._player:
+                player.hand = self._deck.deal_cards()
+        else:
+            for idx, player in enumerate(self._player):
+                player.hand = list(self._initial_cards[idx])  # type: ignore
+            self._skat = self._initial_cards[3]  # type: ignore
 
     def step(self) -> None:
         """Do a step. A step is one single action of one player."""
@@ -230,9 +247,7 @@ class Round:
                 self._highest_bid_seat_id = self.back_hand
             else:
                 break
-            stage_one_winner_bid = self._player[stage_one_winner].bid(
-                self._highest_bid
-            )
+            stage_one_winner_bid = self._player[stage_one_winner].bid(self._highest_bid)
             if stage_one_winner_bid > self._highest_bid:
                 self._highest_bid = stage_one_winner_bid
                 self._highest_bid_seat_id = stage_one_winner
