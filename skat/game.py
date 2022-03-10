@@ -109,14 +109,17 @@ class Round:
 
     @property
     def phase(self) -> GamePhase:
+        """Return current game phase."""
         return self._phase
 
     @property
     def trick_history(self) -> list[Trick]:
+        """Return full trick history."""
         return self._trick_history
 
     @property
     def points_soloist(self) -> int:
+        """Return solo player's points."""
         soloist = self._highest_bid_seat_id
         if soloist == -42:
             return 0
@@ -124,6 +127,7 @@ class Round:
 
     @property
     def points_defenders(self) -> int:
+        """Return accumulated defender's points."""
         soloist = self._highest_bid_seat_id
         if soloist == -42:
             return 0
@@ -144,7 +148,7 @@ class Round:
 
     @property
     def next_player(self) -> int:
-        """Next player to play a card"""
+        """Return player_id of the next player who has to act."""
         if self._game is None:
             return self.front_hand
         if len(self._game.trick) == 0:
@@ -160,10 +164,15 @@ class Round:
 
     @property
     def soloist_leading(self) -> Optional[bool]:
+        """Return True if soloist is leading."""
         return self.points_soloist > self.points_defenders
 
     @property
     def soloist_won(self) -> Optional[bool]:
+        """
+        Return True if soloist has won the game. If the round is not finished yet,
+        return False.
+        """
         if self.is_finished:
             return self.points_soloist > self.points_defenders
         else:
@@ -171,15 +180,18 @@ class Round:
 
     @property
     def is_finished(self) -> bool:
+        """Return True if the round is finished."""
         return not any(len(p.hand) for p in self._player)
 
     def deal(self) -> None:
+        """Deal cards."""
         self._deck.initialize_cards()
         self._deck.shuffle(seed=self._seed)
         for player in self._player:
             player.hand = self._deck.deal_cards()
 
     def step(self) -> None:
+        """Do a step. A step is one single action of one player."""
         if self._phase == GamePhase.PLAYING:
             if self._game is None:
                 raise Exception("ur doin it worng")
