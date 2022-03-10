@@ -31,6 +31,10 @@ class GrandTest(unittest.TestCase):
         for i, card in enumerate(cards):
             self.grand.trick.append(i, card)
         self.assertEqual(1, self.grand.trick.winner)
+        # trick is not full
+        self.grand.new_trick()
+        self.grand.trick.append(0, Card(2, 2))
+        self.assertIsNone(self.grand.trick.winner)
 
     def test_forced_cards(self) -> None:
         # empty trick, no cards enforced

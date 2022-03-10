@@ -23,6 +23,10 @@ class NullTest(unittest.TestCase):
         for i, card in enumerate(cards):
             self.game.trick.append(i, card)
         self.assertEqual(0, self.game.trick.winner)
+        # trick is not full
+        self.game.new_trick()
+        self.game.trick.append(0, Card(2, 2))
+        self.assertIsNone(self.game.trick.winner)
 
     def test_forced_cards(self) -> None:
         # empty trick, no cards enforced

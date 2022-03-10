@@ -27,10 +27,16 @@ class GameTest(unittest.TestCase):
 
     def test_points_soloist(self) -> None:
         self.assertEqual(0, self.round.points_soloist)
+        # game with unclear positions
+        custom_round = Round(start=False)
+        self.assertEqual(0, custom_round.points_soloist)
         # TODO: check points after some cards were played
 
     def test_points_defenders(self) -> None:
         self.assertEqual(0, self.round.points_defenders)
+        # game with unclear positions
+        custom_round = Round(start=False)
+        self.assertEqual(0, custom_round.points_defenders)
         # TODO: check points after some cards were played
 
     def test_deal_from_deck(self) -> None:
@@ -69,3 +75,6 @@ class GameTest(unittest.TestCase):
         for i in [1, 2, 0]:
             self.assertEqual(i, self.round.next_player)
             self.round.step()  # play a card
+        # no declared game
+        custom_round = Round(start=False, dealer=1)
+        self.assertEqual(2, custom_round.next_player)
