@@ -38,7 +38,6 @@ class DeckTest(unittest.TestCase):
             deck.initialize_cards()
             if deck in decks[:2]:
                 deck.shuffle(42)
-            else:
-                deck.shuffle()
+        decks[2].shuffle()
         self.assertEqual(decks[0], decks[1])
         self.assertNotEqual(decks[0], decks[2])
