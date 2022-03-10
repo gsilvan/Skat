@@ -208,6 +208,37 @@ class Round:
                 self._player[self._game.trick.winner].take_trick(self._game.trick)
                 self._game.new_trick()
 
+    def bidding(self) -> None:
+        while True:
+            middle_hand_bid = self._player[self.middle_hand].bid(self._highest_bid)
+            if middle_hand_bid > self._highest_bid:
+                self._highest_bid = middle_hand_bid
+                self._highest_bid_seat_id = self.middle_hand
+            else:
+                break
+            front_hand_bid = self._player[self.front_hand].bid(self._highest_bid)
+            if front_hand_bid > self._highest_bid:
+                self._highest_bid = front_hand_bid
+                self._highest_bid_seat_id = self.front_hand
+            else:
+                break
+        stage_one_winner = self._highest_bid_seat_id
+        while True:
+            back_hand_bid = self._player[self.back_hand].bid(self._highest_bid)
+            if back_hand_bid > self._highest_bid:
+                self._highest_bid = back_hand_bid
+                self._highest_bid_seat_id = self.back_hand
+            else:
+                break
+            stage_one_winner_bid = self._player[stage_one_winner].bid(
+                self._highest_bid
+            )
+            if stage_one_winner_bid > self._highest_bid:
+                self._highest_bid = stage_one_winner_bid
+                self._highest_bid_seat_id = stage_one_winner
+            else:
+                break
+
     def start(self):
         # Wait for players
         while self._phase == GamePhase.WAITING:
@@ -218,35 +249,7 @@ class Round:
         if not self._skip_bidding:
             self._phase = GamePhase.BIDDING
             # game bidding
-            while True:
-                middle_hand_bid = self._player[self.middle_hand].bid(self._highest_bid)
-                if middle_hand_bid > self._highest_bid:
-                    self._highest_bid = middle_hand_bid
-                    self._highest_bid_seat_id = self.middle_hand
-                else:
-                    break
-                front_hand_bid = self._player[self.front_hand].bid(self._highest_bid)
-                if front_hand_bid > self._highest_bid:
-                    self._highest_bid = front_hand_bid
-                    self._highest_bid_seat_id = self.front_hand
-                else:
-                    break
-            stage_one_winner = self._highest_bid_seat_id
-            while True:
-                back_hand_bid = self._player[self.back_hand].bid(self._highest_bid)
-                if back_hand_bid > self._highest_bid:
-                    self._highest_bid = back_hand_bid
-                    self._highest_bid_seat_id = self.back_hand
-                else:
-                    break
-                stage_one_winner_bid = self._player[stage_one_winner].bid(
-                    self._highest_bid
-                )
-                if stage_one_winner_bid > self._highest_bid:
-                    self._highest_bid = stage_one_winner_bid
-                    self._highest_bid_seat_id = stage_one_winner
-                else:
-                    break
+            self.bidding()
         # take skat or not
         self._hand_game = not self._player[self._highest_bid_seat_id].pickup_skat()
         if not self._hand_game:
