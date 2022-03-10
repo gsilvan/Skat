@@ -60,11 +60,12 @@ class Round:
         start: bool = True,
         verbose: bool = False,
         seed=None,
+        phase: GamePhase = GamePhase.WAITING,
     ) -> None:
         if agents is None:
             agents = list()
         self._player: list[Player] = list()
-        self._phase: GamePhase = GamePhase.WAITING
+        self._phase: GamePhase = phase
         self._dealer: int = dealer
         self._highest_bid: int = 0
         self._highest_bid_seat_id: int = solo_player_id
