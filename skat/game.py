@@ -55,10 +55,10 @@ class Round:
         solo_player_id: int = -42,
         declare_game: Game = None,
         pickup_skat: bool = False,
-        agents=None,
-        deck=Deck(),
-        start=True,
-        verbose=False,
+        agents: Optional[list] = None,
+        deck: Deck = Deck(),
+        start: bool = True,
+        verbose: bool = False,
         seed=None,
     ) -> None:
         if agents is None:
