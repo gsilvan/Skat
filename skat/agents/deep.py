@@ -9,9 +9,9 @@ from skat.player import Player
 
 
 class DeepAgent(Agent):
-    def __init__(self):
+    def __init__(self, bidding_model=None, play_model=None):
         self.state: Optional[Player] = None
-        self.model = None
+        self.model = play_model
 
     def choose_card(self, valid_moves: set[Card]) -> Card:
         if self.model is None:
