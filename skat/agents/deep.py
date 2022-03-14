@@ -8,7 +8,7 @@ from skat.games import Game
 from skat.player import Player
 
 
-class RlAgent(Agent):
+class DeepAgent(Agent):
     def __init__(self):
         self.state: Optional[Player] = None
         self.model = None
