@@ -209,7 +209,7 @@ class Round:
                 player.hand = list(self._initial_cards[idx])  # type: ignore
             self._skat = self._initial_cards[3]  # type: ignore
 
-    def step(self) -> None:
+    def step(self) -> bool:
         """Do a step. A step is one single action of one player."""
         if self._phase == GamePhase.PLAYING:
             if self._game is None:
@@ -225,6 +225,8 @@ class Round:
                 self._trick_history.append(copy.deepcopy(self._game.trick))
                 self._player[self._game.trick.winner].take_trick(self._game.trick)
                 self._game.new_trick()
+            return True
+        return False
 
     def bidding(self) -> None:
         while True:
