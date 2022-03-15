@@ -228,6 +228,22 @@ class Round:
             return True
         return False
 
+    def step_player(self, player_id) -> tuple:
+        """
+        Perform a step for player_id and do all steps other players steps, until it is
+        player_id's turn again.
+        """
+        old_points = self._player[player_id].trick_stack_value
+        while True:
+            step = self.step()
+            if not step:
+                # if no step was done, the game is in terminal state
+                return 0, self.is_finished
+            if self.next_player == player_id:
+                current_points = self._player[player_id].trick_stack_value
+                reward = current_points - old_points
+                return reward, self.is_finished
+
     def bidding(self) -> None:
         while True:
             middle_hand_bid = self._player[self.middle_hand].bid(self._highest_bid)
