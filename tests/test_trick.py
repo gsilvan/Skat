@@ -4,6 +4,7 @@ import numpy as np
 
 from skat.card import Card
 from skat.games.suit import SuitGameTrick
+from skat.trick import TrickHistory
 
 
 class SuitGameTrickTest(unittest.TestCase):
@@ -151,8 +152,112 @@ class SuitGameTrickTest(unittest.TestCase):
         trick.append(0, Card(3, 3))
         self.assertEqual(trump_set, trick.forced_cards)
 
-    def test_as_vector(self):
+    def test_as_vector(self) -> None:
         expected_vector = np.zeros(32)
         expected_vector[24], expected_vector[29], expected_vector[31] = 1, 1, 1
         self.add_test_cards()
         self.assertTrue(np.array_equal(expected_vector, self.trick.as_vector))
+
+
+class TrickHistoryTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.history = TrickHistory()
+
+    def add_tricks(self) -> None:
+        first_trick = SuitGameTrick(0)
+        first_trick.append(0, Card(1, 0))
+        first_trick.append(1, Card(1, 1))
+        first_trick.append(2, Card(1, 2))
+        second_trick = SuitGameTrick(0)
+        second_trick.append(0, Card(3, 0))
+        second_trick.append(1, Card(3, 1))
+        second_trick.append(2, Card(3, 2))
+        self.history.append(first_trick)
+        self.history.append(second_trick)
+
+    def test_length(self) -> None:
+        self.assertEqual(0, len(self.history))
+        self.add_tricks()
+        self.assertEqual(2, len(self.history))
+
+    def test_to_numpy(self) -> None:
+        exp_0 = np.zeros(32)
+        self.assertTrue(np.array_equal(exp_0, self.history.to_numpy()))
+        self.add_tricks()
+        exp_1 = np.array(
+            [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                1,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                1,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ]
+        )
+        self.assertTrue(np.array_equal(exp_1, self.history.to_numpy()))
+
+    def test_to_numpy_player_only(self) -> None:
+        self.add_tricks()
+        exp = np.array(
+            [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+            ]
+        )
+        self.assertTrue(np.array_equal(exp, self.history.to_numpy(player_id=0)))

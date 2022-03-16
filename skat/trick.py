@@ -60,3 +60,29 @@ class Trick(ABC):
         for player_id, card in self.card_turn:
             arr[card.np_index] = 1
         return arr
+
+
+class TrickHistory:
+    def __init__(self) -> None:
+        self.buffer: list[Trick] = list()
+
+    def __len__(self) -> int:
+        return len(self.buffer)
+
+    def append(self, trick: Trick):
+        self.buffer.append(trick)
+
+    def to_numpy(self, player_id=None) -> np.ndarray:
+        """
+        Return the trick history as one-hot-encoed vector. Either for all player, or
+        for a specific player (defined by player_id) only.
+        """
+        arr = np.zeros(32)
+        for trick in self.buffer:
+            for pid, card in trick.card_turn:
+                if player_id is None:
+                    arr[card.np_index] = 1
+                else:
+                    if pid == player_id:
+                        arr[card.np_index] = 1
+        return arr
