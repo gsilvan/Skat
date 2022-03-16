@@ -12,7 +12,7 @@ class ReplayBuffer:
         buffer_size: int = 1000,
     ) -> None:
         """ReplayBuffer stores Transitions in a FIFO buffer."""
-        self.buffer = deque([], maxlen=buffer_size)
+        self.buffer: deque[Transition] = deque([], maxlen=buffer_size)
 
     def push(self, *args):
         """Add a transition to the buffer."""
