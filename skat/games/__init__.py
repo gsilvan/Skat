@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+import numpy as np
+
 from skat.card import Card
 from skat.trick import Trick
 
@@ -27,4 +29,8 @@ class Game(ABC):
     @property
     @abstractmethod
     def value(self) -> int:
+        raise NotImplementedError
+
+    @abstractmethod
+    def to_numpy(self) -> np.ndarray:
         raise NotImplementedError

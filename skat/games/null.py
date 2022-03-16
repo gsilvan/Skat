@@ -1,5 +1,7 @@
 from typing import Optional
 
+import numpy as np
+
 from skat.card import RANKS, SUITS, Card
 from skat.game import Game
 from skat.trick import Trick
@@ -63,3 +65,6 @@ class Null(Game):
     @property
     def value(self) -> int:
         return 23
+
+    def to_numpy(self) -> np.ndarray:
+        return np.array([self.trick.value])
