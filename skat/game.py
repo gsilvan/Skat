@@ -7,7 +7,7 @@ from skat.card import Card
 from skat.deck import Deck
 from skat.games import Game
 from skat.player import Player
-from skat.trick import Trick
+from skat.trick import TrickHistory
 from skat.utils import disjoint
 
 
@@ -79,7 +79,7 @@ class Round:
         self.skat: list[Card] = list()
         self.game: Optional[Game] = declare_game
         self.skip_bidding: bool = skip_bidding
-        self.trick_history: list[Trick] = list()
+        self.trick_history = TrickHistory()
         self.seed = seed
         if len(agents) > 0 and len(agents) != 3:
             raise Exception("specify either 3 players or None")
@@ -103,10 +103,8 @@ class Round:
     @property
     def front_hand(self) -> int:
         """Return player_id in front-hand-position"""
-        if len(self.trick_history) > 0:
-            if self.trick_history[-1].winner is None:
-                raise Exception("There is no winner yet.")
-            return self.trick_history[-1].winner
+        if len(self.trick_history) > 0 and self.trick_history.buffer[-1].winner:
+            return self.trick_history.buffer[-1].winner
         else:
             return (self.dealer + 1) % 3
 
