@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
+import numpy as np
+
 from skat.card import Card
 
 
@@ -50,3 +52,11 @@ class Trick(ABC):
     @abstractmethod
     def winner(self) -> Optional[int]:
         raise NotImplementedError
+
+    @property
+    def as_vector(self) -> np.ndarray:
+        """One-hot-encoded representation of the trick."""
+        arr = np.zeros(32)
+        for player_id, card in self.card_turn:
+            arr[card.np_index] = 1
+        return arr
