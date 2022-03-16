@@ -31,3 +31,15 @@ class CardTest(unittest.TestCase):
 
     def test_hash(self) -> None:
         self.assertEqual(hash(self.card_1), hash(self.card_2))
+
+    def test_np_index(self) -> None:
+        test_set = (
+            (Card(0, 0), 0),
+            (Card(0, 1), 1),
+            (Card(0, 7), 7),
+            (Card(1, 0), 8),
+            (Card(1, 1), 9),
+            (Card(3, 7), 31),
+        )
+        for card, expected_index in test_set:
+            self.assertEqual(expected_index, card.np_index)

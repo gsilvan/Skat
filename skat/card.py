@@ -63,3 +63,8 @@ class Card:
     @property
     def is_jack(self) -> bool:
         return self.rank == "J"
+
+    @property
+    def np_index(self) -> int:
+        """Return the 32-hot-encoded numpy index of the card."""
+        return SUITS.index(self.suit) * len(RANKS) + RANKS.index(self.rank)
