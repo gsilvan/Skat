@@ -40,9 +40,9 @@ class GameTest(unittest.TestCase):
         # TODO: check points after some cards were played
 
     def test_deal_from_deck(self) -> None:
-        self.assertEqual(0, len(self.round._deck))
+        self.assertEqual(0, len(self.round.deck))
         self.round.deal()
-        for player in self.round._player:
+        for player in self.round.player:
             self.assertEqual(10, len(player.hand))
 
     def test_deal_from_provided_cards(self) -> None:
@@ -60,17 +60,17 @@ class GameTest(unittest.TestCase):
             start=False,
             initial_cards=cards,
         )
-        for player in custom_round._player:
+        for player in custom_round.player:
             self.assertEqual(0, len(player.hand))
-        self.assertEqual(0, len(custom_round._skat))
+        self.assertEqual(0, len(custom_round.skat))
         custom_round.deal()
-        for player in custom_round._player:
+        for player in custom_round.player:
             self.assertEqual(3, len(player.hand))
-        self.assertEqual(2, len(custom_round._skat))
+        self.assertEqual(2, len(custom_round.skat))
 
     def test_next_player(self) -> None:
         self.round.deal()
-        self.round._phase = GamePhase.PLAYING
+        self.round.phase = GamePhase.PLAYING
         # next_player on init is front hand
         for i in [1, 2, 0]:
             self.assertEqual(i, self.round.next_player)

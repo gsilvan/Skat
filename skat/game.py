@@ -66,21 +66,21 @@ class Round:
     ) -> None:
         if agents is None:
             agents = list()
-        self._player: list[Player] = list()
-        self._phase: GamePhase = phase
-        self._dealer: int = dealer
-        self._highest_bid: int = 0
-        self._solo_player_id: int = solo_player_id
-        self._deck: Deck = deck
-        self._deal_deck: bool = True
-        self._initial_cards = initial_cards
-        self._verbose = verbose
-        self._hand_game: bool = pickup_skat
-        self._skat: list[Card] = list()
-        self._game: Optional[Game] = declare_game
-        self._skip_bidding: bool = skip_bidding
-        self._trick_history: list[Trick] = list()
-        self._seed = seed
+        self.player: list[Player] = list()
+        self.phase: GamePhase = phase
+        self.dealer: int = dealer
+        self.highest_bid: int = 0
+        self.solo_player_id: int = solo_player_id
+        self.deck: Deck = deck
+        self.deal_deck: bool = True
+        self.initial_cards = initial_cards
+        self.verbose = verbose
+        self.hand_game: bool = pickup_skat
+        self.skat: list[Card] = list()
+        self.game: Optional[Game] = declare_game
+        self.skip_bidding: bool = skip_bidding
+        self.trick_history: list[Trick] = list()
+        self.seed = seed
         if len(agents) > 0 and len(agents) != 3:
             raise Exception("specify either 3 players or None")
         elif len(agents) == 0:
@@ -88,14 +88,14 @@ class Round:
             self.init_players()
         elif len(agents) == 3:
             self.init_players(agents)
-        if self._initial_cards:
-            if len(self._initial_cards) == 4:
+        if self.initial_cards:
+            if len(self.initial_cards) == 4:
                 # 4 seems good, but are 0,1,2,3 disjoint?
-                if not disjoint(self._initial_cards):
+                if not disjoint(self.initial_cards):
                     raise Exception("initial cards are not disjoint!")
             else:
                 raise Exception("provide 4 items, initial_cards=(p0, p1, p2, skat)")
-            self._deal_deck = False
+            self.deal_deck = False
         if start:
             # start the game with selected features immediately
             self.start()
@@ -103,12 +103,12 @@ class Round:
     @property
     def front_hand(self) -> int:
         """Return player_id in front-hand-position"""
-        if len(self._trick_history) > 0:
-            if self._trick_history[-1].winner is None:
+        if len(self.trick_history) > 0:
+            if self.trick_history[-1].winner is None:
                 raise Exception("There is no winner yet.")
-            return self._trick_history[-1].winner
+            return self.trick_history[-1].winner
         else:
-            return (self._dealer + 1) % 3
+            return (self.dealer + 1) % 3
 
     @property
     def middle_hand(self) -> int:
@@ -121,57 +121,47 @@ class Round:
         return (self.front_hand + 2) % 3
 
     @property
-    def phase(self) -> GamePhase:
-        """Return current game phase."""
-        return self._phase
-
-    @property
-    def trick_history(self) -> list[Trick]:
-        """Return full trick history."""
-        return self._trick_history
-
-    @property
     def points_soloist(self) -> int:
         """Return solo player's points."""
-        soloist = self._solo_player_id
+        soloist = self.solo_player_id
         if soloist == -42:
             return 0
-        return self._player[soloist].trick_stack_value
+        return self.player[soloist].trick_stack_value
 
     @property
     def points_defenders(self) -> int:
         """Return accumulated defender's points."""
-        soloist = self._solo_player_id
+        soloist = self.solo_player_id
         if soloist == -42:
             return 0
         return (
-            self._player[(soloist + 1) % 3].trick_stack_value
-            + self._player[(soloist + 2) % 3].trick_stack_value
+            self.player[(soloist + 1) % 3].trick_stack_value
+            + self.player[(soloist + 2) % 3].trick_stack_value
         )
 
     def init_players(self, agents=None) -> None:
         if not agents:
             for i in range(3):
-                self._player.append(Player(RandomAgent(), i))
+                self.player.append(Player(RandomAgent(), i))
         else:
             for idx, agent in enumerate(agents):
-                self._player.append(Player(agent, idx))
-        for player in self._player:
+                self.player.append(Player(agent, idx))
+        for player in self.player:
             player.set_state(self)
 
     @property
     def next_player(self) -> int:
         """Return player_id of the next player who has to act."""
-        if self._game is None:
+        if self.game is None:
             # if the game is not declared, there is no trick to look up.
             return self.front_hand
-        if len(self._game.trick) == 0:
+        if len(self.game.trick) == 0:
             return self.front_hand
-        elif len(self._game.trick) == 1:
+        elif len(self.game.trick) == 1:
             return self.middle_hand
-        elif len(self._game.trick) == 2:
+        elif len(self.game.trick) == 2:
             return self.back_hand
-        elif len(self._game.trick) == 3:
+        elif len(self.game.trick) == 3:
             return self.front_hand
         else:
             raise Exception("more than 3 cards in trick, that smells!")
@@ -195,36 +185,36 @@ class Round:
     @property
     def is_finished(self) -> bool:
         """Return True if the round is finished."""
-        return not any(len(p.hand) for p in self._player)
+        return not any(len(p.hand) for p in self.player)
 
     def deal(self) -> None:
         """Deal cards."""
-        if self._deal_deck:
-            self._deck.initialize_cards()
-            self._deck.shuffle(seed=self._seed)
-            for player in self._player:
-                player.hand = self._deck.deal_cards()
+        if self.deal_deck:
+            self.deck.initialize_cards()
+            self.deck.shuffle(seed=self.seed)
+            for player in self.player:
+                player.hand = self.deck.deal_cards()
         else:
-            for idx, player in enumerate(self._player):
-                player.hand = list(self._initial_cards[idx])  # type: ignore
-            self._skat = self._initial_cards[3]  # type: ignore
+            for idx, player in enumerate(self.player):
+                player.hand = list(self.initial_cards[idx])  # type: ignore
+            self.skat = self.initial_cards[3]  # type: ignore
 
     def step(self) -> bool:
         """Do a step. A step is one single action of one player."""
-        if self._phase == GamePhase.PLAYING:
-            if self._game is None:
+        if self.phase == GamePhase.PLAYING:
+            if self.game is None:
                 raise Exception("ur doin it worng")
-            self._game.trick.append(
+            self.game.trick.append(
                 self.next_player,
-                self._player[self.next_player].play_card(self._game.trick),
+                self.player[self.next_player].play_card(self.game.trick),
             )
-            if self._verbose:
-                print(f"trick={self._game.trick}")
-            if self._game.trick.is_full:
-                assert self._game.trick.winner is not None  # type safety
-                self._trick_history.append(copy.deepcopy(self._game.trick))
-                self._player[self._game.trick.winner].take_trick(self._game.trick)
-                self._game.new_trick()
+            if self.verbose:
+                print(f"trick={self.game.trick}")
+            if self.game.trick.is_full:
+                assert self.game.trick.winner is not None  # type safety
+                self.trick_history.append(copy.deepcopy(self.game.trick))
+                self.player[self.game.trick.winner].take_trick(self.game.trick)
+                self.game.new_trick()
             return True
         return False
 
@@ -233,100 +223,100 @@ class Round:
         Perform a step for player_id and do all steps other players steps, until it is
         player_id's turn again.
         """
-        old_points = self._player[player_id].trick_stack_value
+        old_points = self.player[player_id].trick_stack_value
         while True:
             step = self.step()
             if not step:
                 # if no step was done, the game is in terminal state
                 return 0, self.is_finished
             if self.next_player == player_id:
-                current_points = self._player[player_id].trick_stack_value
+                current_points = self.player[player_id].trick_stack_value
                 reward = current_points - old_points
                 return reward, self.is_finished
 
     def bidding(self) -> None:
         while True:
-            middle_hand_bid = self._player[self.middle_hand].bid(self._highest_bid)
-            if middle_hand_bid > self._highest_bid:
-                self._highest_bid = middle_hand_bid
-                self._solo_player_id = self.middle_hand
+            middle_hand_bid = self.player[self.middle_hand].bid(self.highest_bid)
+            if middle_hand_bid > self.highest_bid:
+                self.highest_bid = middle_hand_bid
+                self.solo_player_id = self.middle_hand
             else:
                 break
-            front_hand_bid = self._player[self.front_hand].bid(self._highest_bid)
-            if front_hand_bid > self._highest_bid:
-                self._highest_bid = front_hand_bid
-                self._solo_player_id = self.front_hand
+            front_hand_bid = self.player[self.front_hand].bid(self.highest_bid)
+            if front_hand_bid > self.highest_bid:
+                self.highest_bid = front_hand_bid
+                self.solo_player_id = self.front_hand
             else:
                 break
-        stage_one_winner = self._solo_player_id
+        stage_one_winner = self.solo_player_id
         while True:
-            back_hand_bid = self._player[self.back_hand].bid(self._highest_bid)
-            if back_hand_bid > self._highest_bid:
-                self._highest_bid = back_hand_bid
-                self._solo_player_id = self.back_hand
+            back_hand_bid = self.player[self.back_hand].bid(self.highest_bid)
+            if back_hand_bid > self.highest_bid:
+                self.highest_bid = back_hand_bid
+                self.solo_player_id = self.back_hand
             else:
                 break
-            stage_one_winner_bid = self._player[stage_one_winner].bid(self._highest_bid)
-            if stage_one_winner_bid > self._highest_bid:
-                self._highest_bid = stage_one_winner_bid
-                self._solo_player_id = stage_one_winner
+            stage_one_winner_bid = self.player[stage_one_winner].bid(self.highest_bid)
+            if stage_one_winner_bid > self.highest_bid:
+                self.highest_bid = stage_one_winner_bid
+                self.solo_player_id = stage_one_winner
             else:
                 break
 
     def start(self):
         # Wait for players
-        while self._phase == GamePhase.WAITING:
-            if len(self._player) == 3:
-                self._phase = GamePhase.DEALING
+        while self.phase == GamePhase.WAITING:
+            if len(self.player) == 3:
+                self.phase = GamePhase.DEALING
         # card dealing
         self.deal()
-        if not self._skip_bidding:
-            self._phase = GamePhase.BIDDING
+        if not self.skip_bidding:
+            self.phase = GamePhase.BIDDING
             # game bidding
             self.bidding()
         # take skat or not
-        self._hand_game = not self._player[self._solo_player_id].pickup_skat()
-        if not self._hand_game:
-            _cards_in_skat = self._deck.deal_cards(2)
-            if self._verbose:
-                print(f"p={self._solo_player_id} picks the skat: " f"{_cards_in_skat}")
-            self._player[self._solo_player_id].receive_cards(_cards_in_skat)
-            self._skat = self._player[self._solo_player_id].press_skat()
-            if self._verbose:
-                print(f"p={self._solo_player_id} puts {self._skat} in skat")
+        self.hand_game = not self.player[self.solo_player_id].pickup_skat()
+        if not self.hand_game:
+            _cards_in_skat = self.deck.deal_cards(2)
+            if self.verbose:
+                print(f"p={self.solo_player_id} picks the skat: " f"{_cards_in_skat}")
+            self.player[self.solo_player_id].receive_cards(_cards_in_skat)
+            self.skat = self.player[self.solo_player_id].press_skat()
+            if self.verbose:
+                print(f"p={self.solo_player_id} puts {self.skat} in skat")
         else:
-            if self._verbose:
-                print(f"p={self._solo_player_id} discards the skat")
-            self._skat = self._deck.deal_cards(2)
-            if self._verbose:
-                print(f"skat={self._skat}")
-        for p in self._player:
-            if self._verbose:
+            if self.verbose:
+                print(f"p={self.solo_player_id} discards the skat")
+            self.skat = self.deck.deal_cards(2)
+            if self.verbose:
+                print(f"skat={self.skat}")
+        for p in self.player:
+            if self.verbose:
                 print(p)
-        if self._verbose:
-            print(f"skat={self._skat}")
+        if self.verbose:
+            print(f"skat={self.skat}")
         # game declaration
-        self._game = self._player[self._solo_player_id].declare_game()
+        self.game = self.player[self.solo_player_id].declare_game()
         # add skat to tricks
-        for card in self._skat:
-            self._player[self._solo_player_id].trick_stack.append(card)
+        for card in self.skat:
+            self.player[self.solo_player_id].trick_stack.append(card)
         # card_outplay
-        self._phase = GamePhase.PLAYING
+        self.phase = GamePhase.PLAYING
         while not self.is_finished:
             self.step()
         # counting
-        self._phase = GamePhase.COUNTING
-        for p in self._player:
-            is_soloist = p.seat_id == self._solo_player_id
-            if self._verbose:
+        self.phase = GamePhase.COUNTING
+        for p in self.player:
+            is_soloist = p.seat_id == self.solo_player_id
+            if self.verbose:
                 print(
                     f"p={p.seat_id} {'*' if is_soloist else ' '} h={p.hand} points={p.trick_stack_value}"
                 )
         # winner
         soloist_won = self.points_soloist > self.points_defenders
-        if self._verbose:
-            print(f"p={self._solo_player_id} {'won' if soloist_won else 'lost'}")
+        if self.verbose:
+            print(f"p={self.solo_player_id} {'won' if soloist_won else 'lost'}")
         if soloist_won:
-            return self._solo_player_id, 1
+            return self.solo_player_id, 1
         elif not soloist_won:
-            return self._solo_player_id, -2
+            return self.solo_player_id, -2
