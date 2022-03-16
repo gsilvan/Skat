@@ -70,7 +70,7 @@ class Round:
         self._phase: GamePhase = phase
         self._dealer: int = dealer
         self._highest_bid: int = 0
-        self._highest_bid_seat_id: int = solo_player_id
+        self._solo_player_id: int = solo_player_id
         self._deck: Deck = deck
         self._deal_deck: bool = True
         self._initial_cards = initial_cards
@@ -133,7 +133,7 @@ class Round:
     @property
     def points_soloist(self) -> int:
         """Return solo player's points."""
-        soloist = self._highest_bid_seat_id
+        soloist = self._solo_player_id
         if soloist == -42:
             return 0
         return self._player[soloist].trick_stack_value
@@ -141,7 +141,7 @@ class Round:
     @property
     def points_defenders(self) -> int:
         """Return accumulated defender's points."""
-        soloist = self._highest_bid_seat_id
+        soloist = self._solo_player_id
         if soloist == -42:
             return 0
         return (
@@ -249,27 +249,27 @@ class Round:
             middle_hand_bid = self._player[self.middle_hand].bid(self._highest_bid)
             if middle_hand_bid > self._highest_bid:
                 self._highest_bid = middle_hand_bid
-                self._highest_bid_seat_id = self.middle_hand
+                self._solo_player_id = self.middle_hand
             else:
                 break
             front_hand_bid = self._player[self.front_hand].bid(self._highest_bid)
             if front_hand_bid > self._highest_bid:
                 self._highest_bid = front_hand_bid
-                self._highest_bid_seat_id = self.front_hand
+                self._solo_player_id = self.front_hand
             else:
                 break
-        stage_one_winner = self._highest_bid_seat_id
+        stage_one_winner = self._solo_player_id
         while True:
             back_hand_bid = self._player[self.back_hand].bid(self._highest_bid)
             if back_hand_bid > self._highest_bid:
                 self._highest_bid = back_hand_bid
-                self._highest_bid_seat_id = self.back_hand
+                self._solo_player_id = self.back_hand
             else:
                 break
             stage_one_winner_bid = self._player[stage_one_winner].bid(self._highest_bid)
             if stage_one_winner_bid > self._highest_bid:
                 self._highest_bid = stage_one_winner_bid
-                self._highest_bid_seat_id = stage_one_winner
+                self._solo_player_id = stage_one_winner
             else:
                 break
 
@@ -285,21 +285,18 @@ class Round:
             # game bidding
             self.bidding()
         # take skat or not
-        self._hand_game = not self._player[self._highest_bid_seat_id].pickup_skat()
+        self._hand_game = not self._player[self._solo_player_id].pickup_skat()
         if not self._hand_game:
             _cards_in_skat = self._deck.deal_cards(2)
             if self._verbose:
-                print(
-                    f"p={self._highest_bid_seat_id} picks the skat: "
-                    f"{_cards_in_skat}"
-                )
-            self._player[self._highest_bid_seat_id].receive_cards(_cards_in_skat)
-            self._skat = self._player[self._highest_bid_seat_id].press_skat()
+                print(f"p={self._solo_player_id} picks the skat: " f"{_cards_in_skat}")
+            self._player[self._solo_player_id].receive_cards(_cards_in_skat)
+            self._skat = self._player[self._solo_player_id].press_skat()
             if self._verbose:
-                print(f"p={self._highest_bid_seat_id} puts {self._skat} in skat")
+                print(f"p={self._solo_player_id} puts {self._skat} in skat")
         else:
             if self._verbose:
-                print(f"p={self._highest_bid_seat_id} discards the skat")
+                print(f"p={self._solo_player_id} discards the skat")
             self._skat = self._deck.deal_cards(2)
             if self._verbose:
                 print(f"skat={self._skat}")
@@ -309,10 +306,10 @@ class Round:
         if self._verbose:
             print(f"skat={self._skat}")
         # game declaration
-        self._game = self._player[self._highest_bid_seat_id].declare_game()
+        self._game = self._player[self._solo_player_id].declare_game()
         # add skat to tricks
         for card in self._skat:
-            self._player[self._highest_bid_seat_id].trick_stack.append(card)
+            self._player[self._solo_player_id].trick_stack.append(card)
         # card_outplay
         self._phase = GamePhase.PLAYING
         while not self.is_finished:
@@ -320,7 +317,7 @@ class Round:
         # counting
         self._phase = GamePhase.COUNTING
         for p in self._player:
-            is_soloist = p.seat_id == self._highest_bid_seat_id
+            is_soloist = p.seat_id == self._solo_player_id
             if self._verbose:
                 print(
                     f"p={p.seat_id} {'*' if is_soloist else ' '} h={p.hand} points={p.trick_stack_value}"
@@ -328,8 +325,8 @@ class Round:
         # winner
         soloist_won = self.points_soloist > self.points_defenders
         if self._verbose:
-            print(f"p={self._highest_bid_seat_id} {'won' if soloist_won else 'lost'}")
+            print(f"p={self._solo_player_id} {'won' if soloist_won else 'lost'}")
         if soloist_won:
-            return self._highest_bid_seat_id, 1
+            return self._solo_player_id, 1
         elif not soloist_won:
-            return self._highest_bid_seat_id, -2
+            return self._solo_player_id, -2
