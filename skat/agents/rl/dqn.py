@@ -20,7 +20,7 @@ class DQN:
         gamma: float = 0.999,
         target_update: int = 200,
         buffer_size: int = 10000,
-        learning_rate: int = 1e-3,
+        learning_rate: float = 1e-3,
         model=skat.models.SuitSoloNet,
     ) -> None:
         # environment

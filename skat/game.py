@@ -228,7 +228,7 @@ class Round:
             return True
         return False
 
-    def step_player(self, player_id) -> tuple:
+    def step_player(self, player_id) -> tuple[int, bool]:
         """
         Perform a step for player_id and do all steps other players steps, until it is
         player_id's turn again.
