@@ -1,5 +1,7 @@
 import unittest
 
+import numpy as np
+
 from skat.card import Card
 from skat.games.suit import SuitGameTrick
 
@@ -148,3 +150,9 @@ class SuitGameTrickTest(unittest.TestCase):
         trick = SuitGameTrick(0)  # renew trick
         trick.append(0, Card(3, 3))
         self.assertEqual(trump_set, trick.forced_cards)
+
+    def test_as_vector(self):
+        expected_vector = np.zeros(32)
+        expected_vector[24], expected_vector[29], expected_vector[31] = 1, 1, 1
+        self.add_test_cards()
+        self.assertTrue(np.array_equal(expected_vector, self.trick.as_vector))
