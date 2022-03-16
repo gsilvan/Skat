@@ -1,5 +1,7 @@
 from typing import Optional
 
+import numpy as np
+
 from skat.card import RANKS, SUITS, Card
 from skat.games import Game
 from skat.trick import Trick
@@ -105,3 +107,14 @@ class SuitGame(Game):
     def value(self) -> int:
         """Returns the base multiplier for the selected game"""
         return MULTIPLIERS[self.suit]
+
+    def to_numpy(self) -> np.ndarray:
+        arr_size = 5
+        arr = np.zeros(arr_size, dtype=int)
+        for i in range(arr_size - 1):
+            # encode color
+            if i == self.suit:
+                arr[i] = 1
+        # encode current trick value TODO: check if current or interpolated works better
+        arr[4] = self.trick.value
+        return arr

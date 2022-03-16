@@ -1,5 +1,7 @@
 from typing import Optional
 
+import numpy as np
+
 from skat.card import RANKS, SUITS, Card
 from skat.game import Game
 from skat.trick import Trick
@@ -73,3 +75,10 @@ class Grand(Game):
     @property
     def value(self) -> int:
         return 24
+
+    def to_numpy(self) -> np.ndarray:
+        arr_size = 5
+        arr = np.zeros(arr_size, dtype=int)
+        # encode current trick value TODO: check if current or interpolated works better
+        arr[4] = self.trick.value
+        return arr
