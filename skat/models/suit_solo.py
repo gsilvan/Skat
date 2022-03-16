@@ -1,21 +1,24 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-__hand = 32  # 32 cards
-__color = 5  # clubs, spades, hearts, diamonds
-__points = 2  # soloist, defender 1 + defender 2
-__free_colors = 15  # solist, defender 1, defender 2
-__trick_value = 1
-__played_cards = 96
-
-_inputs = __hand + __color + __points + __free_colors + __trick_value + __played_cards
-
 
 class SuitSoloNet(nn.Module):
+    __hand = 32  # 32 cards
+    __color = 5  # clubs, spades, hearts, diamonds
+    __points = 2  # soloist, defender 1 + defender 2
+    __free_colors = 15  # solist, defender 1, defender 2
+    __trick_value = 1
+    __played_cards = 96
+
+    INPUT_SIZE = (
+        __hand + __color + __points + __free_colors + __trick_value + __played_cards
+    )
+    OUTPUT_SIZE = 32
+
     def __init__(
         self,
-        input_size=_inputs,
-        output_size=32,
+        input_size=INPUT_SIZE,
+        output_size=OUTPUT_SIZE,
         hidden_activation=F.relu,
         output_activation=F.softmax,
         dropout=0.25,

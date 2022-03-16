@@ -48,7 +48,11 @@ class DQN:
         )
 
         # buffer
-        self.replay_buffer = ReplayBuffer(180, 32)
+        self.replay_buffer = ReplayBuffer(
+            state_size=model.INPUT_SIZE,
+            action_size=model.OUTPUT_SIZE,
+            buffer_size=10000,
+        )
 
         # step counter
         self.steps = 0
