@@ -212,7 +212,9 @@ class Round:
                 (__played_cards, self.trick_history.to_numpy(player_id=i))
             )
         __trick_value = np.array([self.game.trick.value])
-        return np.concatenate((__hand, __color, __points, __played_cards))
+        return np.concatenate(
+            (__hand, __color, __points, __played_cards, __trick_value)
+        )
 
     def step(self) -> bool:
         """Do a step. A step is one single action of one player."""
