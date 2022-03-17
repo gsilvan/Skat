@@ -20,52 +20,50 @@ class SuitGameTrick(Trick):
         return card_set < set(SuitGame.trump_cards(self.trump_suit))
 
     def _is_trump_in_trick(self) -> bool:
-        return any(
-            x in SuitGame.trump_cards(self.trump_suit) for _, x in self.card_turn
-        )
+        return any(x in SuitGame.trump_cards(self.trump_suit) for _, x in self.buffer)
 
     @property
     def forced_cards(self) -> set[Card]:
-        if len(self.card_turn) == 0:
+        if len(self.buffer) == 0:
             return set()
         else:
             if self.is_trump:
                 return set(SuitGame.trump_cards(self.trump_suit))
             else:
-                return set(SuitGame.suit_cards(SUITS.index(self.card_turn[0][1].suit)))
+                return set(SuitGame.suit_cards(SUITS.index(self.buffer[0].card.suit)))
 
     @property
     def is_trump(self) -> bool:
-        if len(self.card_turn) <= 0:
+        if len(self.buffer) <= 0:
             raise Exception("No card in trick")
-        return self._is_trump_card(self.card_turn[0][1])
+        return self._is_trump_card(self.buffer[0].card)
 
     @property
     def winner(self) -> Optional[int]:
         """Returns the trick winner's player_id"""
         if not self.is_full:
             return None
-        winner: tuple = self.card_turn[0]
+        leading = self.buffer[0]
         if self._is_trump_in_trick():
             # then only here can be the winner
-            for player_card in self.card_turn[1:]:
-                if self._is_trump_card(player_card[1]):
-                    if player_card[1].is_jack:
-                        if winner[1].is_jack:
-                            if winner[1] < player_card[1]:
-                                winner = player_card
+            for turn in self.buffer[1:]:
+                if self._is_trump_card(turn.card):
+                    if turn.card.is_jack:
+                        if leading.card.is_jack:
+                            if leading.card < turn.card:
+                                leading = turn
                         else:
-                            winner = player_card
+                            leading = turn
                     else:
-                        if player_card[1] > winner[1]:
-                            winner = player_card
-            return winner[0]
+                        if turn.card > leading.card:
+                            leading = turn
+            return leading.player_id
         else:
-            for player_card in self.card_turn[1:]:
-                if player_card[1].suit == self.card_turn[0][1].suit:
-                    if player_card[1] > winner[1]:
-                        winner = player_card
-            return winner[0]
+            for turn in self.buffer[1:]:
+                if turn.card.suit == self.buffer[0].card.suit:
+                    if turn.card > leading.card:
+                        leading = turn
+            return leading.player_id
 
 
 class SuitGame(Game):

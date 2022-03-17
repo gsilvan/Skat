@@ -71,7 +71,7 @@ class Player:
 
     def take_trick(self, trick) -> None:
         """Append won trick to the own trick stack."""
-        for _, card in trick.card_turn:
+        for _, card in trick.buffer:
             self.trick_stack.append(card)
 
     def set_state(self, state) -> None:

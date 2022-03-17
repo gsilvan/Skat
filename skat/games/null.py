@@ -10,10 +10,10 @@ from skat.trick import Trick
 class NullTrick(Trick):
     @property
     def forced_cards(self) -> set[Card]:
-        if len(self.card_turn) == 0:
+        if len(self.buffer) == 0:
             return set()
         else:
-            return set(Null.suit_cards(SUITS.index(self.card_turn[0][1].suit)))
+            return set(Null.suit_cards(SUITS.index(self.buffer[0].card.suit)))
 
     @property
     def is_trump(self) -> bool:
@@ -27,12 +27,12 @@ class NullTrick(Trick):
     def winner(self) -> Optional[int]:
         if not self.is_full:
             return None
-        winner: tuple[int, Card] = self.card_turn[0]
-        for player_card in self.card_turn[1:]:
-            if player_card[1].suit == self.card_turn[0][1].suit:
-                if self.better_than(player_card[1], winner[1]):
-                    winner = player_card
-        return winner[0]
+        leading = self.buffer[0]
+        for turn in self.buffer[1:]:
+            if turn.card.suit == self.buffer[0].card.suit:
+                if self.better_than(turn.card, leading.card):
+                    leading = turn
+        return leading.player_id
 
     @staticmethod
     def better_than(a: Card, b: Card):
