@@ -2,6 +2,8 @@ import copy
 from enum import Enum, auto
 from typing import Optional, Union
 
+import numpy as np
+
 from skat.agents.random import RandomAgent
 from skat.card import Card
 from skat.deck import Deck
@@ -197,6 +199,20 @@ class Round:
             for idx, player in enumerate(self.player):
                 player.hand = list(self.initial_cards[idx])  # type: ignore
             self.skat = self.initial_cards[3]  # type: ignore
+
+    def get_state(self, player_id) -> np.ndarray:
+        """Return a state vector for a given player. A player has a limited view on the
+        state in incomplete information games."""
+        __hand = self.player[player_id].hand.as_vector
+        __color = self.game.to_numpy()  # takes color[0-3] and trick value [4]
+        __points = np.array([self.points_soloist, self.points_defenders])
+        __played_cards = np.array([])
+        for i in range(3):
+            __played_cards = np.concatenate(
+                (__played_cards, self.trick_history.to_numpy(player_id=i))
+            )
+        __trick_value = np.array([self.game.trick.value])
+        return np.concatenate((__hand, __color, __points, __played_cards))
 
     def step(self) -> bool:
         """Do a step. A step is one single action of one player."""
