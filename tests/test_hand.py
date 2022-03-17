@@ -41,6 +41,15 @@ class HandTest(unittest.TestCase):
     def test_insert(self) -> None:
         pass
 
+    def test_value(self) -> None:
+        hand_value = (
+            (Hand([Card(0, 0), Card(0, 1), Card(0, 2)]), 0),
+            (Hand([Card(0, 5), Card(0, 6), Card(0, 7)]), 25),
+            (Hand([Card(1, 3), Card(2, 0), Card(0, 7)]), 13),
+        )
+        for hand, value in hand_value:
+            self.assertEqual(value, hand.value)
+
     def test_as_vector(self) -> None:
         arr = np.array(
             [

@@ -18,7 +18,7 @@ class Player:
         self.strategy.set_state(state=self)  # we give our agent a pointer
         self.seat_id: int = seat_id
         self.hand: Hand = Hand()
-        self.trick_stack: list[Card] = list()
+        self.trick_stack: Hand = Hand()
         self.public_state: Optional[Game] = None
 
     def __str__(self) -> str:
@@ -27,10 +27,7 @@ class Player:
     @property
     def trick_stack_value(self) -> int:
         """Returns the players current trick value."""
-        _sum = 0
-        for card in self.trick_stack:
-            _sum += card.value
-        return _sum
+        return self.trick_stack.value
 
     def valid_moves(self, trick: Trick):
         """Returns a set of valid moves given a trick and a hand"""
