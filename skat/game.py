@@ -6,6 +6,7 @@ from skat.agents.random import RandomAgent
 from skat.card import Card
 from skat.deck import Deck
 from skat.games import Game
+from skat.hand import Hand
 from skat.player import Player
 from skat.trick import TrickHistory
 from skat.utils import disjoint
@@ -191,7 +192,7 @@ class Round:
             self.deck.initialize_cards()
             self.deck.shuffle(seed=self.seed)
             for player in self.player:
-                player.hand = self.deck.deal_cards()
+                player.hand = Hand(self.deck.deal_cards())
         else:
             for idx, player in enumerate(self.player):
                 player.hand = list(self.initial_cards[idx])  # type: ignore

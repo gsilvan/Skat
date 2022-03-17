@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
+from skat.hand import Hand
+
 if TYPE_CHECKING:
     from skat.agents import Agent
     from skat.card import Card
@@ -15,7 +17,7 @@ class Player:
         self.strategy: Agent = agent
         self.strategy.set_state(state=self)  # we give our agent a pointer
         self.seat_id: int = seat_id
-        self.hand: list[Card] = list()
+        self.hand: Hand = Hand()
         self.trick_stack: list[Card] = list()
         self.public_state: Optional[Game] = None
 
