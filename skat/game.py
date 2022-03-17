@@ -156,16 +156,17 @@ class Round:
         if self.game is None:
             # if the game is not declared, there is no trick to look up.
             return self.front_hand
-        if len(self.game.trick) == 0:
-            return self.front_hand
-        elif len(self.game.trick) == 1:
-            return self.middle_hand
-        elif len(self.game.trick) == 2:
-            return self.back_hand
-        elif len(self.game.trick) == 3:
-            return self.front_hand
-        else:
-            raise Exception("more than 3 cards in trick, that smells!")
+        match len(self.game.trick):
+            case 0:
+                return self.front_hand
+            case 1:
+                return self.middle_hand
+            case 2:
+                return self.back_hand
+            case 3:
+                return self.front_hand
+            case _:
+                raise Exception("more than 3 cards in trick, that smells!")
 
     @property
     def soloist_leading(self) -> Optional[bool]:
