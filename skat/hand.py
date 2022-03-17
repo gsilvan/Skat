@@ -43,6 +43,14 @@ class Hand(collections.abc.MutableSequence):
         self.__hand.insert(index, card)
 
     @property
+    def value(self) -> int:
+        """Returns the sum of point values in the hand."""
+        _sum = 0
+        for card in self.__hand:
+            _sum += card.value
+        return _sum
+
+    @property
     def as_vector(self) -> np.ndarray:
         arr = np.zeros(32)
         for card in self.__hand:
