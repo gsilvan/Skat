@@ -1,25 +1,28 @@
 from abc import ABC, abstractmethod
+from collections import namedtuple
 from typing import Optional
 
 import numpy as np
 
 from skat.card import Card
 
+Turn = namedtuple("Turn", ("player_id", "card"))
+
 
 class Trick(ABC):
     def __init__(self) -> None:
-        self.card_turn: list[tuple[int, Card]] = list()
+        self.buffer: list[Turn] = list()
 
     def __len__(self) -> int:
-        return len(self.card_turn)
+        return len(self.buffer)
 
     def __str__(self) -> str:
-        return str(self.card_turn)
+        return str(self.buffer)
 
     def append(self, player_id: int, card: Card) -> None:
         """Adds a (player, card)-tuple to current trick"""
-        if len(self.card_turn) < 3:
-            self.card_turn.append((player_id, card))
+        if len(self.buffer) < 3:
+            self.buffer.append(Turn(player_id, card))
         else:
             raise Exception("can't add more than 3 cards for a single trick")
             # TODO: Use a more specific Exception.
@@ -29,7 +32,7 @@ class Trick(ABC):
         """
         Returns true if the trick is full, meaning all players placed their
         card. Returns false if cards missing."""
-        return len(self.card_turn) == 3
+        return len(self.buffer) == 3
 
     @property
     def forced_cards(self) -> set[Card]:
@@ -44,7 +47,7 @@ class Trick(ABC):
     def value(self) -> int:
         """Returns the {current, final} value of a trick"""
         _sum = 0
-        for _, card in self.card_turn:
+        for _, card in self.buffer:
             _sum += card.value
         return _sum
 
@@ -57,7 +60,7 @@ class Trick(ABC):
     def as_vector(self) -> np.ndarray:
         """One-hot-encoded representation of the trick."""
         arr = np.zeros(32)
-        for player_id, card in self.card_turn:
+        for player_id, card in self.buffer:
             arr[card.np_index] = 1
         return arr
 
@@ -79,7 +82,7 @@ class TrickHistory:
         """
         arr = np.zeros(32)
         for trick in self.buffer:
-            for pid, card in trick.card_turn:
+            for pid, card in trick.buffer:
                 if player_id is None:
                     arr[card.np_index] = 1
                 else:
