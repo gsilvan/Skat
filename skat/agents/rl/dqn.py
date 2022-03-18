@@ -13,7 +13,7 @@ class DQN:
     def __init__(
         self,
         environment,
-        device,
+        device: str = "cpu",
         epsilon: float = 0.90,
         epsilon_decay: float = 0.995,
         batch_size: int = 128,
@@ -40,7 +40,7 @@ class DQN:
 
         # Networks
         self.policy_net = model().to(self.device)
-        self.target_net = model().to(device)
+        self.target_net = model().to(self.device)
 
         # Optimizer
         self.optimizer = torch.optim.Adam(
@@ -55,7 +55,7 @@ class DQN:
         )
 
         # step counter
-        self.steps = 0
+        self.episode = 0
 
     def select_action(self, state) -> int:
         # decay epsilon
@@ -107,6 +107,10 @@ class DQN:
         for param in self.policy_net.parameters():
             param.grad.data.clamp(-1, 1)
         self.optimizer.step()
+
+        # Update the target net
+        if self.episode % self.target_update == 0:
+            self.target_net.load_state_dict(self.policy_net.state_dict())
 
     def run(self, episodes):
         for episode in range(episodes):
