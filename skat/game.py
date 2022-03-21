@@ -106,7 +106,10 @@ class Round:
     @property
     def front_hand(self) -> int:
         """Return player_id in front-hand-position"""
-        if len(self.trick_history) > 0 and self.trick_history.buffer[-1].winner:
+        if (
+            len(self.trick_history) > 0
+            and self.trick_history.buffer[-1].winner is not None
+        ):
             return self.trick_history.buffer[-1].winner
         else:
             return (self.dealer + 1) % 3
