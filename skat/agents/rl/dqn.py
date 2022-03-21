@@ -12,7 +12,6 @@ from .buffer import ReplayBuffer, Transition
 class DQN:
     def __init__(
         self,
-        environment,
         device: str = "cpu",
         epsilon: float = 0.90,
         epsilon_decay: float = 0.995,
@@ -23,9 +22,6 @@ class DQN:
         learning_rate: float = 1e-3,
         model=skat.models.SuitSoloNet,
     ) -> None:
-        # environment
-        self.env = environment
-
         # use either 'cuda' or 'cpu'
         self.device = device
 
@@ -111,33 +107,3 @@ class DQN:
         # Update the target net
         if self.episode % self.target_update == 0:
             self.target_net.load_state_dict(self.policy_net.state_dict())
-
-    def run(self, episodes):
-        for episode in range(episodes):
-            self.env.reset()  # create reset env
-            for i in count():
-                # get a state
-                state = self.env.get_state()
-
-                # do action
-                action = self.select_action(state)
-                reward, is_terminal = self.env.step_player(action)
-
-                # observe new state
-                if is_terminal:
-                    next_state = None
-                else:
-                    next_state = self.env.get_state()
-
-                # store in buffer
-                self.replay_buffer.push(state, action, next_state, reward)
-
-                # optimize model
-                self.optimize_model()
-
-                if is_terminal:
-                    # good place for plotting
-                    break
-            # Update the target net
-            if episode % self.target_update == 0:
-                self.target_net.load_state_dict(self.policy_net.state_dict())
