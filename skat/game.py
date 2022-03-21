@@ -28,11 +28,13 @@ class Tournament:
         self,
         rounds=32,
         agents=(RandomAgent(), RandomAgent(), RandomAgent()),
+        verbose=False,
     ) -> None:
         self.rounds = rounds
         self.agents = agents
         self.scores = [0, 0, 0]
         self.dealer = 0
+        self.verbose = verbose
 
     def start(self):
         for _ in range(self.rounds):
@@ -41,7 +43,7 @@ class Tournament:
                 skip_bidding=True,
                 solo_player_id=self.dealer,
                 start=False,
-                verbose=False,
+                verbose=self.verbose,
                 agents=self.agents,
             )
             soloist, points = r.start()
