@@ -233,6 +233,10 @@ class Round:
                 self.trick_history.append(copy.deepcopy(self.game.trick))
                 self.player[self.game.trick.winner].take_trick(self.game.trick)
                 self.game.new_trick()
+                # ping all player that the trick is done
+                for p in self.player:
+                    is_terminal = len(self.trick_history) == 10
+                    p.strategy.trick_done_event(is_terminal)
             return True
         return False
 

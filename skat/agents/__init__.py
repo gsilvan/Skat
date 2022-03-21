@@ -115,3 +115,6 @@ class Agent(ABC):
 
     def set_state(self, state: Player) -> None:
         self.state = state
+
+    def trick_done_event(self, is_terminal) -> None:
+        return
