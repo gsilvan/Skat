@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from skat.card import Card
-from skat.hand import Hand
+from skat.hand import Hand, HandOrder
 
 
 class HandTest(unittest.TestCase):
@@ -90,7 +90,7 @@ class HandTest(unittest.TestCase):
         self.assertTrue(np.array_equal(arr, self.filled_hand.as_vector))
 
     def test_tgt(self) -> None:
-        diamonds_order = Hand.Order(
+        diamonds_order = HandOrder(
             suits="♦♠♣♥", ranks="789QKXA", pivot_suits="♦♥♠♣", pivot_ranks="J"
         )
 
@@ -111,7 +111,7 @@ class HandTest(unittest.TestCase):
 
         # Sheep head prep :)
 
-        sheep_head = Hand.Order(
+        sheep_head = HandOrder(
             suits="♦♥♣♠", ranks="789KXA", pivot_suits="♦♥♠♣", pivot_ranks="JQ"
         )
 
@@ -128,7 +128,7 @@ class HandTest(unittest.TestCase):
         self.assertEqual(Hand([Card(0, 2), Card(1, 1)]), Hand([Card(0, 2), Card(1, 1)]))
 
     def test_sort(self) -> None:
-        hearts_order = Hand.Order(
+        hearts_order = HandOrder(
             suits="♦♠♣♥", ranks="789QKXA", pivot_suits="♦♥♠♣", pivot_ranks="J"
         )
         initial_hand = Hand(

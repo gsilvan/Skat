@@ -1,19 +1,20 @@
 import collections.abc
 import typing
-from collections import namedtuple
+from typing import NamedTuple
 
 import numpy as np
 
 from skat.card import Card
 
 
-class Hand(collections.abc.MutableSequence):
-    Order = namedtuple(
-        "Order",
-        ("suits", "ranks", "pivot_suits", "pivot_ranks"),
-        defaults=("♦♥♠♣", "", "♦♥♠♣", ""),
-    )
+class HandOrder(NamedTuple):
+    suits: str = "♦♥♠♣"
+    ranks: str = ""
+    pivot_suits: str = "♦♥♠♣"
+    pivot_ranks: str = ""
 
+
+class Hand(collections.abc.MutableSequence):
     def __init__(self, iterable=None) -> None:
         self.__hand: list[Card] = list()
         if iterable:
@@ -67,7 +68,7 @@ class Hand(collections.abc.MutableSequence):
             arr[card.np_index] = 1
         return arr
 
-    def sort(self, order: Order):
+    def sort(self, order: HandOrder):
         """Sort the Hand according to specified sort rules using Bubble-Sort."""
         while True:
             has_changed = False
@@ -81,7 +82,7 @@ class Hand(collections.abc.MutableSequence):
                 return
 
     @staticmethod
-    def tgt(a: Card, b: Card, order: Order):
+    def tgt(a: Card, b: Card, order: HandOrder):
         """Test if card `a` is better than card `b`"""
         pivot_chars = tuple(order.pivot_ranks)
         pivot_suits = tuple(order.pivot_suits)
