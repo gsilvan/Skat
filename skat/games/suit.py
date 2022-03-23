@@ -9,6 +9,58 @@ from skat.trick import Trick
 MULTIPLIERS = (9, 10, 11, 12)
 
 
+class SuitGame(Game):
+    """Implements rules for a Suit-Game"""
+
+    def __init__(self, suit):
+        self.suit = suit
+        self.trick = SuitGameTrick(self.suit)
+
+    def new_trick(self):
+        self.trick = SuitGameTrick(self.suit)
+
+    @staticmethod
+    def trump_cards(suit=None) -> tuple[Card, ...]:
+        # TODO: option for ascending, descending
+        """
+        Returns an ascending ordered tuple of trumps for the selected game
+        """
+        trumps = list()
+        for i, rank in enumerate(RANKS):
+            if i == 3:
+                continue  # skip J, we add him later.
+            trumps.append(Card(suit, i))
+        for j in range(len(SUITS)):
+            trumps.append(Card(j, 3))  # add Js {♦J, ♥J, ♠J, ♣J}
+        return tuple(trumps)
+
+    @staticmethod
+    def suit_cards(suit) -> tuple[Card, ...]:
+        # TODO: option for ascending, descending
+        suits = list()
+        for i, _ in enumerate(RANKS):
+            if i == 3:
+                continue  # skip J
+            suits.append(Card(suit, i))
+        return tuple(suits)
+
+    @property
+    def value(self) -> int:
+        """Returns the base multiplier for the selected game"""
+        return MULTIPLIERS[self.suit]
+
+    def to_numpy(self) -> np.ndarray:
+        arr_size = 5
+        arr = np.zeros(arr_size, dtype=int)
+        for i in range(arr_size - 1):
+            # encode color
+            if i == self.suit:
+                arr[i] = 1
+        # encode current trick value TODO: check if current or interpolated works better
+        arr[4] = self.trick.value
+        return arr
+
+
 class SuitGameTrick(Trick):
     def __init__(self, suit):
         super().__init__()
@@ -64,55 +116,3 @@ class SuitGameTrick(Trick):
                     if turn.card > leading.card:
                         leading = turn
             return leading.player_id
-
-
-class SuitGame(Game):
-    """Implements rules for a Suit-Game"""
-
-    def __init__(self, suit):
-        self.suit = suit
-        self.trick = SuitGameTrick(self.suit)
-
-    def new_trick(self):
-        self.trick = SuitGameTrick(self.suit)
-
-    @staticmethod
-    def trump_cards(suit=None) -> tuple[Card, ...]:
-        # TODO: option for ascending, descending
-        """
-        Returns an ascending ordered tuple of trumps for the selected game
-        """
-        trumps = list()
-        for i, rank in enumerate(RANKS):
-            if i == 3:
-                continue  # skip J, we add him later.
-            trumps.append(Card(suit, i))
-        for j in range(len(SUITS)):
-            trumps.append(Card(j, 3))  # add Js {♦J, ♥J, ♠J, ♣J}
-        return tuple(trumps)
-
-    @staticmethod
-    def suit_cards(suit) -> tuple[Card, ...]:
-        # TODO: option for ascending, descending
-        suits = list()
-        for i, _ in enumerate(RANKS):
-            if i == 3:
-                continue  # skip J
-            suits.append(Card(suit, i))
-        return tuple(suits)
-
-    @property
-    def value(self) -> int:
-        """Returns the base multiplier for the selected game"""
-        return MULTIPLIERS[self.suit]
-
-    def to_numpy(self) -> np.ndarray:
-        arr_size = 5
-        arr = np.zeros(arr_size, dtype=int)
-        for i in range(arr_size - 1):
-            # encode color
-            if i == self.suit:
-                arr[i] = 1
-        # encode current trick value TODO: check if current or interpolated works better
-        arr[4] = self.trick.value
-        return arr

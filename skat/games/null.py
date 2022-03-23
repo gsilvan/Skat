@@ -7,6 +7,33 @@ from skat.game import Game
 from skat.trick import Trick
 
 
+class Null(Game):
+    def __init__(self) -> None:
+        self.trick = NullTrick()
+
+    def new_trick(self) -> None:
+        self.trick = NullTrick()
+
+    @staticmethod
+    def trump_cards(suit=None) -> tuple[Card, ...]:
+        """There are no trumps, return always empty tuple"""
+        return tuple()
+
+    @staticmethod
+    def suit_cards(suit) -> tuple[Card, ...]:
+        suits = list()
+        for i, _ in enumerate(RANKS):
+            suits.append(Card(suit, i))
+        return tuple(suits)
+
+    @property
+    def value(self) -> int:
+        return 23
+
+    def to_numpy(self) -> np.ndarray:
+        return np.array([self.trick.value])
+
+
 class NullTrick(Trick):
     @property
     def forced_cards(self) -> set[Card]:
@@ -41,30 +68,3 @@ class NullTrick(Trick):
             raise Exception("Can't compare non equal suits")
         order = ("7", "8", "9", "X", "J", "Q", "K", "A")
         return order.index(a.rank) > order.index(b.rank)
-
-
-class Null(Game):
-    def __init__(self) -> None:
-        self.trick = NullTrick()
-
-    def new_trick(self) -> None:
-        self.trick = NullTrick()
-
-    @staticmethod
-    def trump_cards(suit=None) -> tuple[Card, ...]:
-        """There are no trumps, return always empty tuple"""
-        return tuple()
-
-    @staticmethod
-    def suit_cards(suit) -> tuple[Card, ...]:
-        suits = list()
-        for i, _ in enumerate(RANKS):
-            suits.append(Card(suit, i))
-        return tuple(suits)
-
-    @property
-    def value(self) -> int:
-        return 23
-
-    def to_numpy(self) -> np.ndarray:
-        return np.array([self.trick.value])

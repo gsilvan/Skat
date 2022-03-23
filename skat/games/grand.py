@@ -7,6 +7,41 @@ from skat.game import Game
 from skat.trick import Trick
 
 
+class Grand(Game):
+    def __init__(self) -> None:
+        self.trick = GrandTrick()
+
+    def new_trick(self) -> None:
+        self.trick = GrandTrick()
+
+    @staticmethod
+    def trump_cards(suit=None) -> tuple[Card, ...]:
+        trumps = list()
+        for i, _ in enumerate(SUITS):
+            trumps.append(Card(i, 3))
+        return tuple(trumps)
+
+    @staticmethod
+    def suit_cards(suit) -> tuple[Card, ...]:
+        suits = list()
+        for i, _ in enumerate(RANKS):
+            if i == 3:
+                continue  # skip J
+            suits.append(Card(suit, i))
+        return tuple(suits)
+
+    @property
+    def value(self) -> int:
+        return 24
+
+    def to_numpy(self) -> np.ndarray:
+        arr_size = 5
+        arr = np.zeros(arr_size, dtype=int)
+        # encode current trick value TODO: check if current or interpolated works better
+        arr[4] = self.trick.value
+        return arr
+
+
 class GrandTrick(Trick):
     @property
     def forced_cards(self) -> set[Card]:
@@ -47,38 +82,3 @@ class GrandTrick(Trick):
 
     def _is_trump_in_trick(self) -> bool:
         return any(x.is_jack for _, x in self.buffer)
-
-
-class Grand(Game):
-    def __init__(self) -> None:
-        self.trick = GrandTrick()
-
-    def new_trick(self) -> None:
-        self.trick = GrandTrick()
-
-    @staticmethod
-    def trump_cards(suit=None) -> tuple[Card, ...]:
-        trumps = list()
-        for i, _ in enumerate(SUITS):
-            trumps.append(Card(i, 3))
-        return tuple(trumps)
-
-    @staticmethod
-    def suit_cards(suit) -> tuple[Card, ...]:
-        suits = list()
-        for i, _ in enumerate(RANKS):
-            if i == 3:
-                continue  # skip J
-            suits.append(Card(suit, i))
-        return tuple(suits)
-
-    @property
-    def value(self) -> int:
-        return 24
-
-    def to_numpy(self) -> np.ndarray:
-        arr_size = 5
-        arr = np.zeros(arr_size, dtype=int)
-        # encode current trick value TODO: check if current or interpolated works better
-        arr[4] = self.trick.value
-        return arr
