@@ -201,9 +201,15 @@ class Round:
             self.deck.shuffle(seed=self.seed)
             for player in self.player:
                 player.hand = Hand(self.deck.deal_cards())
+                player.hand.sort(
+                    order=player.hand.Order("♦♥♠♣", "789QKXA", "♦♥♠♣", "J")
+                )
         else:
             for idx, player in enumerate(self.player):
-                player.hand = list(self.initial_cards[idx])  # type: ignore
+                player.hand = Hand(self.initial_cards[idx])  # type: ignore
+                player.hand.sort(
+                    order=player.hand.Order("♦♥♠♣", "789QKXA", "♦♥♠♣", "J")
+                )
             self.skat = self.initial_cards[3]  # type: ignore
 
     def get_state(self, player_id) -> np.ndarray:
