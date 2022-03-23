@@ -11,7 +11,7 @@ class Hand(collections.abc.MutableSequence):
     Order = namedtuple(
         "Order",
         ("suits", "ranks", "pivot_suits", "pivot_ranks"),
-        defaults=("", "", "♦♥♠♣", ""),
+        defaults=("♦♥♠♣", "", "♦♥♠♣", ""),
     )
 
     def __init__(self, iterable=None) -> None:
