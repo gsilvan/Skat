@@ -212,14 +212,14 @@ class Round:
         """Return a state vector for a given player. A player has a limited view on the
         state in incomplete information games."""
         __hand = self.player[player_id].hand.as_vector
-        __color = self.game.to_numpy()  # takes color[0-3] and trick value [4]
+        __color = self.game.to_numpy()  # type: ignore
         __points = np.array([self.points_soloist, self.points_defenders])
         __played_cards = np.array([])
         for i in range(3):
             __played_cards = np.concatenate(
                 (__played_cards, self.trick_history.to_numpy(player_id=i))
             )
-        __trick_value = np.array([self.game.trick.value])
+        __trick_value = np.array([self.game.trick.value])  # type: ignore
         return np.concatenate(
             (__hand, __color, __points, __played_cards, __trick_value)
         )
