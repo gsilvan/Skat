@@ -4,6 +4,7 @@ import numpy as np
 
 from skat.card import RANKS, SUITS, Card
 from skat.games import Game
+from skat.hand import HandOrder
 from skat.trick import Trick
 
 MULTIPLIERS = (9, 10, 11, 12)
@@ -15,6 +16,7 @@ class SuitGame(Game):
     def __init__(self, suit):
         self.suit = suit
         self.trick = SuitGameTrick(self.suit)
+        self.order = HandOrder(suits=self.__suit_order(suit), pivot_ranks="J")
 
     def new_trick(self):
         self.trick = SuitGameTrick(self.suit)
@@ -59,6 +61,20 @@ class SuitGame(Game):
         # encode current trick value TODO: check if current or interpolated works better
         arr[4] = self.trick.value
         return arr
+
+    @staticmethod
+    def __suit_order(suit: int) -> str:
+        match suit:
+            case 0:
+                return "♥♠♣♦"
+            case 1:
+                return "♦♠♣♥"
+            case 2:
+                return "♦♥♣♠"
+            case 3:
+                return "♦♥♠♣"
+            case _:
+                raise Exception("0-3 is valid, nothing else!")
 
 
 class SuitGameTrick(Trick):
