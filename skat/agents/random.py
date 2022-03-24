@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 import random
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from skat.agents import Agent
 from skat.card import Card
-from skat.games import Game
+from skat.games.grand import Grand
+from skat.games.null import Null
 from skat.games.suit import SuitGame
 from skat.player import Player
+
+if TYPE_CHECKING:
+    from skat.games import Game
 
 
 class RandomAgent(Agent):
@@ -41,7 +47,14 @@ class RandomAgent(Agent):
 
     def declare_game(self, state) -> Game:
         """Random Agent declares games equal distributed"""
-        available_games = (SuitGame(random.randint(0, 3)),)
+        available_games = (
+            Grand(),
+            Null(),
+            SuitGame(0),
+            SuitGame(1),
+            SuitGame(2),
+            SuitGame(3),
+        )
         return random.choice(available_games)
 
     def choose_card(self, valid_moves: set[Card]) -> Card:

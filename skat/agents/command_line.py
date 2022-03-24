@@ -1,10 +1,16 @@
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
 
 from skat.agents import Agent
 from skat.card import Card
-from skat.games import Game
+from skat.games.grand import Grand
+from skat.games.null import Null
 from skat.games.suit import SuitGame
 from skat.player import Player
+
+if TYPE_CHECKING:
+    from skat.games import Game
 
 
 class CommandLineAgent(Agent):
@@ -41,9 +47,24 @@ class CommandLineAgent(Agent):
         return int(user_input)
 
     def declare_game(self, state) -> Game:
-        available_games = ["Diamonds", "Hearts", "Spades", "Clubs"]
-        user_input = input(f"select one of: {available_games}")  # TODO: input sanit.
-        return SuitGame(int(user_input))
+        available_games = ["Diamonds", "Hearts", "Spades", "Clubs", "Grand", "Null"]
+        user_input = int(input(f"select one of: {available_games}"))
+        # TODO: input sanitation
+        match user_input:
+            case 0:
+                return SuitGame(0)
+            case 1:
+                return SuitGame(1)
+            case 2:
+                return SuitGame(2)
+            case 3:
+                return SuitGame(3)
+            case 4:
+                return Grand()
+            case 5:
+                return Null()
+            case _:
+                raise Exception("choose 0..5. nothing else!")
 
     def press_skat(self) -> list[Card]:
         if self.state is None:
