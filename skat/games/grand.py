@@ -2,13 +2,13 @@ from typing import Optional
 
 import numpy as np
 
+import skat.games
 from skat.card import RANKS, SUITS, Card
-from skat.game import Game
 from skat.hand import HandOrder
 from skat.trick import Trick
 
 
-class Grand(Game):
+class Grand(skat.games.Game):
     def __init__(self) -> None:
         self.trick = GrandTrick()
         self.order = HandOrder(pivot_ranks="J")

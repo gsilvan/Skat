@@ -2,15 +2,15 @@ from typing import Optional
 
 import numpy as np
 
+import skat.games
 from skat.card import RANKS, SUITS, Card
-from skat.games import Game
 from skat.hand import HandOrder
 from skat.trick import Trick
 
 MULTIPLIERS = (9, 10, 11, 12)
 
 
-class SuitGame(Game):
+class SuitGame(skat.games.Game):
     """Implements rules for a Suit-Game"""
 
     def __init__(self, suit):
