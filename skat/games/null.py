@@ -4,12 +4,14 @@ import numpy as np
 
 from skat.card import RANKS, SUITS, Card
 from skat.game import Game
+from skat.hand import HandOrder
 from skat.trick import Trick
 
 
 class Null(Game):
     def __init__(self) -> None:
         self.trick = NullTrick()
+        self.order = HandOrder(ranks="789XJQKA")
 
     def new_trick(self) -> None:
         self.trick = NullTrick()

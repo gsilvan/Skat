@@ -3,11 +3,13 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from skat.card import Card
+from skat.hand import HandOrder
 from skat.trick import Trick
 
 
 class Game(ABC):
     trick: Trick
+    order: HandOrder = HandOrder()
 
     @abstractmethod
     def __init__(self) -> None:
