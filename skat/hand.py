@@ -3,8 +3,11 @@ import typing
 from typing import NamedTuple
 
 import numpy as np
+import torch
 
 from skat.card import Card
+
+FULL_HAND = [Card(i, j) for i in range(4) for j in range(8)]
 
 
 class HandOrder(NamedTuple):
@@ -67,6 +70,13 @@ class Hand(collections.abc.MutableSequence):
         for card in self.__hand:
             arr[card.np_index] = 1
         return arr
+
+    @property
+    def as_tensor_mask(self) -> torch.Tensor:
+        tensor = torch.zeros(32, dtype=bool)
+        for card in self.__hand:
+            tensor[card.np_index] = True
+        return tensor
 
     def sort(self, order: HandOrder):
         """Sort the Hand according to specified sort rules using Bubble-Sort."""
