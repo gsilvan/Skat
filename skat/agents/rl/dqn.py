@@ -1,12 +1,13 @@
 import random
-from itertools import count
 
+import torch
 import torch.nn as nn
 import torch.optim
 
 import skat.models
 
 from .buffer import ReplayBuffer, Transition
+from .mask import MaskedCategorical
 
 
 class DQN:
@@ -53,18 +54,22 @@ class DQN:
         # step counter
         self.episode = 0
 
-    def select_action(self, state) -> int:
+    def select_action(self, state, valid_actions: torch.Tensor) -> int:
         # decay epsilon
         self.epsilon *= self.epsilon_decay
         self.epsilon = max(self.epsilon, 0.01)
 
+        # TODO: invalid action masking
+        valid_indices = [i for i, t in enumerate(valid_actions) if t]
+
         if random.random() <= self.epsilon:
             # select with epsilon probability a random action
-            return random.randrange(0, 32)
+            return random.choice(valid_indices)
         else:
             # select with (1-epsilon) probability a greedy argmax action
-            action = self.policy_net(state).argmax()
-        return action.detach().cpu().numpy()  # TODO: implementation unclear
+            mc = MaskedCategorical(logits=self.policy_net(state), mask=valid_actions)
+            return int(mc.probs.argmax())
+        # return action.detach().cpu().numpy()
 
     def optimize_model(self):
         # get a random sample from buffer (size=batch_size)

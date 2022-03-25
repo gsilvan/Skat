@@ -2,7 +2,7 @@ from skat.agents import Agent
 from skat.agents.rl.dqn import DQN
 from skat.card import Card
 from skat.games import Game
-from skat.hand import Hand
+from skat.hand import FULL_HAND, Hand
 
 
 class DQNAgent(Agent):
@@ -13,15 +13,17 @@ class DQNAgent(Agent):
         self.last_action = None
         self.last_cumulative_reward = 0
 
-    def choose_card(self, valid_moves: set[Card]) -> Card:
+    def choose_card(self, valid_actions: set[Card]) -> Card:
         self.initial_state = self.state.public_state.to_numpy()
         self.last_cumulative_reward = self.state.trick_stack_value
 
-        valid_moves = Hand([valid_moves]).as_vector
+        valid_actions = Hand([valid_actions]).as_tensor_mask
 
         # get an action
-        self.last_action = self.dqn.select_action(self.state)
-        # TODO: translate action to Card
+        self.last_action = self.dqn.select_action(
+            self.state.public_state.to_numpy(), valid_actions
+        )
+        return FULL_HAND.index(self.last_action)
 
     def pickup_skat(self, state) -> bool:
         pass
