@@ -45,11 +45,7 @@ class DQN:
         )
 
         # buffer
-        self.replay_buffer = ReplayBuffer(
-            state_size=model.INPUT_SIZE,
-            action_size=model.OUTPUT_SIZE,
-            buffer_size=10000,
-        )
+        self.replay_buffer = ReplayBuffer(buffer_size=10000)
 
         # step counter
         self.episode = 0
@@ -67,11 +63,16 @@ class DQN:
             return random.choice(valid_indices)
         else:
             # select with (1-epsilon) probability a greedy argmax action
-            mc = MaskedCategorical(logits=self.policy_net(state), mask=valid_actions)
+            mc = MaskedCategorical(
+                logits=self.policy_net(torch.tensor(state)), mask=valid_actions
+            )
             return int(mc.probs.argmax())
         # return action.detach().cpu().numpy()
 
     def optimize_model(self):
+        if len(self.replay_buffer) < self.batch_size:
+            return
+
         # get a random sample from buffer (size=batch_size)
         transitions = self.replay_buffer.sample(batch_size=self.batch_size)
         batch = Transition(*zip(*transitions))
