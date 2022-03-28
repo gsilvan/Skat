@@ -50,23 +50,30 @@ class DQN:
         # step counter
         self.episode = 0
 
-    def select_action(self, state, valid_actions: torch.Tensor) -> int:
+    def select_action(
+        self, state: torch.Tensor, valid_actions: torch.Tensor
+    ) -> torch.Tensor:
         # decay epsilon
         self.epsilon *= self.epsilon_decay
         self.epsilon = max(self.epsilon, 0.01)
 
-        # TODO: invalid action masking
-        valid_indices = [i for i, t in enumerate(valid_actions) if t]
+        valid_indices: list[int] = [i for i, t in enumerate(valid_actions) if t]
 
         if random.random() <= self.epsilon:
             # select with epsilon probability a random action
-            return random.choice(valid_indices)
+            ret = torch.zeros(32)
+            ret[random.choice(valid_indices)] = 1.0
+            return ret
         else:
             # select with (1-epsilon) probability a greedy argmax action
+            prediction = self.policy_net(state)
             mc = MaskedCategorical(
-                logits=self.policy_net(torch.tensor(state)), mask=valid_actions
+                logits=prediction,
+                mask=valid_actions,
             )
-            return int(mc.probs.argmax())
+            argmax = mc.probs.argmax()
+            return mc.probs
+            # return int(argmax)
         # return action.detach().cpu().numpy()
 
     def optimize_model(self):

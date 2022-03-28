@@ -1,41 +1,36 @@
-from skat.agents import Agent
+from typing import Optional
+
+import torch
+
+import skat.agents.command_line
 from skat.agents.rl.dqn import DQN
 from skat.card import Card
-from skat.games import Game
 from skat.hand import FULL_HAND, Hand
 
 
-class DQNAgent(Agent):
+class DQNAgent(skat.agents.command_line.CommandLineAgent):
     def __init__(self, train=True):
+        super().__init__()
         self.dqn = DQN()  # TODO: pass train to dqn
         self.train = train
-        self.initial_state = None
-        self.last_action = None
-        self.last_cumulative_reward = 0
+        self.initial_state: Optional[torch.Tensor] = None
+        self.last_action: Optional[torch.Tensor] = None
+        self.last_cumulative_reward: int = 0
 
     def choose_card(self, valid_actions: set[Card]) -> Card:
-        self.initial_state = self.state.public_state.to_numpy()
+        self.initial_state = self.state.public_state.get_state_t(
+            player_id=self.state.seat_id
+        )
         self.last_cumulative_reward = self.state.trick_stack_value
 
-        valid_actions = Hand([valid_actions]).as_tensor_mask
+        valid_actions = Hand(tuple(valid_actions)).as_tensor_mask
 
-        # get an action
-        self.last_action = self.dqn.select_action(
-            self.state.public_state.to_numpy(), valid_actions
-        )
-        return FULL_HAND.index(self.last_action)
-
-    def pickup_skat(self, state) -> bool:
-        pass
-
-    def bid(self, current_bid, offer=False) -> int:
-        pass
-
-    def declare_game(self, state) -> Game:
-        pass
-
-    def press_skat(self) -> list[Card]:
-        pass
+        # get a prediction
+        prediction = self.dqn.select_action(self.initial_state, valid_actions)
+        self.last_action = prediction
+        choice = FULL_HAND[int(prediction.argmax())]
+        self.state.hand.remove(choice)
+        return choice
 
     def trick_done_event(self, is_terminal=False):
         if not self.train:
@@ -43,11 +38,14 @@ class DQNAgent(Agent):
             return
 
         reward = self.state.trick_stack_value - self.last_cumulative_reward
+        reward = torch.tensor([reward])
 
         if is_terminal:
             next_state = None
         else:
-            next_state = self.state.public_state.to_numpy()
+            next_state = self.state.public_state.get_state_t(
+                player_id=self.state.seat_id
+            )
 
         # store in buffer
         self.dqn.replay_buffer.push(
