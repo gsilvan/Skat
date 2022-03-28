@@ -3,6 +3,7 @@ from enum import Enum, auto
 from typing import Optional, Union
 
 import numpy as np
+import torch
 
 from skat.agents.random import RandomAgent
 from skat.card import Card
@@ -220,9 +221,17 @@ class Round:
                 (__played_cards, self.trick_history.to_numpy(player_id=i))
             )
         __trick_value = np.array([self.game.trick.value])  # type: ignore
+        # assert len(__hand) == 32
+        # assert len(__color) == 5
+        # assert len(__points) == 2
+        # assert len(__trick_value) == 1
+        # assert len(__played_cards) == 96
         return np.concatenate(
-            (__hand, __color, __points, __played_cards, __trick_value)
+            (__hand, __color, __points, __played_cards, __trick_value), dtype=np.float32
         )
+
+    def get_state_t(self, player_id) -> torch.Tensor:
+        return torch.tensor(self.get_state(player_id))
 
     def step(self) -> bool:
         """Do a step. A step is one single action of one player."""
