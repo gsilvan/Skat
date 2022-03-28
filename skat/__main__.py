@@ -11,6 +11,9 @@ def get_args():
     parser.add_argument("-p0", type=str, default="random")
     parser.add_argument("-p1", type=str, default="random")
     parser.add_argument("-p2", type=str, default="random")
+    parser.add_argument("--seed", default=None)
+    parser.add_argument("--suit-game-only", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--hold-position", action=argparse.BooleanOptionalAction)
     parser.add_argument("-v", action=argparse.BooleanOptionalAction)
     return parser.parse_args()
 
@@ -35,6 +38,12 @@ if __name__ == "__main__":
     agents = []
     for i, a in enumerate(agent_args):
         agents.append(get_player(a))
-    t = Tournament(rounds=rounds, agents=agents, verbose=args.v)
+    t = Tournament(
+        rounds=rounds,
+        agents=agents,
+        verbose=args.v,
+        seed=args.seed,
+        hold_position=args.hold_position,
+    )
     t.start()
     print(f"{t.scores}")
