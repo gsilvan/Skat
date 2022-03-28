@@ -30,12 +30,16 @@ class Tournament:
         rounds=32,
         agents=(RandomAgent(), RandomAgent(), RandomAgent()),
         verbose=False,
+        seed=None,
+        hold_position=False,
     ) -> None:
         self.rounds = rounds
         self.agents = agents
         self.scores = [0, 0, 0]
         self.dealer = 0
         self.verbose = verbose
+        self.seed = seed
+        self.hold_position = hold_position
 
     def start(self):
         for _ in range(self.rounds):
@@ -46,12 +50,15 @@ class Tournament:
                 start=False,
                 verbose=self.verbose,
                 agents=self.agents,
+                seed=self.seed,
+                hand_game=True,
             )
             soloist, points = r.start()
             self.scores[soloist] += points
             self.scores[(soloist + 1) % 3] += -points / 2
             self.scores[(soloist + 2) % 3] += -points / 2
-            self.dealer = (self.dealer + 1) % 3
+            if not self.hold_position:
+                self.dealer = (self.dealer + 1) % 3
 
 
 class Round:
@@ -61,7 +68,7 @@ class Round:
         skip_bidding: bool = False,
         solo_player_id: int = -42,
         declare_game: Game = None,
-        pickup_skat: bool = False,
+        hand_game: Optional[bool] = None,
         agents: Optional[list] = None,
         deck: Deck = Deck(),
         start: bool = True,
@@ -81,7 +88,7 @@ class Round:
         self.deal_deck: bool = True
         self.initial_cards = initial_cards
         self.verbose = verbose
-        self.hand_game: bool = pickup_skat
+        self.hand_game = hand_game
         self.skat: list[Card] = list()
         self.game: Optional[Game] = declare_game
         self.skip_bidding: bool = skip_bidding
@@ -313,7 +320,9 @@ class Round:
             # game bidding
             self.bidding()
         # take skat or not
-        self.hand_game = not self.player[self.solo_player_id].pickup_skat()
+        if self.hand_game is None:
+            # ask player
+            self.hand_game = not self.player[self.solo_player_id].pickup_skat()
         if not self.hand_game:
             _cards_in_skat = self.deck.deal_cards(2)
             if self.verbose:
