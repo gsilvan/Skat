@@ -20,6 +20,7 @@ def get_args():
 
 def get_player(arg: str):
     from skat.agents.command_line import CommandLineAgent
+    from skat.agents.dqn import DQNAgent
     from skat.agents.random import RandomAgent
 
     match arg:
@@ -27,6 +28,8 @@ def get_player(arg: str):
             return RandomAgent()
         case "cli":
             return CommandLineAgent()
+        case "dqn":
+            return DQNAgent()
         case _:
             raise Exception("Agent not found.")
 
