@@ -238,7 +238,8 @@ class Round:
         )
 
     def get_state_t(self, player_id) -> torch.Tensor:
-        return torch.tensor(self.get_state(player_id))
+        # TODO: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
+        return torch.tensor([self.get_state(player_id)])
 
     def step(self) -> bool:
         """Do a step. A step is one single action of one player."""
