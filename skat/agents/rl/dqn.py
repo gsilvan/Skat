@@ -59,11 +59,11 @@ class DQN:
 
         valid_indices: list[int] = [i for i, t in enumerate(valid_actions) if t]
 
+        action = torch.zeros((1, 32), dtype=torch.long)
         if random.random() <= self.epsilon:
             # select with epsilon probability a random action
-            ret = torch.zeros(32)
-            ret[random.choice(valid_indices)] = 1.0
-            return ret
+            action[0][random.choice(valid_indices)] = 1
+            return action
         else:
             # select with (1-epsilon) probability a greedy argmax action
             prediction = self.policy_net(state)
@@ -72,9 +72,8 @@ class DQN:
                 mask=valid_actions,
             )
             argmax = mc.probs.argmax()
-            return mc.probs
-            # return int(argmax)
-        # return action.detach().cpu().numpy()
+            action[0][argmax] = 1
+            return action
 
     def optimize_model(self):
         if len(self.replay_buffer) < self.batch_size:
