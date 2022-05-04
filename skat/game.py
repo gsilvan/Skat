@@ -182,20 +182,44 @@ class Round:
                 raise Exception("more than 3 cards in trick, that smells!")
 
     @property
-    def soloist_leading(self) -> Optional[bool]:
+    def soloist_leading(self) -> bool:
         """Return True if soloist is leading."""
         return self.points_soloist > self.points_defenders
 
     @property
-    def soloist_won(self) -> Optional[bool]:
-        """
-        Return True if soloist has won the game. If the round is not finished yet,
-        return False.
-        """
-        if self.is_finished:
-            return self.points_soloist > self.points_defenders
-        else:
-            return None
+    def defenders_leading(self) -> bool:
+        """Return True if defenders are leading."""
+        return self.points_defenders > self.points_soloist
+
+    @property
+    def soloist_won(self) -> bool:
+        """Return True if the soloist has (already) won the game."""
+        return self.points_soloist > 60
+
+    @property
+    def soloist_won_schneider(self) -> bool:
+        """Return True if the soloist has (already) archived schneider upgrade."""
+        return self.points_soloist > 90
+
+    @property
+    def soloist_won_schwarz(self) -> bool:
+        """Return True if the soloist has won all trick points."""
+        return self.points_soloist == 120
+
+    @property
+    def defenders_won(self) -> bool:
+        """Return True if the defenders have (already) beaten the soloist."""
+        return self.points_defenders >= 60
+
+    @property
+    def defenders_won_schneider(self) -> bool:
+        """Return True if the defenders have (already) archived schneider upgrade."""
+        return self.points_defenders >= 90
+
+    @property
+    def defenders_won_schwarz(self) -> bool:
+        """Return True if the defenders have won all trick points."""
+        return self.points_defenders == 120
 
     @property
     def is_finished(self) -> bool:
