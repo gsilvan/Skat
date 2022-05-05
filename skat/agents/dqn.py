@@ -37,8 +37,8 @@ class DQNAgent(skat.agents.command_line.CommandLineAgent):
             # do not optimize if it's not in trainig
             return
 
-        reward = self.state.trick_stack_value - self.last_cumulative_reward
-        reward = torch.tensor([reward])
+        reward = torch.empty((1, 1), dtype=torch.long)
+        reward[0][0] = self.state.trick_stack_value - self.last_cumulative_reward
 
         if is_terminal:
             next_state = None
