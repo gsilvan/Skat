@@ -2,6 +2,7 @@ import random
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim
 
 import skat.models
@@ -95,8 +96,9 @@ class DQN:
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)
 
-        # predict Q(s)
-        state_action_values = self.policy_net(state_batch).gather(1, action_batch)
+        # Q(s_t, a)
+        # state_action_values
+        q = torch.masked_select(self.policy_net(state_batch), action_batch.bool())
 
         next_state_values = torch.zeros(self.batch_size, device=self.device)
         next_state_values[non_final_mask] = (
@@ -104,16 +106,16 @@ class DQN:
         )
 
         # Compute the expected Q values
-        expected_state_action_values = (next_state_values * self.gamma) + reward_batch
-
-        # calculate loss
-        loss = nn.SmoothL1Loss(state_action_values, expected_state_action_values)
+        expected_state_action_values = (
+            next_state_values * self.gamma
+        ) + reward_batch.squeeze(1)
+        loss = F.mse_loss(q, expected_state_action_values)
 
         # optimize model
         self.optimizer.zero_grad()
-        loss.backwards()
+        loss.backward()
         for param in self.policy_net.parameters():
-            param.grad.data.clamp(-1, 1)
+            param.grad.data.clamp_(-1, 1)
         self.optimizer.step()
 
         # Update the target net
