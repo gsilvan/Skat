@@ -116,15 +116,19 @@ class SuitGameTrick(Trick):
             # then only here can be the winner
             for turn in self.buffer[1:]:
                 if self._is_trump_card(turn.card):
-                    if turn.card.is_jack:
-                        if leading.card.is_jack:
-                            if leading.card < turn.card:
+                    if self._is_trump_card(leading.card):
+                        if turn.card.is_jack:
+                            if leading.card.is_jack:
+                                if leading.card < turn.card:
+                                    leading = turn
+                            else:
                                 leading = turn
                         else:
-                            leading = turn
+                            if turn.card > leading.card:
+                                leading = turn
                     else:
-                        if turn.card > leading.card:
-                            leading = turn
+                        leading = turn
+
             return leading.player_id
         else:
             for turn in self.buffer[1:]:
