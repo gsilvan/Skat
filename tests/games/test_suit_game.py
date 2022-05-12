@@ -92,3 +92,29 @@ class SuitGameTest(unittest.TestCase):
         for player, card in player_cards:
             game.trick.append(player_id=player, card=card)
         self.assertEqual(0, game.trick.winner)
+
+    def test_bug_9(self):
+        # trick=[Turn(player_id=0, card=♥J), Turn(player_id=1, card=♠Q), Turn(player_id=2, card=♦J)]
+        trump_suit = 2
+        game = SuitGame(trump_suit)
+        player_cards = (
+            (0, Card(1, 3)),
+            (1, Card(2, 4)),
+            (2, Card(0, 3)),
+        )
+        for player, card in player_cards:
+            game.trick.append(player_id=player, card=card)
+        self.assertEqual(0, game.trick.winner)
+
+    def test_bug_10(self):
+        # trick=[Turn(player_id=0, card=♥J), Turn(player_id=1, card=♠K), Turn(player_id=2, card=♣X)]
+        trump_suit = 2
+        game = SuitGame(trump_suit)
+        player_cards = (
+            (0, Card(1, 3)),
+            (1, Card(2, 5)),
+            (2, Card(3, 6)),
+        )
+        for player, card in player_cards:
+            game.trick.append(player_id=player, card=card)
+        self.assertEqual(0, game.trick.winner)
