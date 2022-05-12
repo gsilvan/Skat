@@ -82,12 +82,12 @@ class SuitGameTrick(Trick):
         super().__init__()
         self.trump_suit = suit
 
-    def _is_trump_card(self, card: Card) -> bool:
+    def is_trump_card(self, card: Card) -> bool:
         """Check if given card is a trump card"""
         card_set: set = {card}  # put the card in a set and compare it
         return card_set < set(SuitGame.trump_cards(self.trump_suit))
 
-    def _is_trump_in_trick(self) -> bool:
+    def is_trump_in_trick(self) -> bool:
         return any(x in SuitGame.trump_cards(self.trump_suit) for _, x in self.buffer)
 
     @property
@@ -104,7 +104,7 @@ class SuitGameTrick(Trick):
     def is_trump(self) -> bool:
         if len(self.buffer) <= 0:
             raise Exception("No card in trick")
-        return self._is_trump_card(self.buffer[0].card)
+        return self.is_trump_card(self.buffer[0].card)
 
     @property
     def winner(self) -> Optional[int]:
@@ -112,11 +112,11 @@ class SuitGameTrick(Trick):
         if not self.is_full:
             return None
         leading = self.buffer[0]
-        if self._is_trump_in_trick():
+        if self.is_trump_in_trick():
             # then only here can be the winner
             for turn in self.buffer[1:]:
-                if self._is_trump_card(turn.card):
-                    if self._is_trump_card(leading.card):
+                if self.is_trump_card(turn.card):
+                    if self.is_trump_card(leading.card):
                         if turn.card.is_jack:
                             if leading.card.is_jack:
                                 if leading.card < turn.card:
