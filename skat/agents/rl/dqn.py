@@ -98,7 +98,11 @@ class DQN:
 
         # Q(s_t, a)
         # state_action_values
-        q = torch.masked_select(self.policy_net(state_batch), action_batch.bool())
+        q = (
+            self.policy_net(state_batch)
+            .gather(1, action_batch.argmax(dim=1).unsqueeze(1))
+            .squeeze(1)
+        )
 
         next_state_values = torch.zeros(self.batch_size, device=self.device)
         next_state_values[non_final_mask] = (
