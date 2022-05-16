@@ -14,6 +14,7 @@ def get_args():
     parser.add_argument("--seed", default=None)
     parser.add_argument("--suit-game-only", action=argparse.BooleanOptionalAction)
     parser.add_argument("--hold-position", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--declare-game", type=int)
     parser.add_argument("-v", action=argparse.BooleanOptionalAction)
     return parser.parse_args()
 
@@ -34,6 +35,17 @@ def get_player(arg: str):
             raise Exception("Agent not found.")
 
 
+def get_game(arg: int):
+    from skat.games.suit import SuitGame
+
+    match arg:
+        case 0 | 1 | 2 | 3:
+            return SuitGame(arg)
+        case _:
+            print("did not get this game declaration use 0-3")
+            return None
+
+
 if __name__ == "__main__":
     args = get_args()
     rounds = args.rounds
@@ -47,6 +59,7 @@ if __name__ == "__main__":
         verbose=args.v,
         seed=args.seed,
         hold_position=args.hold_position,
+        declare_game=get_game(args.declare_game),
     )
     t.start()
     print(f"{t.scores}")
