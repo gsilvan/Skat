@@ -251,7 +251,7 @@ class Round:
             __played_cards = np.concatenate(
                 (__played_cards, self.trick_history.to_numpy(player_id=i))
             )
-        __trick_value = np.array([self.game.trick.value])  # type: ignore
+        __trick_value = np.array([self.game.trick.value / 120.0])  # type: ignore
         # assert len(__hand) == 32
         # assert len(__color) == 5
         # assert len(__points) == 2
