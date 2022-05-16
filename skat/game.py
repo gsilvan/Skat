@@ -32,6 +32,7 @@ class Tournament:
         verbose=False,
         seed=None,
         hold_position=False,
+        declare_game=None,
     ) -> None:
         self.rounds = rounds
         self.agents = agents
@@ -40,6 +41,7 @@ class Tournament:
         self.verbose = verbose
         self.seed = seed
         self.hold_position = hold_position
+        self.declare_game = declare_game
 
     def start(self):
         for _ in range(self.rounds):
@@ -52,6 +54,7 @@ class Tournament:
                 agents=self.agents,
                 seed=self.seed,
                 hand_game=True,
+                declare_game=self.declare_game,
             )
             soloist, points = r.start()
             self.scores[soloist] += points
@@ -376,7 +379,8 @@ class Round:
         if self.verbose:
             print(f"skat={self.skat}")
         # game declaration
-        self.game = self.player[self.solo_player_id].declare_game()
+        if self.game is None:
+            self.game = self.player[self.solo_player_id].declare_game()
         # add skat to tricks
         for card in self.skat:
             self.player[self.solo_player_id].trick_stack.append(card)
