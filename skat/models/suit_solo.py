@@ -10,7 +10,9 @@ class SuitSoloNet(nn.Module):
     __played_cards = 96
     __front_hand = 3
 
-    INPUT_SIZE = __hand + __color + __points + __trick_value + __played_cards + __front_hand
+    INPUT_SIZE = (
+        __hand + __color + __points + __trick_value + __played_cards + __front_hand
+    )
     OUTPUT_SIZE = 32
 
     def __init__(

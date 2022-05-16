@@ -248,7 +248,9 @@ class Round:
         state in incomplete information games."""
         __hand = self.player[player_id].hand.as_vector
         __color = self.game.to_numpy()  # type: ignore
-        __points = np.array([self.points_soloist / 120.0, self.points_defenders / 120.0])
+        __points = np.array(
+            [self.points_soloist / 120.0, self.points_defenders / 120.0]
+        )
         __played_cards = np.array([])
         for i in range(3):
             __played_cards = np.concatenate(
@@ -268,7 +270,8 @@ class Round:
         # assert len(__trick_value) == 1
         # assert len(__played_cards) == 96
         return np.concatenate(
-            (__hand, __color, __points, __played_cards, __trick_value, __front_hand), dtype=np.float32
+            (__hand, __color, __points, __played_cards, __trick_value, __front_hand),
+            dtype=np.float32,
         )
 
     def get_state_t(self, player_id) -> torch.Tensor:
