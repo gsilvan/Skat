@@ -8,8 +8,9 @@ class SuitSoloNet(nn.Module):
     # __free_colors = 15  # solist, defender 1, defender 2
     __trick_value = 1
     __played_cards = 96
+    __front_hand = 3
 
-    INPUT_SIZE = __hand + __color + __points + __trick_value + __played_cards
+    INPUT_SIZE = __hand + __color + __points + __trick_value + __played_cards + __front_hand
     OUTPUT_SIZE = 32
 
     def __init__(
