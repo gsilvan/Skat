@@ -245,7 +245,7 @@ class Round:
         state in incomplete information games."""
         __hand = self.player[player_id].hand.as_vector
         __color = self.game.to_numpy()  # type: ignore
-        __points = np.array([self.points_soloist, self.points_defenders])
+        __points = np.array([self.points_soloist / 120.0, self.points_defenders / 120.0])
         __played_cards = np.array([])
         for i in range(3):
             __played_cards = np.concatenate(
