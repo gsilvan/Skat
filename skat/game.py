@@ -252,18 +252,26 @@ class Round:
                 (__played_cards, self.trick_history.to_numpy(player_id=i))
             )
         __trick_value = np.array([self.game.trick.value / 120.0])  # type: ignore
+        __front_hand = np.zeros(3, dtype=int)
+        if player_id == self.front_hand:
+            __front_hand[0] = 1
+        elif player_id == self.middle_hand:
+            __front_hand[1] = 1
+        elif player_id == self.back_hand:
+            __front_hand[2] = 1
         # assert len(__hand) == 32
         # assert len(__color) == 5
         # assert len(__points) == 2
         # assert len(__trick_value) == 1
         # assert len(__played_cards) == 96
         return np.concatenate(
-            (__hand, __color, __points, __played_cards, __trick_value), dtype=np.float32
+            (__hand, __color, __points, __played_cards, __trick_value, __front_hand), dtype=np.float32
         )
 
     def get_state_t(self, player_id) -> torch.Tensor:
         # TODO: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
-        return torch.tensor([self.get_state(player_id)])
+        state = [self.get_state(player_id)]
+        return torch.tensor(state)
 
     def step(self) -> bool:
         """Do a step. A step is one single action of one player."""
