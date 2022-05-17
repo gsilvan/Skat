@@ -16,6 +16,9 @@ class DQNAgent(skat.agents.command_line.CommandLineAgent):
         self.initial_state: Optional[torch.Tensor] = None
         self.last_action: Optional[torch.Tensor] = None
         self.last_cumulative_reward: int = 0
+        self.lcr = 0
+        self.writer = SummaryWriter()
+        self.epoch = 0
 
     def choose_card(self, valid_actions: set[Card]) -> Card:
         self.initial_state = self.state.public_state.get_state_t(
@@ -42,6 +45,8 @@ class DQNAgent(skat.agents.command_line.CommandLineAgent):
 
         if is_terminal:
             next_state = None
+            self.writer.add_scalar("Points", self.state.trick_stack_value, self.epoch)
+            self.epoch += 1
         else:
             next_state = self.state.public_state.get_state_t(
                 player_id=self.state.seat_id

@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim
+from torch.utils.tensorboard import SummaryWriter
 
 import skat.models
 
@@ -50,6 +51,9 @@ class DQN:
 
         # step counter
         self.episode = 0
+
+        # tensorboard
+        self.writer = SummaryWriter()
 
     def select_action(
         self, state: torch.Tensor, valid_actions: torch.Tensor
