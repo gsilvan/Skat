@@ -60,7 +60,7 @@ class DQN:
     ) -> torch.Tensor:
         # decay epsilon
         self.epsilon *= self.epsilon_decay
-        self.epsilon = max(self.epsilon, 0.01)
+        self.epsilon = max(self.epsilon, 0.085)
 
         valid_indices: list[int] = [i for i, t in enumerate(valid_actions) if t]
 
