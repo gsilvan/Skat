@@ -1,6 +1,7 @@
 from typing import Optional
 
 import torch
+from torch.utils.tensorboard import SummaryWriter
 
 import skat.agents.command_line
 from skat.agents.rl.dqn import DQN
@@ -25,6 +26,10 @@ class DQNAgent(skat.agents.command_line.CommandLineAgent):
             player_id=self.state.seat_id
         )
         self.last_cumulative_reward = self.state.trick_stack_value
+        self.lcr = (
+            self.state.public_state.points_soloist
+            - self.state.public_state.points_defenders
+        )
 
         valid_actions = Hand(tuple(valid_actions)).as_tensor_mask
 
@@ -40,8 +45,11 @@ class DQNAgent(skat.agents.command_line.CommandLineAgent):
             # do not optimize if it's not in trainig
             return
 
-        reward = torch.empty((1, 1), dtype=torch.long)
-        reward[0][0] = self.state.trick_stack_value - self.last_cumulative_reward
+        reward = torch.empty((1, 1), dtype=torch.float64)
+        reward[0][0] = (
+            self.state.trick_stack_value - self.last_cumulative_reward
+        ) / 120.0
+        # reward[0][0] = (self.lcr + (self.state.public_state.points_soloist - self.state.public_state.points_defenders)) / 120.0
 
         if is_terminal:
             next_state = None
