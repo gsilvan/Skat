@@ -51,6 +51,7 @@ class Deck:
         """
         random.seed(a=seed)
         random.shuffle(self.deck)
+        random.seed(None)
 
     def deal_cards(self, quantity=10) -> list[Card]:
         """
