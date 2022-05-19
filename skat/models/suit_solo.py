@@ -19,20 +19,17 @@ class SuitSoloNet(nn.Module):
         self,
         input_size=INPUT_SIZE,
         output_size=OUTPUT_SIZE,
-        dropout=0.25,
+        dropout=0.333,
     ) -> None:
         super().__init__()
         self.linear_dropout_relu_stack = nn.Sequential(
             nn.Linear(in_features=input_size, out_features=input_size),
-            nn.Dropout(p=dropout),
             nn.ReLU(),
-            nn.Linear(input_size, 128),
             nn.Dropout(p=dropout),
+            nn.LazyLinear(128),
             nn.ReLU(),
-            nn.Linear(128, 64),
             nn.Dropout(p=dropout),
-            nn.ReLU(),
-            nn.Linear(64, output_size),
+            nn.LazyLinear(output_size),
         )
 
     def forward(self, x):
