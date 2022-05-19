@@ -16,13 +16,13 @@ class DQN:
     def __init__(
         self,
         device: str = "cpu",
-        epsilon: float = 0.90,
-        epsilon_decay: float = 0.995,
-        batch_size: int = 128,
-        gamma: float = 0.999,
-        target_update: int = 200,
-        buffer_size: int = 10000,
-        learning_rate: float = 1e-3,
+        epsilon: float = 1.00,
+        epsilon_decay: float = 0.9999,
+        batch_size: int = 10000,
+        gamma: float = 0.99,
+        target_update: int = 4096,
+        buffer_size: int = 50000,
+        learning_rate: float = 1e-4,
         model=skat.models.SuitSoloNet,
     ) -> None:
         # use either 'cuda' or 'cpu'
@@ -40,6 +40,8 @@ class DQN:
         # Networks
         self.policy_net = model().to(self.device)
         self.target_net = model().to(self.device)
+
+        self.target_net.load_state_dict(self.policy_net.state_dict())
 
         # Optimizer
         self.optimizer = torch.optim.Adam(
@@ -60,7 +62,7 @@ class DQN:
     ) -> torch.Tensor:
         # decay epsilon
         self.epsilon *= self.epsilon_decay
-        self.epsilon = max(self.epsilon, 0.085)
+        self.epsilon = max(self.epsilon, 0.15)
 
         valid_indices: list[int] = [i for i, t in enumerate(valid_actions) if t]
 
@@ -115,9 +117,13 @@ class DQN:
 
         # Compute the expected Q values
         expected_state_action_values = (
-            next_state_values * self.gamma
-        ) + reward_batch.squeeze(1)
-        loss = F.mse_loss(q, expected_state_action_values)
+            next_state_values * self.gamma + reward_batch.squeeze(1)
+        )
+        loss = F.smooth_l1_loss(expected_state_action_values, q)
+        print(f"Loss: {loss}")
+        self.writer.add_scalar("Loss/train", loss, self.episode)
+        self.writer.add_scalar("epsilon", self.epsilon, self.episode)
+        self.writer.add_scalar("buffer size", len(self.replay_buffer), self.episode)
 
         # optimize model
         self.optimizer.zero_grad()
@@ -128,4 +134,12 @@ class DQN:
 
         # Update the target net
         if self.episode % self.target_update == 0:
+            print(
+                f"\n********\nepisode: {self.episode}\nepsilon: {self.epsilon}\nloss: {loss}"
+            )
             self.target_net.load_state_dict(self.policy_net.state_dict())
+        if self.episode % (self.target_update + 33):
+            self.target_update += 256
+
+        if self.episode % 2222 == 0:
+            pass
