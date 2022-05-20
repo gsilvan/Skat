@@ -1,5 +1,6 @@
 import unittest
 
+from skat.card import Card
 from skat.deck import Deck
 
 
@@ -41,3 +42,9 @@ class DeckTest(unittest.TestCase):
         decks[2].shuffle()
         self.assertEqual(decks[0], decks[1])
         self.assertNotEqual(decks[0], decks[2])
+
+    def test_factory(self) -> None:
+        p2 = [Card(3, x) for x in range(7)]
+        deck = Deck.factory(p2_hand=p2)
+        self.assertEqual(Card(3, 0), deck[20])
+        self.assertEqual(Card(3, 2), deck[22])

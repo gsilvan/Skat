@@ -1,6 +1,7 @@
 import random
 
 from skat.card import RANKS, SUITS, Card
+from skat.hand import FULL_HAND
 
 
 class Deck:
@@ -19,6 +20,9 @@ class Deck:
         self.deck. TODO: grammar-check
         """
         return len(self.deck)
+
+    def __getitem__(self, key) -> Card:
+        return self.deck[key]
 
     def __hash__(self) -> int:
         """
@@ -68,3 +72,41 @@ class Deck:
         for _ in range(quantity):
             result.append(self.deck.pop(0))
         return result
+
+    @staticmethod
+    def factory(p0_hand=None, p1_hand=None, p2_hand=None, skat=None, seed=None):
+        """
+        Create a deck by providing fixed pieces of the deck. Fill not provided slots
+        with random probability.
+        """
+        remaining_cards = FULL_HAND
+        deck_cards = [None for _ in range(32)]
+
+        if p0_hand:
+            for i, card in enumerate(p0_hand):
+                deck_cards[i] = card
+                remaining_cards.remove(card)
+        if p1_hand:
+            for i, card in enumerate(p1_hand):
+                deck_cards[i + 10] = card
+                remaining_cards.remove(card)
+        if p2_hand:
+            for i, card in enumerate(p2_hand):
+                deck_cards[i + 20] = card
+                remaining_cards.remove(card)
+        if skat:
+            for i, card in enumerate(skat):
+                deck_cards[i + 30] = card
+                remaining_cards.remove(card)
+
+        random.seed(seed)
+        for i in range(len(deck_cards)):
+            if deck_cards[i] is None:
+                card = random.choice(remaining_cards)
+                deck_cards[i] = card
+                remaining_cards.remove(card)
+        random.seed(None)
+
+        d = Deck()
+        d.deck = deck_cards
+        return d
