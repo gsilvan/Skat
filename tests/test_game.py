@@ -1,5 +1,7 @@
 import unittest
 
+import torch
+
 from skat.card import Card
 from skat.game import GamePhase, Round
 from skat.games.suit import SuitGame
@@ -78,3 +80,8 @@ class GameTest(unittest.TestCase):
         # no declared game
         custom_round = Round(start=False, dealer=1)
         self.assertEqual(2, custom_round.next_player)
+
+    def test_get_state_t(self) -> None:
+        self.round.deal()
+        st: torch.Tensor = self.round.get_state_t(0)
+        self.assertEqual(torch.Size([1, 139]), st.size())
