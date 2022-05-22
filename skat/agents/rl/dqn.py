@@ -18,6 +18,7 @@ class DQN:
         device: str = "cpu",
         epsilon: float = 1.00,
         epsilon_decay: float = 0.99995,
+        epsilon_min: float = 0.10,
         batch_size: int = 10000,
         gamma: float = 0.99,
         target_update: int = 4096,
@@ -31,6 +32,7 @@ class DQN:
         # Hyperparameter
         self.epsilon = epsilon
         self.epsilon_decay = epsilon_decay
+        self.epsilon_min = epsilon_min
         self.buffer_size = buffer_size
         self.batch_size = batch_size
         self.gamma = gamma
@@ -62,7 +64,7 @@ class DQN:
     ) -> torch.Tensor:
         # decay epsilon
         self.epsilon *= self.epsilon_decay
-        self.epsilon = max(self.epsilon, 0.10)
+        self.epsilon = max(self.epsilon, self.epsilon_min)
 
         valid_indices: list[int] = [i for i, t in enumerate(valid_actions) if t]
 
