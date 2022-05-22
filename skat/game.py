@@ -372,7 +372,8 @@ class Round:
         else:
             if self.verbose:
                 print(f"p={self.solo_player_id} discards the skat")
-            self.skat = self.deck.deal_cards(2)
+            if self.deal_deck:
+                self.skat = self.deck.deal_cards(2)
             if self.verbose:
                 print(f"skat={self.skat}")
         for p in self.player:
