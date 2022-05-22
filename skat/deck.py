@@ -109,3 +109,14 @@ class Deck:
         d = Deck()
         d.deck = deck_cards
         return d
+
+    def to_list(self) -> list[list[Card]]:
+        if len(self) == 32:
+            return [
+                self.deck[0:10],
+                self.deck[10:20],
+                self.deck[20:30],
+                self.deck[30:32],
+            ]
+        else:
+            raise Exception("Does only work for full decks")
