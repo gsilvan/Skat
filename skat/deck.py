@@ -1,7 +1,6 @@
 import random
 
 from skat.card import RANKS, SUITS, Card
-from skat.hand import FULL_HAND
 
 
 class Deck:
@@ -79,7 +78,7 @@ class Deck:
         Create a deck by providing fixed pieces of the deck. Fill not provided slots
         with random probability.
         """
-        remaining_cards = FULL_HAND
+        remaining_cards = [Card(i, j) for i in range(4) for j in range(8)]
         deck_cards = [None for _ in range(32)]
 
         if p0_hand:
