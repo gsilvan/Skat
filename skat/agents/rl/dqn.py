@@ -1,4 +1,5 @@
 import random
+import os
 
 import torch
 import torch.nn as nn
@@ -13,14 +14,17 @@ from .mask import MaskedCategorical
 
 
 class DQN:
+    MODEL_PATH = "./trained_models"
+    CHECKPOINT_PATH = f"{MODEL_PATH}/checkpoint.pt"
+
     def __init__(
         self,
         device: str = "cpu",
-        epsilon: float = 1.00,
+        epsilon: float = 0.1,
         epsilon_decay: float = 0.99995,
         epsilon_min: float = 0.10,
         batch_size: int = 10000,
-        gamma: float = 0.99,
+        gamma: float = 0.5,
         target_update: int = 4096,
         buffer_size: int = 50000,
         learning_rate: float = 1e-4,
@@ -42,6 +46,10 @@ class DQN:
         # Networks
         self.policy_net = model().to(self.device)
         self.target_net = model().to(self.device)
+
+        if os.path.exists(self.CHECKPOINT_PATH):
+            existing_model = torch.load(self.CHECKPOINT_PATH, map_location=device)
+            self.policy_net.load_state_dict(existing_model)
 
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
@@ -140,8 +148,9 @@ class DQN:
                 f"\n********\nepisode: {self.episode}\nepsilon: {self.epsilon}\nloss: {loss}"
             )
             self.target_net.load_state_dict(self.policy_net.state_dict())
-        if self.episode % (self.target_update + 33):
-            self.target_update += 256
+            if not os.path.exists(self.MODEL_PATH):
+                os.mkdir(self.MODEL_PATH)
+            torch.save(self.policy_net.state_dict(), self.CHECKPOINT_PATH)
 
         if self.episode % 2222 == 0:
             pass
