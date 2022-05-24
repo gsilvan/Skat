@@ -34,7 +34,9 @@ class DQNAgent(skat.agents.command_line.CommandLineAgent):
         valid_actions = Hand(tuple(valid_actions)).as_tensor_mask
 
         # get a prediction
-        prediction = self.dqn.select_action(self.initial_state, valid_actions)
+        prediction = self.dqn.select_action(
+            self.initial_state, valid_actions, explore=self.train
+        )
         self.last_action = prediction
         choice = FULL_HAND[int(prediction.argmax())]
         self.state.hand.remove(choice)

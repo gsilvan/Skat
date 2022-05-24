@@ -68,7 +68,7 @@ class DQN:
         self.writer = SummaryWriter()
 
     def select_action(
-        self, state: torch.Tensor, valid_actions: torch.Tensor
+        self, state: torch.Tensor, valid_actions: torch.Tensor, explore: bool = True
     ) -> torch.Tensor:
         # decay epsilon
         self.epsilon *= self.epsilon_decay
@@ -77,7 +77,7 @@ class DQN:
         valid_indices: list[int] = [i for i, t in enumerate(valid_actions) if t]
 
         action = torch.zeros((1, 32), dtype=torch.long)
-        if random.random() <= self.epsilon:
+        if explore and random.random() <= self.epsilon:
             # select with epsilon probability a random action
             action[0][random.choice(valid_indices)] = 1
             return action

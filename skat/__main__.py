@@ -15,11 +15,13 @@ def get_args():
     parser.add_argument("--suit-game-only", action=argparse.BooleanOptionalAction)
     parser.add_argument("--hold-position", action=argparse.BooleanOptionalAction)
     parser.add_argument("--declare-game", type=int)
+    parser.add_argument("--load", type=str, default=None)
+    parser.add_argument("--train", action=argparse.BooleanOptionalAction)
     parser.add_argument("-v", action=argparse.BooleanOptionalAction)
     return parser.parse_args()
 
 
-def get_player(arg: str):
+def get_player(arg: str, training: bool = False):
     from skat.agents.command_line import CommandLineAgent
     from skat.agents.dqn import DQNAgent
     from skat.agents.random import RandomAgent
@@ -30,7 +32,7 @@ def get_player(arg: str):
         case "cli":
             return CommandLineAgent()
         case "dqn":
-            return DQNAgent()
+            return DQNAgent(train=training)
         case _:
             raise Exception("Agent not found.")
 
@@ -52,7 +54,11 @@ if __name__ == "__main__":
     agent_args = [args.p0, args.p1, args.p2]
     agents = []
     for i, a in enumerate(agent_args):
-        agents.append(get_player(a))
+        _train = False
+        if i == 0:
+            _train = args.train
+        agents.append(get_player(a, training=_train))
+
     t = Tournament(
         rounds=rounds,
         agents=agents,
