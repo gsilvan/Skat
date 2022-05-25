@@ -69,6 +69,9 @@ class TrickHistory:
     def __init__(self) -> None:
         self.buffer: list[Trick] = list()
 
+    def __getitem__(self, item):
+        return self.buffer[item]
+
     def __len__(self) -> int:
         return len(self.buffer)
 
