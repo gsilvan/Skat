@@ -278,6 +278,50 @@ class Round:
         state = self.get_state(player_id)
         return torch.tensor(state).unsqueeze(0)
 
+    def cumulative_reward(self, player_id) -> float:
+        is_solo = player_id == self.solo_player_id
+
+        reward_goals = {
+            "points": 2.0 / 120.0,
+            "win": 5.0,
+            "schneider": 2.0,
+            "schwarz": 2.0,
+        }
+
+        reward = 0.0
+
+        if is_solo:
+            reward += self.points_soloist * reward_goals["points"]
+            reward -= self.points_defenders * reward_goals["points"]
+            if self.soloist_won:
+                reward += reward_goals["win"]
+            if self.soloist_won_schneider:
+                reward += reward_goals["schneider"]
+            if self.soloist_won_schwarz:
+                reward += reward_goals["schwarz"]
+            if self.defenders_won:
+                reward -= reward_goals["win"]
+            if self.defenders_won_schneider:
+                reward -= reward_goals["schneider"]
+            if self.defenders_won_schwarz:
+                reward -= reward_goals["schwarz"]
+        else:
+            reward -= self.points_soloist * reward_goals["points"]
+            reward += self.points_defenders * reward_goals["points"]
+            if self.soloist_won:
+                reward -= reward_goals["win"]
+            if self.soloist_won_schneider:
+                reward -= reward_goals["schneider"]
+            if self.soloist_won_schwarz:
+                reward -= reward_goals["schwarz"]
+            if self.defenders_won:
+                reward += reward_goals["win"]
+            if self.defenders_won_schneider:
+                reward += reward_goals["schneider"]
+            if self.defenders_won_schwarz:
+                reward += reward_goals["schwarz"]
+        return reward / 10.0
+
     def step(self) -> bool:
         """Do a step. A step is one single action of one player."""
         if self.phase == GamePhase.PLAYING:

@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import PropertyMock, patch
 
 import torch
 
@@ -85,3 +86,25 @@ class GameTest(unittest.TestCase):
         self.round.deal()
         st: torch.Tensor = self.round.get_state_t(0)
         self.assertEqual(torch.Size([1, 139]), st.size())
+
+    def test_reward(self) -> None:
+        soloist_id = 0
+        self.round.solo_player_id = soloist_id
+
+        with patch(
+            "skat.game.Round.points_soloist",
+            new_callable=PropertyMock,
+            return_value=102,
+        ):
+            self.assertAlmostEqual(
+                0.8699, self.round.cumulative_reward(soloist_id), places=3
+            )
+
+        with patch(
+            "skat.game.Round.points_defenders",
+            new_callable=PropertyMock,
+            return_value=20,
+        ):
+            self.assertAlmostEqual(
+                0.0333332, self.round.cumulative_reward((soloist_id + 1) % 3), places=3
+            )
