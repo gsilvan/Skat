@@ -33,6 +33,7 @@ class Tournament:
         seed=None,
         hold_position=False,
         declare_game=None,
+        initial_cards=None,
     ) -> None:
         self.rounds = rounds
         self.agents = agents
@@ -42,6 +43,7 @@ class Tournament:
         self.seed = seed
         self.hold_position = hold_position
         self.declare_game = declare_game
+        self.initial_cards = initial_cards
 
     def start(self):
         for _ in range(self.rounds):
@@ -55,6 +57,7 @@ class Tournament:
                 seed=self.seed,
                 hand_game=True,
                 declare_game=self.declare_game,
+                initial_cards=self.initial_cards,
             )
             soloist, points = r.start()
             self.scores[soloist] += points
@@ -89,7 +92,24 @@ class Round:
         self.solo_player_id: int = solo_player_id
         self.deck: Deck = deck
         self.deal_deck: bool = True
-        self.initial_cards = initial_cards
+        self.initial_cards = (
+            Deck.factory(
+                p0_hand=[
+                    Card(2, 3),
+                    Card(1, 3),
+                    Card(2, 7),
+                    Card(2, 6),
+                    Card(2, 0),
+                    Card(1, 1),
+                    Card(0, 7),
+                    Card(0, 6),
+                    Card(0, 2),
+                    Card(0, 1),
+                ],
+            ).to_list(),
+        )
+        self.initial_cards = self.initial_cards[0]
+        # self.initial_cards = initial_cards
         self.verbose = verbose
         self.hand_game = hand_game
         self.skat: list[Card] = list()
