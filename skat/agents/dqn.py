@@ -16,20 +16,18 @@ class DQNAgent(skat.agents.command_line.CommandLineAgent):
         self.train = train
         self.initial_state: Optional[torch.Tensor] = None
         self.last_action: Optional[torch.Tensor] = None
-        self.last_cumulative_reward: int = 0
-        self.lcr = 0
+        self.last_cumulative_reward: float = 0
         self.writer = SummaryWriter()
         self.epoch = 0
+
+    def _current_reward(self) -> float:
+        return self.state.public_state.cumulative_reward(self.state.seat_id)
 
     def choose_card(self, valid_actions: set[Card]) -> Card:
         self.initial_state = self.state.public_state.get_state_t(
             player_id=self.state.seat_id
         )
-        self.last_cumulative_reward = self.state.trick_stack_value
-        self.lcr = (
-            self.state.public_state.points_soloist
-            - self.state.public_state.points_defenders
-        )
+        self.last_cumulative_reward = self._current_reward()
 
         valid_actions = Hand(tuple(valid_actions)).as_tensor_mask
 
@@ -48,14 +46,16 @@ class DQNAgent(skat.agents.command_line.CommandLineAgent):
             return
 
         reward = torch.empty((1, 1), dtype=torch.float64)
-        reward[0][0] = (
-            self.state.trick_stack_value - self.last_cumulative_reward
-        ) / 120.0
-        # reward[0][0] = (self.lcr + (self.state.public_state.points_soloist - self.state.public_state.points_defenders)) / 120.0
+        reward[0][0] = self._current_reward() - self.last_cumulative_reward
 
         if is_terminal:
             next_state = None
-            self.writer.add_scalar("Points", self.state.trick_stack_value, self.epoch)
+            if self.state.seat_id == self.state.public_state.solo_player_id:
+                points = self.state.public_state.points_soloist
+                self.writer.add_scalar("Points solo", points, self.epoch)
+            else:
+                points = self.state.public_state.points_defenders
+                self.writer.add_scalar("Points defenders", points, self.epoch)
             self.epoch += 1
         else:
             next_state = self.state.public_state.get_state_t(
