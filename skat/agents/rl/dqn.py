@@ -14,9 +14,6 @@ from .mask import MaskedCategorical
 
 
 class DQN:
-    MODEL_PATH = "./trained_models"
-    CHECKPOINT_PATH = f"{MODEL_PATH}/checkpoint.pt"
-
     def __init__(
         self,
         device: str = "cpu",
@@ -29,6 +26,7 @@ class DQN:
         buffer_size: int = 50000,
         learning_rate: float = 1e-4,
         model=skat.models.SuitSoloNet,
+        model_path="./trained_models/checkpoint.pt",
     ) -> None:
         # use either 'cuda' or 'cpu'
         self.device = device
@@ -47,8 +45,10 @@ class DQN:
         self.policy_net = model().to(self.device)
         self.target_net = model().to(self.device)
 
-        if os.path.exists(self.CHECKPOINT_PATH):
-            existing_model = torch.load(self.CHECKPOINT_PATH, map_location=device)
+        self.model_path = model_path
+
+        if os.path.exists(self.model_path):
+            existing_model = torch.load(self.model_path, map_location=device)
             self.policy_net.load_state_dict(existing_model)
 
         self.target_net.load_state_dict(self.policy_net.state_dict())
