@@ -16,12 +16,17 @@ def get_args():
     parser.add_argument("--hold-position", action=argparse.BooleanOptionalAction)
     parser.add_argument("--declare-game", type=int)
     parser.add_argument("--load", type=str, default=None)
-    parser.add_argument("--train", action=argparse.BooleanOptionalAction)
+    parser.add_argument("-t0", action=argparse.BooleanOptionalAction)
+    parser.add_argument("-t1", action=argparse.BooleanOptionalAction)
+    parser.add_argument("-t2", action=argparse.BooleanOptionalAction)
+    parser.add_argument("-m0", type=str, default="./trained_models/checkpoint_p0.pt")
+    parser.add_argument("-m1", type=str, default="./trained_models/checkpoint_p1.pt")
+    parser.add_argument("-m2", type=str, default="./trained_models/checkpoint_p2.pt")
     parser.add_argument("-v", action=argparse.BooleanOptionalAction)
     return parser.parse_args()
 
 
-def get_player(arg: str, training: bool = False):
+def get_player(arg: str, training: bool = False, path: str = None):
     from skat.agents.command_line import CommandLineAgent
     from skat.agents.dqn import DQNAgent
     from skat.agents.random import RandomAgent
@@ -32,7 +37,7 @@ def get_player(arg: str, training: bool = False):
         case "cli":
             return CommandLineAgent()
         case "dqn":
-            return DQNAgent(train=training)
+            return DQNAgent(train=training, path=path)
         case _:
             raise Exception("Agent not found.")
 
@@ -52,12 +57,11 @@ if __name__ == "__main__":
     args = get_args()
     rounds = args.rounds
     agent_args = [args.p0, args.p1, args.p2]
+    train_args = [args.t0, args.t1, args.t2]
+    path_args = [args.m0, args.m1, args.m2]
     agents = []
     for i, a in enumerate(agent_args):
-        _train = False
-        if i == 0:
-            _train = args.train
-        agents.append(get_player(a, training=_train))
+        agents.append(get_player(a, training=train_args[i], path=path_args[i]))
 
     t = Tournament(
         rounds=rounds,
