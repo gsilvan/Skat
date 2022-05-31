@@ -48,8 +48,8 @@ class RandomAgent(Agent):
     def declare_game(self, state) -> Game:
         """Random Agent declares games equal distributed"""
         available_games = (
-            Grand(),
-            Null(),
+            # Grand(),
+            # Null(),
             SuitGame(0),
             SuitGame(1),
             SuitGame(2),

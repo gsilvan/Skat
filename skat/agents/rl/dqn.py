@@ -107,10 +107,10 @@ class DQN:
         )
         non_final_next_states = torch.cat(
             [s for s in batch.next_state if s is not None]
-        )
-        state_batch = torch.cat(batch.state)
-        action_batch = torch.cat(batch.action)
-        reward_batch = torch.cat(batch.reward)
+        ).to(self.device)
+        state_batch = torch.cat(batch.state).to(self.device)
+        action_batch = torch.cat(batch.action).to(self.device)
+        reward_batch = torch.cat(batch.reward).to(self.device)
 
         # Q(s_t, a)
         # state_action_values

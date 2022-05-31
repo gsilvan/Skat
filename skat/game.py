@@ -296,7 +296,7 @@ class Round:
 
     def get_state_t(self, player_id) -> torch.Tensor:
         state = self.get_state(player_id)
-        return torch.tensor(state).unsqueeze(0)
+        return torch.tensor(state, device="cpu").unsqueeze(0)  # TODO: device should be derived from a config file
 
     def cumulative_reward(self, player_id) -> float:
         is_solo = player_id == self.solo_player_id
