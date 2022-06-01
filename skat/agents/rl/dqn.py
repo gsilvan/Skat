@@ -148,9 +148,9 @@ class DQN:
                 f"\n********\nepisode: {self.episode}\nepsilon: {self.epsilon}\nloss: {loss}"
             )
             self.target_net.load_state_dict(self.policy_net.state_dict())
-            if not os.path.exists(self.MODEL_PATH):
-                os.mkdir(self.MODEL_PATH)
-            torch.save(self.policy_net.state_dict(), self.CHECKPOINT_PATH)
+            # if not os.path.exists(self.model_path):
+            #     os.mkdir(self.model_path)
+            torch.save(self.policy_net.state_dict(), self.model_path)
 
         if self.episode % 2222 == 0:
             pass
