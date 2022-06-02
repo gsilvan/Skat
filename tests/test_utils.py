@@ -1,7 +1,7 @@
 import unittest
 
 from skat.card import Card
-from skat.utils import disjoint
+from skat.utils.misc import disjoint
 
 
 class UtilsTest(unittest.TestCase):

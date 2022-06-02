@@ -12,7 +12,7 @@ from skat.games import Game
 from skat.hand import Hand, HandOrder
 from skat.player import Player
 from skat.trick import TrickHistory
-from skat.utils import disjoint
+from skat.utils.misc import disjoint
 
 
 class GamePhase(Enum):
