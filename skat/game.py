@@ -176,6 +176,20 @@ class Round:
             + self.player[(soloist + 2) % 3].trick_stack_value
         )
 
+    def is_solo_player(self, player_id) -> bool:
+        return self.solo_player_id == player_id
+
+    def get_points(self, player_id, opponent_view=False) -> int:
+        if not opponent_view:
+            if self.is_solo_player(player_id):
+                return self.player[player_id].trick_stack_value
+            else:
+                return (
+                    self.player[(player_id + 1) % 3].trick_stack_value
+                    + self.player[(player_id + 2) % 3].trick_stack_value
+                )
+        return self.player[player_id].trick_stack_value
+
     def init_players(self, agents=None) -> None:
         if not agents:
             for i in range(3):
