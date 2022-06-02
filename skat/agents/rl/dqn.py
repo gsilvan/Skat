@@ -1,5 +1,5 @@
-import random
 import os
+import random
 
 import torch
 import torch.nn as nn
