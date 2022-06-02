@@ -1,8 +1,9 @@
+import os
 import unittest
 
 from skat.utils.skatstube import SkatstubeGame
 
-TESTFILE_FOLDER = "./testfiles/skatstube/"
+TESTFILE_FOLDER = os.path.join(os.path.dirname(__file__), "testfiles/skatstube/")
 
 
 class SkatstubeGameTest(unittest.TestCase):
