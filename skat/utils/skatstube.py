@@ -36,9 +36,12 @@ class SkatstubeGame:
         )
 
     def __parse_game(self) -> None:
+        beginner = None
+        self.hand = [[], [], []]
         for entry in self.__raw_data:
             if entry["type"] == "yourAuthenticationSucceeded":
                 self.position = entry["position"]
+                beginner = entry["position"]
             if entry["type"] == "youGotCards":
                 self.cards = entry["cards"]
             if entry["type"] == "playsTheGame":
@@ -52,6 +55,12 @@ class SkatstubeGame:
                 self.final_hand = self.final_hand + self.skat_cards
                 for card in self.dropped_cards:
                     self.final_hand.remove(card)
+            if entry["type"] == "wonTheTrick":
+                # opponent team has to be reconstructed from the data
+                trick = entry["cards"]
+                for i, card in enumerate(trick):
+                    self.hand[(beginner + i) % 3].append(card)
+                beginner = entry["position"]  # set the beginner of the next trick
 
     def get_hand(self) -> list[Card]:
         hand = list()
