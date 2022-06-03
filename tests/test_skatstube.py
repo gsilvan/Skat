@@ -10,7 +10,7 @@ TESTFILE_FOLDER = os.path.join(os.path.dirname(__file__), "testfiles/skatstube/"
 class SkatstubeGameTest(unittest.TestCase):
     def setUp(self) -> None:
         file_name = "340939961.json"
-        self.stube_game = SkatstubeGame(TESTFILE_FOLDER + file_name)
+        self.stube_game = SkatstubeGame(os.path.join(TESTFILE_FOLDER, file_name))
 
     def test_parse(self) -> None:
         self.assertEqual("Herz", self.stube_game.game_type)
