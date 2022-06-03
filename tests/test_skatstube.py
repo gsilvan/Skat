@@ -13,7 +13,7 @@ class SkatstubeGameTest(unittest.TestCase):
         self.stube_game = SkatstubeGame(TESTFILE_FOLDER + file_name)
 
     def test_parse(self) -> None:
-        self.assertEqual("Herz", self.stube_game.game)
+        self.assertEqual("Herz", self.stube_game.game_type)
 
     def test_file_not_found(self) -> None:
         fail_name = "fail.json"

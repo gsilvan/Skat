@@ -24,6 +24,7 @@ class SkatstubeGame:
             raise FileNotFoundError(f"{file_name} was not found.")
         with open(file_name, "r") as fp:
             self.__raw_data = json.load(fp)
+        self.hand = [[], [], []]
         self.__parse_game()
 
     def __str__(self) -> str:
@@ -35,18 +36,20 @@ class SkatstubeGame:
             f"final_hand={self.soloist_hand}"
         )
 
+    def __solist_position(self, trick: list) -> int:
+        for i, card in enumerate(trick):
+            if card in self.soloist_hand:
+                return i
+        raise Exception("could not get position")
+
     def __parse_game(self) -> None:
-        beginner = None
-        self.hand = [[], [], []]
+        tricks = list()
+        # gather soloist's cards, received skat, dropped cards
         for entry in self.__raw_data:
-            if entry["type"] == "yourAuthenticationSucceeded":
-                self.position = entry["position"]
-                beginner = entry["position"]
             if entry["type"] == "youGotCards":
                 self.cards = entry["cards"]
-            if entry["type"] == "playsTheGame":
-                self.game = entry["gameType"]
             if entry["type"] == "gameResult":
+                self.game_type: str = entry["gameType"].capitalize()
                 self.result = entry["won"]
                 self.points = entry["points"]
                 self.skat_cards = entry["skatCards"]
@@ -56,11 +59,19 @@ class SkatstubeGame:
                 for card in self.dropped_cards:
                     self.soloist_hand.remove(card)
             if entry["type"] == "wonTheTrick":
-                # opponent team has to be reconstructed from the data
-                trick = entry["cards"]
-                for i, card in enumerate(trick):
-                    self.hand[(beginner + i) % 3].append(card)
-                beginner = entry["position"]  # set the beginner of the next trick
+                # store tricks for efficiency to avoid using an additional loop
+                tricks.append(entry["cards"])
+
+        # the opponent team has to be reconstructed from corrupt api data
+        #
+        # parse solist's real position in first trick
+        self.soloist_start_position = self.__solist_position(tricks[0])
+        for trick in tricks:
+            # calculate position delta.
+            # This delta is the position shift after each new trick winner
+            delta_position = self.__solist_position(trick) - self.soloist_start_position
+            for i, card in enumerate(trick):
+                self.hand[(i - delta_position) % 3].append(card)
 
     def get_hand(self) -> list[Card]:
         hand = list()
@@ -71,7 +82,7 @@ class SkatstubeGame:
     def get_deck(self) -> Deck:
         """Returns a Deck from Skatstube.de game data."""
         _p0_hand, _p1_hand, _p2_hand = None, None, None
-        match self.position:
+        match self.soloist_start_position:
             case 0:
                 _p0_hand = self.soloist_hand
             case 1:
@@ -80,9 +91,18 @@ class SkatstubeGame:
                 _p2_hand = self.soloist_hand
         return Deck.factory(_p0_hand, _p1_hand, _p2_hand)
 
+    @property
+    def info_dict(self):
+        return {
+            "hands": self.hand,
+            "skat": self.skat_cards,
+            "dropped": self.dropped_cards,
+            "soloist_position": self.soloist_start_position,
+        }
+
     def get_type(self) -> GameType:
         """Returns announced game type."""
-        return GameType[self.game]
+        return GameType[self.game_type]
 
 
 CARD = {
