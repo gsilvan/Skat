@@ -2,7 +2,6 @@ import os
 import unittest
 
 from skat.card import Card
-from skat.deck import Deck
 from skat.utils.skatstube import GameType, SkatstubeGame
 
 TESTFILE_FOLDER = os.path.join(os.path.dirname(__file__), "testfiles/skatstube/")
@@ -42,3 +41,12 @@ class SkatstubeGameTest(unittest.TestCase):
     def test_get_type(self) -> None:
         expected_game_type = GameType["Herz"]
         self.assertEqual(expected_game_type, self.stube_game.get_type())
+
+    def test_hand_reconstruction(self) -> None:
+        expected_hand = (
+            ("H7", "H8", "HO", "EX", "EK", "GA", "GX", "GO", "SX", "SK"),
+            ("EU", "GU", "HU", "HK", "H9", "EO", "G9", "G8", "S8", "S7"),
+            ("SU", "HA", "HX", "E9", "E8", "E7", "GK", "G7", "SO", "S9"),
+        )
+        for i, h in enumerate(expected_hand):
+            self.assertTrue(set(h) == set(self.stube_game.hand[i]))
