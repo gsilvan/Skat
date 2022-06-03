@@ -3,7 +3,7 @@ import unittest
 
 from skat.card import Card
 from skat.deck import Deck
-from skat.utils.skatstube import SkatstubeGame
+from skat.utils.skatstube import GameType, SkatstubeGame
 
 TESTFILE_FOLDER = os.path.join(os.path.dirname(__file__), "testfiles/skatstube/")
 
@@ -38,3 +38,7 @@ class SkatstubeGameTest(unittest.TestCase):
         ]  # no EA, SA
         hand = self.stube_game.get_hand()
         self.assertEqual(set(expected), set(hand))
+
+    def test_get_type(self) -> None:
+        expected_game_type = GameType["Herz"]
+        self.assertEqual(expected_game_type, self.stube_game.get_type())

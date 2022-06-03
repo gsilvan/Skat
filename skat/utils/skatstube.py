@@ -3,9 +3,19 @@
 import json
 import os
 import sys
+from enum import Enum
 
 from skat.card import Card
 from skat.deck import Deck
+
+
+class GameType(Enum):
+    Karo = (0,)
+    Herz = (1,)
+    Pik = (2,)
+    Kreuz = (3,)
+    Grand = (4,)
+    Null = (5,)
 
 
 class SkatstubeGame:
@@ -61,13 +71,10 @@ class SkatstubeGame:
                 _p2_hand = self.final_hand
         return Deck.factory(_p0_hand, _p1_hand, _p2_hand)
 
+    def get_type(self) -> GameType:
+        """Returns announced game type."""
+        return GameType[self.game]
 
-GAME_TYPE = {
-    "Karo": 0,
-    "Herz": 1,
-    "Pik": 2,
-    "Kreuz": 3,
-}
 
 CARD = {
     "S7": Card(0, 0),
