@@ -32,7 +32,7 @@ class SkatstubeGame:
             f"pts={self.points}\n"
             f"received_cards={self.skat_cards}\n"
             f"dropped_cards={self.dropped_cards}\n"
-            f"final_hand={self.final_hand}"
+            f"final_hand={self.soloist_hand}"
         )
 
     def __parse_game(self) -> None:
@@ -51,10 +51,10 @@ class SkatstubeGame:
                 self.points = entry["points"]
                 self.skat_cards = entry["skatCards"]
                 self.dropped_cards = entry["droppedCards"]
-                self.final_hand = self.cards.copy()
-                self.final_hand = self.final_hand + self.skat_cards
+                self.soloist_hand = self.cards.copy()
+                self.soloist_hand = self.soloist_hand + self.skat_cards
                 for card in self.dropped_cards:
-                    self.final_hand.remove(card)
+                    self.soloist_hand.remove(card)
             if entry["type"] == "wonTheTrick":
                 # opponent team has to be reconstructed from the data
                 trick = entry["cards"]
@@ -64,7 +64,7 @@ class SkatstubeGame:
 
     def get_hand(self) -> list[Card]:
         hand = list()
-        for card_str in self.final_hand:
+        for card_str in self.soloist_hand:
             hand.append(CARD[card_str])
         return hand
 
@@ -73,11 +73,11 @@ class SkatstubeGame:
         _p0_hand, _p1_hand, _p2_hand = None, None, None
         match self.position:
             case 0:
-                _p0_hand = self.final_hand
+                _p0_hand = self.soloist_hand
             case 1:
-                _p1_hand = self.final_hand
+                _p1_hand = self.soloist_hand
             case 2:
-                _p2_hand = self.final_hand
+                _p2_hand = self.soloist_hand
         return Deck.factory(_p0_hand, _p1_hand, _p2_hand)
 
     def get_type(self) -> GameType:
