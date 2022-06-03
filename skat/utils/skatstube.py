@@ -47,14 +47,14 @@ class SkatstubeGame:
         # gather soloist's cards, received skat, dropped cards
         for entry in self.__raw_data:
             if entry["type"] == "youGotCards":
-                self.cards = entry["cards"]
+                self.soloist_initial_cards = entry["cards"]
             if entry["type"] == "gameResult":
                 self.game_type: str = entry["gameType"].capitalize()
                 self.result = entry["won"]
                 self.points = entry["points"]
                 self.skat_cards = entry["skatCards"]
                 self.dropped_cards = entry["droppedCards"]
-                self.soloist_hand = self.cards.copy()
+                self.soloist_hand = self.soloist_initial_cards.copy()
                 self.soloist_hand = self.soloist_hand + self.skat_cards
                 for card in self.dropped_cards:
                     self.soloist_hand.remove(card)
