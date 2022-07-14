@@ -78,8 +78,8 @@ class ISSGame:
 
     @property
     def hand_game(self) -> Optional[bool]:
-        """Declarer picked up the skat. Note: We consider all games as Hand games."""
-        return True
+        """Declarer picked up the skat."""
+        return self._hand_game
 
     @property
     def points(self) -> Optional[int]:
@@ -95,7 +95,7 @@ class ISSGame:
 
     @property
     def type(self) -> Optional[GameType]:
-        return
+        return self._type
 
     @property
     def value(self) -> Optional[int]:
