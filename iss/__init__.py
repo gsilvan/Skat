@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import enum
+import pickle
 import re
 from typing import Optional
 
@@ -61,8 +62,10 @@ class ISSGame:
 
     def __init__(self, game_str: str) -> None:
         self._deck = None
+        self._hand_game = None
         self._is_valid = None
         self._is_won = None
+        self._passed = None
         self._points = None
         self._soloist = None
         self._type = None
@@ -104,11 +107,38 @@ class ISSGame:
 
     def _parse_sgf_line(self, sgf_line: str):
         root = SGF.parse(sgf_line)
-        __mv = str(root.get_list_property("MV"))
+
+        __r = str(root.get_list_property("R"))
+        if re.search("win", __r):
+            self._is_won = True
+            self._is_valid = True
+        if re.search("loss", __r):
+            self._is_won = False
+            self._is_valid = True
+        if re.search("penalty", __r):
+            self._is_won = False
+            self._is_valid = False
+            return  # we exit here because game is invalid
+        if re.search("passed", __r):
+            self._is_valid = False  # TODO: i'm lazy
+            self._passed = True
+            return  # we exit here because game was passed
+
+        __mv = str(root.get_list_property("MV")).replace("|", ".")  # introduced in 2011
+        if re.search("(TI.2)|(LE.2)|(LE.1)", __mv):
+            self._is_valid = False
+            return  # something is worng, get the hell out
         deck_s = __mv.split(" ")[1].split(".")
-        declare_s = re.search(r"([DHSCGN].[DHSC][789TJQKA].[DHSC][789TJQKA])", __mv)[
-            0
-        ].split(".")
+        dec_search_result = re.search(
+            r"([DHSCGN]O?.[DHSC][789TJQKA].[DHSC][789TJQKA])|([DHSCGN]O?H)|([DHSCGN]O)",
+            __mv,
+        )
+        declare_s = None
+        if dec_search_result:
+            declare_s = dec_search_result[0].split(".")
+        elif not dec_search_result:
+            self._is_valid = False
+            return  # something is worng, get the hell out
         match declare_s[0]:
             case "D":
                 self._type = GameType.DIAMONDS
@@ -122,21 +152,28 @@ class ISSGame:
                 self._type = GameType.GRAND
             case "N":
                 self._type = GameType.NULL
-
-        __r = str(root.get_list_property("R"))
-        if re.search("win", __r):
-            self._is_won = True
-            self._is_valid = True
-        if re.search("loss", __r):
-            self._is_won = False
-            self._is_valid = True
-        if re.search("penalty", __r):
-            self._is_won = False
-            self._is_valid = False
+            case "DH":
+                self._type = GameType.DIAMONDS
+                self._hand_game = True
+            case "HH":
+                self._type = GameType.HEARTS
+                self._hand_game = True
+            case "SH":
+                self._type = GameType.SPADES
+                self._hand_game = True
+            case "CH":
+                self._type = GameType.CLUBS
+                self._hand_game = True
+            case "GH", "GO", "GOH":
+                self._type = GameType.GRAND
+                self._hand_game = True
+            case "NH", "NO", "NOH":
+                self._type = GameType.NULL
+                self._hand_game = True
 
         self._soloist = int(re.search(r"(d:-?[012])", __r)[0].split(":")[1])
         self._points = int(re.search(r"(p:[0-9]{1,3})", __r)[0].split(":")[1])
-        self._value = int(re.search(r"(v:[0-9]{1,3})", __r)[0].split(":")[1])
+        self._value = int(re.search(r"(v:-?[0-9]{1,3})", __r)[0].split(":")[1])
 
         hands = [
             [card[c] for c in deck_s[0:10]],
@@ -144,18 +181,28 @@ class ISSGame:
             [card[c] for c in deck_s[20:30]],
         ]
         skat_received = [card[c] for c in deck_s[30:32]]
-        hands[self._soloist].extend(skat_received)
-        skat_put = [card[c] for c in declare_s[1:]]
-        for c in skat_put:
-            hands[self._soloist].remove(c)
-        hands.append(skat_put)
+        if self.hand_game:
+            hands.append(skat_received)
+        if not self.hand_game:
+            hands[self._soloist].extend(skat_received)
+            skat_put = [card[c] for c in declare_s[1:]]
+            for c in skat_put:
+                hands[self._soloist].remove(c)
+            hands.append(skat_put)
         self._deck = Deck.factory(*hands)
 
 
+def sgf_file_reader(filename) -> list[ISSGame]:
+    games = []
+    with open(filename, "r") as file:
+        for line in file:
+            game = ISSGame(line.rstrip())
+            if game.is_valid:
+                games.append(game)
+    return games
+
+
 if __name__ == "__main__":
-    iss_game = ISSGame(
-        "(;GM[Skat]PC[International Skat Server]CO[]SE[344037]ID[6997010]DT[2021-04-30/01:07:29/UTC]P0[theCount]P1[blkkjk]P2[zoot]R0[]R1[0.0]R2[]MV[w HQ.HA.H7.CT.ST.SK.SA.HJ.CJ.CK.C8.DQ.S9.SQ.D9.C7.HK.DT.HT.CA.CQ.D7.DK.H9.SJ.DJ.H8.S7.D8.S8.DA.C9 1 p 2 18 0 y 2 20 0 y 2 22 0 y 2 23 0 y 2 24 0 y 2 27 0 y 2 30 0 y 2 33 0 y 2 35 0 y 2 36 0 y 2 40 0 y 2 44 0 y 2 45 0 y 2 46 0 y 2 p 0 s w DA.C9 0 G.H7.HQ 0 CJ 1 S9 2 DJ 0 ST 1 SQ 2 S7 0 SA 1 D9 2 S8 0 HA 1 HK 2 H8 0 CK 1 C7 2 CQ 0 C9 1 C8 2 H9 0 HJ 1 DQ 2 SJ 2 D7 0 DA 1 DT 0 SK 1 HT 2 D8 0 CT 1 CA 2 DK ]R[d:0 win v:48 m:1 bidok p:88 t:8 s:0 z:0 p0:0 p1:0 p2:0 l:-1 to:-1 r:0] ;)"
-    )
-    print(iss_game.deck)
-    print(iss_game.soloist)
-    print(iss_game.is_won)
+    iss_games = sgf_file_reader("/home/silvan/Downloads/iss-games-04-2021.sgf")
+    with open("/home/silvan/Desktop/iss_games.pkl", "wb") as file:
+        pickle.dump(iss_games, file)
