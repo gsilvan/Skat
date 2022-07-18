@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
+import collections.abc
 import enum
+import os
 import pickle
 import re
 from typing import Optional
+from random import Random
 
+import tqdm
 from pysgf import SGF
 
 from skat.deck import Deck
@@ -192,17 +196,58 @@ class ISSGame:
         self._deck = Deck.factory(*hands)
 
 
-def sgf_file_reader(filename) -> list[ISSGame]:
-    games = []
-    with open(filename, "r") as file:
-        for line in file:
-            game = ISSGame(line.rstrip())
-            if game.is_valid:
-                games.append(game)
-    return games
+class ISSGames(collections.abc.MutableSequence):
+    def __init__(self, file_name: str):
+        _, file_extension = os.path.splitext(file_name)
+        self.__game_list: list[ISSGame] = []
+        match file_extension:
+            case ".pkl":
+                self.read_pkl(file_name)
+            case ".sgf":
+                self.read_sgf(file_name)
+            case _:
+                raise Exception("Unknown extension.")
+
+    def __getitem__(self, i: int) -> ISSGame:
+        return self.__game_list[i]
+
+    def __setitem__(self, i: int, o: ISSGame) -> None:
+        self.__game_list[i] = o
+
+    def __delitem__(self, i: int) -> None:
+        del self.__game_list[i]
+
+    def __len__(self) -> int:
+        return len(self.__game_list)
+
+    def insert(self, index: int, value: ISSGame) -> None:
+        self.__game_list.insert(index, value)
+
+    def sample(self, n=10000, seed=None) -> list[ISSGame]:
+        rand = Random(seed)
+        sample = rand.sample(self.__game_list, n)
+        return sample
+
+    def read_sgf(self, filename: str) -> None:
+        with tqdm.tqdm(total=os.path.getsize(filename)) as progress:
+            with open(filename, "r") as fp:
+                for line in fp:
+                    game = ISSGame(line.rstrip())
+                    if game.is_valid:
+                        self.__game_list.append(game)
+                    progress.update(len(line.encode("utf-8")))
+
+    def read_pkl(self, filename: str) -> None:
+        with open(filename, "rb") as fp:
+            self.__game_list = pickle.load(fp)
+
+    def save(self, filename: str) -> None:
+        with open(filename, "wb") as fp:
+            pickle.dump(self.__game_list, fp)
 
 
 if __name__ == "__main__":
-    iss_games = sgf_file_reader("/home/silvan/Downloads/iss-games-04-2021.sgf")
-    with open("/home/silvan/Desktop/iss_games.pkl", "wb") as file:
-        pickle.dump(iss_games, file)
+    # Example usage
+    iss_games = ISSGames("/home/silvan/Downloads/iss-games-04-2021.sgf")
+    iss_games.save("/home/silvan/Desktop/iss_games.pkl")
+    my_sample = iss_games.sample(200)

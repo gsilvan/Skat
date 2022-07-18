@@ -1,4 +1,5 @@
 numpy
 torch
 tensorboard
-protobuf==3.20.0
+pysgf
+tqdm
