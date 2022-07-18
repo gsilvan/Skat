@@ -152,22 +152,22 @@ class ISSGame:
                 self._type = GameType.GRAND
             case "N":
                 self._type = GameType.NULL
-            case "DH":
+            case "DH" | "DO" | "DOH":
                 self._type = GameType.DIAMONDS
                 self._hand_game = True
-            case "HH":
+            case "HH" | "HO" | "HOH":
                 self._type = GameType.HEARTS
                 self._hand_game = True
-            case "SH":
+            case "SH" | "SO" | "SOH":
                 self._type = GameType.SPADES
                 self._hand_game = True
-            case "CH":
+            case "CH" | "CO" | "COH":
                 self._type = GameType.CLUBS
                 self._hand_game = True
-            case "GH", "GO", "GOH":
+            case "GH" | "GO" | "GOH":
                 self._type = GameType.GRAND
                 self._hand_game = True
-            case "NH", "NO", "NOH":
+            case "NH" | "NO" | "NOH":
                 self._type = GameType.NULL
                 self._hand_game = True
 
