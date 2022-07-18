@@ -62,3 +62,13 @@ class ISSTest(unittest.TestCase):
             self.assertEqual(t[4], iss_game.soloist)
             self.assertEqual(t[5], iss_game._type)
             self.assertEqual(t[6], iss_game.value)
+
+    def test_buggy_1(self) -> None:
+        # just has to work
+        game_str = "(;GM[Skat]PC[Internet Skat Server]CO[]SE[126]ID[25]DT[2007-11-02/15:24:24/UTC]P0[Patrickm]P1[foo]P2[bonsai]R0[0.0]R1[0.0]R2[0.0]MV[w CJ.S7.H8.SA.DA.CQ.DK.CK.C8.D8.D9.HK.HA.SQ.CT.S8.HJ.SJ.DT.ST.H9.S9.HQ.SK.HT.CA.C9.C7.D7.DQ.H7.DJ 1 18 0 p 2 p 1 NOH 0 C8 1 CT 2 C9 ]R[d:1 loss v:-118 m:0 bidok p:12 t:1 s:0 z:0 p0:0 p1:0 p2:0 l:-1 to:-1 r:0] ;)"
+        ISSGame(game_str)
+
+    def test_buggy_2(self) -> None:
+        # just has to work
+        game_str = "(;GM[Skat]PC[Internet Skat Server]CO[]SE[1901]ID[13577]DT[2008-05-03/14:17:03/UTC]P0[bert]P1[Madmax]P2[ernie]R0[0.0]R1[0.0]R2[0.0]MV[w H9.HT.C8.SA.D8.DQ.CQ.SJ.SQ.CK.S8.CT.C7.CA.C9.D7.CJ.H7.H8.HJ.HA.HK.S9.DT.S7.DJ.DK.SK.D9.DA.HQ.ST 1 18 0 p 2 p 1 CO 0 SA 1 S8 2 SK ]R[d:1 loss v:-192 m:1 bidok p:13 t:0 s:0 z:0 p0:0 p1:0 p2:0 l:-1 to:-1 r:0] ;)"
+        ISSGame(game_str)
