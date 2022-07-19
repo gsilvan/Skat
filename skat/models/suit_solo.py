@@ -23,16 +23,16 @@ class SuitSoloNet(nn.Module):
     ) -> None:
         super().__init__()
         self.linear_dropout_relu_stack = nn.Sequential(
-            nn.Linear(in_features=input_size, out_features=input_size),
+            nn.Linear(in_features=input_size, out_features=1024),
             nn.ReLU(),
             nn.Dropout(p=dropout),
-            nn.LazyLinear(input_size),
+            nn.LazyLinear(1024),
             nn.ReLU(),
             nn.Dropout(p=dropout),
-            nn.LazyLinear(64),
+            nn.LazyLinear(512),
             nn.ReLU(),
             nn.Dropout(p=dropout),
-            nn.LazyLinear(64),
+            nn.LazyLinear(128),
             nn.ReLU(),
             nn.Dropout(p=dropout),
             nn.LazyLinear(output_size),
