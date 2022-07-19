@@ -74,7 +74,11 @@ class ISSGame:
         self._soloist = None
         self._type = None
         self._value = None
-        self._parse_sgf_line(game_str)
+        self.__game_str = game_str
+        self._parse_sgf_line(self.__game_str)
+
+    def __str__(self) -> str:
+        return self.__game_str
 
     @property
     def deck(self) -> Optional[Deck]:
