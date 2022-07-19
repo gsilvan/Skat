@@ -23,6 +23,7 @@ def get_args():
     parser.add_argument("-m1", type=str, default="./trained_models/checkpoint_p1.pt")
     parser.add_argument("-m2", type=str, default="./trained_models/checkpoint_p2.pt")
     parser.add_argument("-v", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--iss-file", type=str, default=None)
     return parser.parse_args()
 
 
@@ -70,6 +71,7 @@ if __name__ == "__main__":
         seed=args.seed,
         hold_position=args.hold_position,
         declare_game=get_game(args.declare_game),
+        iss_file=args.iss_file,
     )
     t.start()
     print(f"{t.scores}")

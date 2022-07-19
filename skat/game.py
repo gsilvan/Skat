@@ -1,10 +1,12 @@
 import copy
 from enum import Enum, auto
 from typing import Optional, Union
+from random import Random
 
 import numpy as np
 import torch
 
+import iss
 from skat.agents.random import RandomAgent
 from skat.card import Card
 from skat.deck import Deck
@@ -13,6 +15,7 @@ from skat.hand import Hand, HandOrder
 from skat.player import Player
 from skat.trick import TrickHistory
 from skat.utils.misc import disjoint
+from skat.utils.game_converter import get_game
 
 
 class GamePhase(Enum):
@@ -34,35 +37,52 @@ class Tournament:
         hold_position=False,
         declare_game=None,
         initial_cards=None,
+        iss_file=None,
     ) -> None:
         self.rounds = rounds
         self.agents = agents
-        self.scores = [0, 0, 0]
+        self.scores = [0, 0]
         self.dealer = 0
         self.verbose = verbose
         self.seed = seed
         self.hold_position = hold_position
         self.declare_game = declare_game
         self.initial_cards = initial_cards
+        self.iss_games = None
+        if iss_file:
+            self.iss_games = iss.ISSGames(file_name=iss_file)
 
     def start(self):
-        for _ in range(self.rounds):
+        iss_sample = None
+        if self.iss_games:
+            iss_sample = self.iss_games.sample(n=self.rounds, seed=self.seed)
+
+        for i in range(self.rounds):
+            __soloist = self.dealer
+            __dealer = self.dealer
+            __declare = self.declare_game
+            if self.iss_games:
+                self.initial_cards = iss_sample[i].deck.to_list()
+                __soloist = iss_sample[i].soloist
+                __dealer = 0
+                __declare = get_game(iss_sample[i].type)
             r = Round(
                 dealer=self.dealer,
                 skip_bidding=True,
-                solo_player_id=self.dealer,
+                solo_player_id=__soloist,
                 start=False,
                 verbose=self.verbose,
                 agents=self.agents,
                 seed=self.seed,
                 hand_game=True,
-                declare_game=self.declare_game,
+                declare_game=__declare,
                 initial_cards=self.initial_cards,
             )
-            soloist, points = r.start()
-            self.scores[soloist] += points
-            self.scores[(soloist + 1) % 3] += -points / 2
-            self.scores[(soloist + 2) % 3] += -points / 2
+            win = r.start()
+            if win:
+                self.scores[0] += 1
+            elif not win:
+                self.scores[1] += 1
             if not self.hold_position:
                 self.dealer = (self.dealer + 1) % 3
 
@@ -92,24 +112,7 @@ class Round:
         self.solo_player_id: int = solo_player_id
         self.deck: Deck = deck
         self.deal_deck: bool = True
-        self.initial_cards = (
-            Deck.factory(
-                p0_hand=[
-                    Card(2, 3),
-                    Card(1, 3),
-                    Card(2, 7),
-                    Card(2, 6),
-                    Card(2, 0),
-                    Card(1, 1),
-                    Card(0, 7),
-                    Card(0, 6),
-                    Card(0, 2),
-                    Card(0, 1),
-                ],
-            ).to_list(),
-        )
-        self.initial_cards = self.initial_cards[0]
-        # self.initial_cards = initial_cards
+        self.initial_cards = initial_cards
         self.verbose = verbose
         self.hand_game = hand_game
         self.skat: list[Card] = list()
@@ -483,6 +486,8 @@ class Round:
         if self.verbose:
             print(f"p={self.solo_player_id} {'won' if soloist_won else 'lost'}")
         if soloist_won:
-            return self.solo_player_id, 1
+            # return self.solo_player_id, 1
+            return True
         elif not soloist_won:
-            return self.solo_player_id, -2
+            # return self.solo_player_id, -2
+            return False
