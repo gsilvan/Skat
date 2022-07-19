@@ -70,7 +70,5 @@ class DQNAgent(skat.agents.command_line.CommandLineAgent):
             reward=reward,
         )
 
-        self.dqn.episode += 1
-
         # optimize model
         self.dqn.optimize_model()

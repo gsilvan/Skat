@@ -93,6 +93,7 @@ class DQN:
             return action
 
     def optimize_model(self):
+        self.episode += 1
         if len(self.replay_buffer) < self.batch_size:
             return
 
