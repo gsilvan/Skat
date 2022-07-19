@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import time
 
 import requests
 from bs4 import BeautifulSoup
@@ -13,7 +14,7 @@ s.headers.update(
     {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/95.0.4638.69 Safari/537.36",
+        "Chrome/101.0.4951.67 Safari/537.36",
         "accept-encoding": "gzip",
     }
 )
@@ -31,10 +32,11 @@ login_data = {
 }
 r = s.post("https://www.skatstube.de/login", data=login_data)
 
-for game_idx in range(1003757069, 1165216708):
+for game_idx in range(343058194, 343108194):
     if not os.path.exists(f"games/{game_idx}.json"):
-        r = s.get(f"https://www.skatstube.de/spiele/{game_idx}.json")
-        with open(f"games/{game_idx}.json", "wb") as f:
+        r = s.get(f"https://www.skatstube.de/spiele/{game_idx}")
+        with open(f"games/{game_idx}.html", "wb") as f:
             f.write(r.content)
     else:
         print(f"skipping game {game_idx}")
+    time.sleep(0.1)

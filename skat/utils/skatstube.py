@@ -42,25 +42,38 @@ class SkatstubeGame:
                 return i
         raise Exception("could not get position")
 
-    def __parse_game(self) -> None:
+    def __parse_game(self) -> bool:
         tricks = list()
         # gather soloist's cards, received skat, dropped cards
+        self.soloist_initial_cards = self.__raw_data[5]["cards"]
         for entry in self.__raw_data:
-            if entry["type"] == "youGotCards":
-                self.soloist_initial_cards = entry["cards"]
+            # if entry["type"] == "youGotCards":
+            #     self.soloist_initial_cards = entry["cards"]
             if entry["type"] == "gameResult":
                 self.game_type: str = entry["gameType"].capitalize()
                 self.result = entry["won"]
+                if not self.result:
+                    return False
                 self.points = entry["points"]
                 self.skat_cards = entry["skatCards"]
                 self.dropped_cards = entry["droppedCards"]
                 self.soloist_hand = self.soloist_initial_cards.copy()
                 self.soloist_hand = self.soloist_hand + self.skat_cards
                 for card in self.dropped_cards:
+                    if card not in self.soloist_hand:
+                        print(card, self.soloist_hand)
+                        return False
                     self.soloist_hand.remove(card)
             if entry["type"] == "wonTheTrick":
                 # store tricks for efficiency to avoid using an additional loop
-                tricks.append(entry["cards"])
+                cards = entry.get("cards")
+                if not cards:
+                    return False
+                tricks.append(cards)
+
+        # can only restore games, if all tricks were played and no one resigned
+        if len(tricks) != 10:
+            return False
 
         # the opponent team has to be reconstructed from corrupt api data
         #
@@ -72,6 +85,8 @@ class SkatstubeGame:
             delta_position = self.__solist_position(trick) - self.soloist_start_position
             for i, card in enumerate(trick):
                 self.hand[(i - delta_position) % 3].append(card)
+        # if everything went fine, return true at the end
+        return True
 
     def get_hand(self) -> list[Card]:
         hand = list()
