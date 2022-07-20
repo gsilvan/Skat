@@ -131,7 +131,6 @@ class DQN:
             next_state_values * self.gamma + reward_batch.squeeze(1)
         )
         loss = F.smooth_l1_loss(expected_state_action_values, q)
-        print(f"Loss: {loss}")
         self.writer.add_scalar("Loss/train", loss, self.episode)
         self.writer.add_scalar("epsilon", self.epsilon, self.episode)
         self.writer.add_scalar("buffer size", len(self.replay_buffer), self.episode)
