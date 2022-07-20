@@ -85,7 +85,7 @@ class GameTest(unittest.TestCase):
     def test_get_state_t(self) -> None:
         self.round.deal()
         st: torch.Tensor = self.round.get_state_t(0)
-        self.assertEqual(torch.Size([1, 139]), st.size())
+        self.assertEqual(torch.Size([1, 171]), st.size())
 
     def test_reward(self) -> None:
         soloist_id = 0
