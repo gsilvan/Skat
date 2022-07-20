@@ -16,9 +16,9 @@ from .mask import MaskedCategorical
 class DQN:
     def __init__(
         self,
-        device: str = "cpu",
+        device: str = "cuda",
         epsilon: float = 0.98,
-        epsilon_decay: float = 0.99995,
+        epsilon_decay: float = 0.995,
         epsilon_min: float = 0.10,
         batch_size: int = 10000,
         gamma: float = 0.5,

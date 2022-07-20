@@ -73,7 +73,7 @@ class Hand(collections.abc.MutableSequence):
 
     @property
     def as_tensor_mask(self) -> torch.Tensor:
-        tensor = torch.zeros(32, dtype=bool, device="cpu")
+        tensor = torch.zeros(32, dtype=bool, device="cuda")
         # TODO: device should be derived from a config file
         for card in self.__hand:
             tensor[card.np_index] = True
