@@ -5,6 +5,7 @@ from random import Random
 
 import numpy as np
 import torch
+import tqdm
 
 import iss
 from skat.agents.random import RandomAgent
@@ -57,7 +58,8 @@ class Tournament:
         if self.iss_games:
             iss_sample = self.iss_games.sample(n=self.rounds, seed=self.seed)
 
-        for i in range(self.rounds):
+        print(f"starting tournament with {self.rounds}...")
+        for i in tqdm.tqdm(range(self.rounds)):
             __soloist = self.dealer
             __dealer = self.dealer
             __declare = self.declare_game

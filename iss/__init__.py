@@ -233,6 +233,7 @@ class ISSGames(collections.abc.MutableSequence):
         return sample
 
     def read_sgf(self, filename: str) -> None:
+        print("parsing iss games... ")
         with tqdm.tqdm(total=os.path.getsize(filename)) as progress:
             with open(filename, "r") as fp:
                 for line in fp:
