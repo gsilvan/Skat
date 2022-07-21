@@ -24,10 +24,18 @@ def get_args():
     parser.add_argument("-m2", type=str, default="./trained_models/checkpoint_p2.pt")
     parser.add_argument("-v", action=argparse.BooleanOptionalAction)
     parser.add_argument("--iss-file", type=str, default=None)
+    parser.add_argument("--epsilon", type=float, default=0.98)
+    parser.add_argument("--epsilon-decay", type=float, default=0.995)
     return parser.parse_args()
 
 
-def get_player(arg: str, training: bool = False, path: str = None):
+def get_player(
+    arg: str,
+    training: bool = False,
+    path: str = None,
+    epsilon: float = None,
+    epsilon_decay: float = None,
+):
     from skat.agents.command_line import CommandLineAgent
     from skat.agents.dqn import DQNAgent
     from skat.agents.random import RandomAgent
@@ -38,7 +46,9 @@ def get_player(arg: str, training: bool = False, path: str = None):
         case "cli":
             return CommandLineAgent()
         case "dqn":
-            return DQNAgent(train=training, path=path)
+            return DQNAgent(
+                train=training, path=path, epsilon=epsilon, epsilon_decay=epsilon_decay
+            )
         case _:
             raise Exception("Agent not found.")
 
@@ -62,7 +72,15 @@ if __name__ == "__main__":
     path_args = [args.m0, args.m1, args.m2]
     agents = []
     for i, a in enumerate(agent_args):
-        agents.append(get_player(a, training=train_args[i], path=path_args[i]))
+        agents.append(
+            get_player(
+                a,
+                training=train_args[i],
+                path=path_args[i],
+                epsilon=args.epsilon,
+                epsilon_decay=args.epsilon_decay,
+            )
+        )
 
     t = Tournament(
         rounds=rounds,
