@@ -10,9 +10,9 @@ from skat.hand import FULL_HAND, Hand
 
 
 class DQNAgent(skat.agents.command_line.CommandLineAgent):
-    def __init__(self, train=False, path=None):
+    def __init__(self, train=False, path=None, epsilon=None, epsilon_decay=None):
         super().__init__()
-        self.dqn = DQN(model_path=path)
+        self.dqn = DQN(model_path=path, epsilon=epsilon, epsilon_decay=epsilon_decay)
         self.train = train
         self.initial_state: Optional[torch.Tensor] = None
         self.last_action: Optional[torch.Tensor] = None
