@@ -59,7 +59,7 @@ class DQN:
         )
 
         # buffer
-        self.replay_buffer = ReplayBuffer(buffer_size=10000)
+        self.replay_buffer = ReplayBuffer(buffer_size=100000)
 
         # step counter
         self.episode = 0

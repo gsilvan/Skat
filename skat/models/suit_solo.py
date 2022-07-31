@@ -34,6 +34,8 @@ class SuitSoloNet(nn.Module):
             nn.ReLU(),
             nn.LazyLinear(1024),
             nn.ReLU(),
+            nn.LazyLinear(1024),
+            nn.ReLU(),
             nn.LazyLinear(512),
             nn.ReLU(),
             nn.LazyLinear(128),
