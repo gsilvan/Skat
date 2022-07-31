@@ -3,8 +3,8 @@ from iss import ISSGames
 
 
 if __name__ == "__main__":
-    iss_games = ISSGames("/home/silvan/Desktop/iss-tail-100000.sgf")
-    sample = iss_games.sample(n=10000, seed=None)
+    iss_games = ISSGames("/home/silvan/Downloads/iss-games-04-2021.sgf")
+    sample = iss_games.sample(n=len(iss_games), seed=None)
     result = [0, 0, 0, 0, 0]
     for game in sample:
         result[0] += 1
