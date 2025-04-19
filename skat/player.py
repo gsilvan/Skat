@@ -22,7 +22,7 @@ class Player:
         self.public_state: Optional[Game] = None
 
     def __str__(self) -> str:
-        return f"{self.seat_id} hand={self.hand} " f"score={self.trick_stack_value}"
+        return f"{self.seat_id} hand={self.hand} score={self.trick_stack_value}"
 
     @property
     def trick_stack_value(self) -> int:

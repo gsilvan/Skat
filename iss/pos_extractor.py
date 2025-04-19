@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from iss import ISSGames
 
-
 if __name__ == "__main__":
     suit_games = []
     grand_games = []
@@ -18,4 +17,3 @@ if __name__ == "__main__":
         with open(f"/home/silvan/iss_games/suit_win_los_pos_{i}", "a") as file:
             for game in games:
                 file.write(f"{str(game)}\n")
-
