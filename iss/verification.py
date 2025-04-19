@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from iss import ISSGames
 
-
 if __name__ == "__main__":
     iss_games = ISSGames("/home/silvan/Downloads/iss-games-04-2021.sgf")
     sample = iss_games.sample(n=len(iss_games), seed=None)

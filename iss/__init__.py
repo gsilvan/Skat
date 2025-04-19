@@ -4,14 +4,14 @@ import enum
 import os
 import pickle
 import re
-from typing import Optional
 from random import Random
+from typing import Optional
 
 import tqdm
 from pysgf import SGF
 
-from skat.deck import Deck
 from skat.card import Card
+from skat.deck import Deck
 
 card = {
     "D7": Card(0, 0),

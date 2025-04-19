@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-from iss import ISSGames, GameType
-
+from iss import GameType, ISSGames
 
 if __name__ == "__main__":
     suit_games = []

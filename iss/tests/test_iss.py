@@ -1,6 +1,6 @@
 import unittest
 
-from iss import ISSGame, GameType
+from iss import GameType, ISSGame
 from skat.card import Card
 
 

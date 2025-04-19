@@ -1,7 +1,7 @@
 import copy
 from enum import Enum, auto
-from typing import Optional, Union
 from random import Random
+from typing import Optional, Union
 
 import numpy as np
 import torch
@@ -15,8 +15,8 @@ from skat.games import Game
 from skat.hand import Hand, HandOrder
 from skat.player import Player
 from skat.trick import TrickHistory
-from skat.utils.misc import disjoint
 from skat.utils.game_converter import get_game
+from skat.utils.misc import disjoint
 
 
 class GamePhase(Enum):
@@ -457,7 +457,7 @@ class Round:
         if not self.hand_game:
             _cards_in_skat = self.deck.deal_cards(2)
             if self.verbose:
-                print(f"p={self.solo_player_id} picks the skat: " f"{_cards_in_skat}")
+                print(f"p={self.solo_player_id} picks the skat: {_cards_in_skat}")
             self.player[self.solo_player_id].receive_cards(_cards_in_skat)
             self.skat = self.player[self.solo_player_id].press_skat()
             if self.verbose:
