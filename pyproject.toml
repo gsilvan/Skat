@@ -1,0 +1,30 @@
+[project]
+name = "skat"
+version = "0.1.0"
+description = "Skat game environment for building automated computer agentsi"
+authors = [
+  { name = "Silvan Gümüsdere", email = "silvan@trollbox.org"},
+]
+readme = "README.md"
+requires-python = ">=3.12.3"
+dependencies = [
+    "numpy>=2.2.0",
+    "pysgf>=0.9.0",
+    "tensorboard>=2.18.0",
+    "torch>=2.5.1",
+    "tqdm>=4.67.1",
+]
+
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu", marker = "platform_system != 'Darwin'"},
+]
+torchvision = [
+  { index = "pytorch-cpu", marker = "platform_system != 'Darwin'"},
+]
