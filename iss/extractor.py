@@ -22,8 +22,8 @@ full_sample = iss_games.sample(n=len(iss_games))
 for game in full_sample:
     if not game.is_valid:
         continue
-    # if not game.is_won:
-    #     continue
+    if not game.is_won:
+        continue
     match game.type:
         case GameType.DIAMONDS | GameType.HEARTS | GameType.SPADES | GameType.CLUBS:
             suit_games.append(game)
