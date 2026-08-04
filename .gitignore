@@ -145,3 +145,8 @@ cython_debug/
 # (DSkV/ISPA-World). Keep local-only, don't push to the public GitHub remote.
 Internationale-Skatordnung-2018.pdf
 internationale-skatordnung.md
+# Training artifacts and scraped corpora - regenerated, not source.
+runs/
+trained_models/
+skat/trained_models/
+tests/testfiles/skatstube/bulk/
