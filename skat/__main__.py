@@ -43,6 +43,12 @@ def get_args():
             default=BiddingStyle.CONSERVATIVE,
             help=f"Bidding style for player {seat} (default: conservative).",
         )
+    parser.add_argument(
+        "--simulations",
+        type=int,
+        default=600,
+        help="MCTS playouts per card, split over the sampled determinizations.",
+    )
     return parser.parse_args()
 
 
@@ -52,11 +58,13 @@ def get_player(
     path: str = None,
     epsilon: float = None,
     epsilon_decay: float = None,
+    simulations: int = 600,
     seed=None,
     bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
 ):
     from skat.agents.command_line import CommandLineAgent
     from skat.agents.dqn import DQNAgent
+    from skat.agents.mcts import MCTSAgent
     from skat.agents.random import RandomAgent
 
     match arg:
@@ -64,6 +72,8 @@ def get_player(
             return RandomAgent(bidding=bidding)
         case "cli":
             return CommandLineAgent(bidding=bidding)
+        case "mcts":
+            return MCTSAgent(simulations=simulations, seed=seed, bidding=bidding)
         case "dqn":
             return DQNAgent(
                 train=training,
@@ -106,6 +116,7 @@ if __name__ == "__main__":
                 path=path_args[i],
                 epsilon=args.epsilon,
                 epsilon_decay=args.epsilon_decay,
+                simulations=args.simulations,
                 seed=args.seed,
                 bidding=bidding_args[i],
             )
