@@ -51,34 +51,35 @@ class SuitGameTest(unittest.TestCase):
         hash_new = hash(suit_game.trick)
         self.assertNotEqual(hash_old, hash_new)
 
-    # def test_is_trump_card(self) -> None:
-    #     clubs_game = SuitGame(3)
-    #     test_trump_cards = (
-    #         Card(3, 0),
-    #         Card(3, 7),
-    #         Card(0, 3),  # This is a J
-    #         Card(1, 3),
-    #         Card(2, 3),
-    #         Card(3, 3),
-    #     )
-    #     computed_trump_cards = clubs_game.trump_set()
-    #     # compare sets
-    #     self.assertTrue(
-    #         frozenset(test_trump_cards) <= frozenset(computed_trump_cards))
-    #     # compare with function
-    #     for trump_card in test_trump_cards:
-    #         self.assertTrue(clubs_game.is_trump_card(trump_card))
-    #
-    # def test_is_not_trump_card(self) -> None:
-    #     hearts_game = SuitGame(1)
-    #     test_non_trump_cards = (
-    #         Card(0, 5),
-    #         Card(0, 1),
-    #         Card(2, 4),
-    #         Card(3, 1),
-    #     )
-    #     for non_trump_card in test_non_trump_cards:
-    #         self.assertFalse(hearts_game.is_trump_card(non_trump_card))
+    def test_is_trump_card(self) -> None:
+        trick = SuitGame(3).trick  # clubs
+        trumps = (
+            Card(3, 0),  # ♣7  - the trump suit itself
+            Card(3, 7),  # ♣A
+            Card(0, 3),  # ♦J  - every jack is trump, whatever its suit
+            Card(1, 3),  # ♥J
+            Card(2, 3),  # ♠J
+            Card(3, 3),  # ♣J
+        )
+        self.assertTrue(frozenset(trumps) <= frozenset(SuitGame.trump_cards(3)))
+        for card in trumps:
+            self.assertTrue(trick.is_trump_card(card), card)
+
+    def test_is_not_trump_card(self) -> None:
+        trick = SuitGame(1).trick  # hearts
+        for card in (Card(0, 5), Card(0, 1), Card(2, 4), Card(3, 1)):
+            self.assertFalse(trick.is_trump_card(card), card)
+
+    def test_trump_and_suit_tables_are_precomputed(self) -> None:
+        """
+        The tables are built once at import, not per call - rebuilding them was
+        the hottest thing in the MCTS search. Returning the identical object is
+        the contract that keeps it that way; they are tuples, so sharing them
+        is safe.
+        """
+        for suit in range(4):
+            self.assertIs(SuitGame.trump_cards(suit), SuitGame.trump_cards(suit))
+            self.assertIs(SuitGame.suit_cards(suit), SuitGame.suit_cards(suit))
 
     def test_bug_8(self):
         # trick=[Turn(player_id=1, card=♣A), Turn(player_id=2, card=♣7), Turn(player_id=0, card=♠A)]

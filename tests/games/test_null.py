@@ -51,3 +51,7 @@ class NullTest(unittest.TestCase):
         self.assertEqual(35, Null(hand=True).value)
         self.assertEqual(46, Null(ouvert=True).value)
         self.assertEqual(59, Null(hand=True, ouvert=True).value)
+
+    def test_suit_table_is_precomputed(self) -> None:
+        for suit in range(4):
+            self.assertIs(Null.suit_cards(suit), Null.suit_cards(suit))

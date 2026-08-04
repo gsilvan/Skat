@@ -7,6 +7,12 @@ from skat.card import RANKS, SUITS, Card
 from skat.hand import HandOrder
 from skat.trick import Trick
 
+#: Null has no trumps, so a "suit" is simply all eight cards of it - jack
+#: included, since it ranks between ten and queen rather than as a trump.
+SUIT_CARDS: tuple[tuple[Card, ...], ...] = tuple(
+    tuple(Card(suit, rank) for rank in range(len(RANKS))) for suit in range(len(SUITS))
+)
+
 
 class Null(skat.games.Game):
     #: Fixed Spielwert per ISkO §2.4.2, keyed by (hand, ouvert).
@@ -33,10 +39,7 @@ class Null(skat.games.Game):
 
     @staticmethod
     def suit_cards(suit) -> tuple[Card, ...]:
-        suits = list()
-        for i, _ in enumerate(RANKS):
-            suits.append(Card(suit, i))
-        return tuple(suits)
+        return SUIT_CARDS[suit]
 
     @property
     def value(self) -> int:
@@ -56,7 +59,7 @@ class NullTrick(Trick):
         if len(self.buffer) == 0:
             return set()
         else:
-            return set(Null.suit_cards(SUITS.index(self.buffer[0].card.suit)))
+            return set(SUIT_CARDS[SUITS.index(self.buffer[0].card.suit)])
 
     @property
     def is_trump(self) -> bool:
