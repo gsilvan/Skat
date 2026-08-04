@@ -13,6 +13,7 @@ from unittest.mock import patch
 
 import torch
 
+from skat.agents.rl.buffer import ReplayBuffer
 from skat.agents.rl.dqn import describe_device, gpu_backend, resolve_device
 from skat.models import SuitSoloNet
 
@@ -122,6 +123,9 @@ class DeviceReachesTheTensorsTest(unittest.TestCase):
         dqn.epsilon = 0.0
         dqn.epsilon_decay = 1.0
         dqn.epsilon_min = 0.0
+        # past the warm-up, so select_action takes the greedy branch under test
+        dqn.replay_buffer = ReplayBuffer(buffer_size=1)
+        dqn.learn_start = 0
 
         seen: dict[str, torch.device] = {}
 

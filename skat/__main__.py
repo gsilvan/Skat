@@ -40,8 +40,34 @@ def get_args():
         "auto picks cuda when it is usable, else cpu. Accepts anything "
         "torch understands, e.g. cuda:1.",
     )
-    parser.add_argument("--epsilon", type=float, default=0.98)
-    parser.add_argument("--epsilon-decay", type=float, default=0.995)
+    # These all default to None so that `DQN.__init__` stays the one place the
+    # defaults live. --epsilon-decay used to default to 0.995 here while DQN
+    # said 0.99995, and the CLI silently won by a factor of 100 - at 0.995 the
+    # decay is per *action*, so exploration collapsed to its floor roughly 46
+    # rounds after learning began.
+    parser.add_argument("--epsilon", type=float, default=None)
+    parser.add_argument("--epsilon-decay", type=float, default=None)
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=None,
+        help="Transitions per gradient step (default: 256).",
+    )
+    parser.add_argument(
+        "--learn-start",
+        type=int,
+        default=None,
+        help="Transitions to collect before the first gradient step "
+        "(default: 10000). Play is fully random until then, so the seed data "
+        "covers a wide spread of positions. A DQN agent contributes 10 "
+        "transitions per round.",
+    )
+    parser.add_argument(
+        "--buffer-size",
+        type=int,
+        default=None,
+        help="Replay buffer capacity, FIFO (default: 100000).",
+    )
     styles = "{" + ",".join(style.value for style in BiddingStyle) + "}"
     for seat in range(3):
         parser.add_argument(
@@ -70,6 +96,9 @@ def get_player(
     simulations: int = 600,
     seed=None,
     device: str = "auto",
+    batch_size: Optional[int] = None,
+    learn_start: Optional[int] = None,
+    buffer_size: Optional[int] = None,
     bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
 ):
     from skat.agents.command_line import CommandLineAgent
@@ -91,6 +120,9 @@ def get_player(
                 epsilon=epsilon,
                 epsilon_decay=epsilon_decay,
                 device=device,
+                batch_size=batch_size,
+                learn_start=learn_start,
+                buffer_size=buffer_size,
                 bidding=bidding,
             )
         case _:
@@ -130,6 +162,9 @@ if __name__ == "__main__":
                 simulations=args.simulations,
                 seed=args.seed,
                 device=args.device,
+                batch_size=args.batch_size,
+                learn_start=args.learn_start,
+                buffer_size=args.buffer_size,
                 bidding=bidding_args[i],
             )
         )

@@ -77,10 +77,11 @@ class DQN:
         epsilon: float = 0.98,
         epsilon_decay: float = 0.99995,
         epsilon_min: float = 0.10,
-        batch_size: int = 10000,
+        batch_size: int = 256,
+        learn_start: int = 10000,
         gamma: float = 0.5,
         target_update: int = 4096,
-        buffer_size: int = 50000,
+        buffer_size: int = 100000,
         learning_rate: float = 1e-4,
         model=skat.models.SuitSoloNet,
         model_path: str = DEFAULT_MODEL_PATH,
@@ -91,12 +92,20 @@ class DQN:
         # which one won rather than let a long run sit on the cpu unnoticed.
         print(f"DQN device: {describe_device(self.device)}")
 
+        if learn_start < batch_size:
+            raise ValueError(
+                f"learn_start ({learn_start}) is below batch_size ({batch_size}): "
+                "the first gradient step would ask the replay buffer for more "
+                "transitions than it can hold at that point."
+            )
+
         # Hyperparameter
         self.epsilon = epsilon
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
         self.buffer_size = buffer_size
         self.batch_size = batch_size
+        self.learn_start = learn_start
         self.gamma = gamma
         self.target_update = target_update
         self.learning_rate = learning_rate
@@ -132,20 +141,44 @@ class DQN:
         )
 
         # buffer
-        self.replay_buffer = ReplayBuffer(buffer_size=100000)
+        self.replay_buffer = ReplayBuffer(buffer_size=self.buffer_size)
 
         # step counter
         self.episode = 0
+        # latched by the first gradient step, so the announcement happens once
+        self.learning = False
 
         # tensorboard
         self.writer = SummaryWriter()
 
+    @property
+    def warming_up(self) -> bool:
+        """True until the buffer holds enough transitions to learn from."""
+        return len(self.replay_buffer) < self.learn_start
+
+    @property
+    def exploration_rate(self) -> float:
+        """
+        How often to pick a random card.
+
+        Flat 1.0 for the whole warm-up. The seed transitions are the only thing
+        the net ever sees before its first gradient step, so they should come
+        from as wide a spread of positions as possible - and a decaying epsilon
+        would instead spend most of the warm-up acting greedily on a network
+        that is still at its random initialisation, i.e. one arbitrary
+        deterministic policy played over and over.
+        """
+        return 1.0 if self.warming_up else self.epsilon
+
     def select_action(
         self, state: torch.Tensor, valid_actions: torch.Tensor, explore: bool = True
     ) -> torch.Tensor:
-        # decay epsilon
-        self.epsilon *= self.epsilon_decay
-        self.epsilon = max(self.epsilon, self.epsilon_min)
+        rate = self.exploration_rate
+        if explore and not self.warming_up:
+            # decay per action, and only while exploring - epsilon is never read
+            # on an evaluation pass, so decaying there just burns the schedule
+            self.epsilon *= self.epsilon_decay
+            self.epsilon = max(self.epsilon, self.epsilon_min)
 
         valid_indices: list[int] = [i for i, t in enumerate(valid_actions) if t]
 
@@ -155,7 +188,7 @@ class DQN:
         valid_actions = valid_actions.to(self.device)
 
         action = torch.zeros((1, 32), dtype=torch.long)
-        if explore and random.random() <= self.epsilon:
+        if explore and random.random() <= rate:
             # select with epsilon probability a random action
             action[0][random.choice(valid_indices)] = 1
             return action
@@ -172,8 +205,16 @@ class DQN:
 
     def optimize_model(self):
         self.episode += 1
-        if len(self.replay_buffer) < self.batch_size:
+        if self.warming_up:
             return
+        if not self.learning:
+            # a long warm-up looks identical to a hung run from the outside
+            self.learning = True
+            print(
+                f"DQN: warm-up done, {len(self.replay_buffer)} transitions "
+                f"collected in {self.episode} steps - learning starts "
+                f"(batch {self.batch_size})"
+            )
 
         # get a random sample from buffer (size=batch_size)
         transitions = self.replay_buffer.sample(batch_size=self.batch_size)
