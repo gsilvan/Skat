@@ -28,6 +28,7 @@ class DQNAgent(HeuristicDeclarer, Agent):
         path=None,
         epsilon=None,
         epsilon_decay=None,
+        device=None,
         bidding=BiddingStyle.CONSERVATIVE,
     ):
         super().__init__(bidding=bidding)
@@ -37,6 +38,7 @@ class DQNAgent(HeuristicDeclarer, Agent):
             "model_path": path,
             "epsilon": epsilon,
             "epsilon_decay": epsilon_decay,
+            "device": device,
         }
         self.dqn = DQN(**{k: v for k, v in options.items() if v is not None})
         self.train = train

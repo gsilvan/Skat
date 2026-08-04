@@ -1,5 +1,6 @@
 import os
 import random
+import sys
 
 import torch
 import torch.nn.functional as F
@@ -14,10 +15,65 @@ from .mask import MaskedCategorical
 DEFAULT_MODEL_PATH = "./trained_models/checkpoint.pt"
 
 
+def gpu_backend() -> str:
+    """
+    Which GPU stack this torch build was compiled against.
+
+    `hip` is checked first because a ROCm build reports `version.cuda is None`
+    while still answering to the device string "cuda" - AMD cards are driven
+    through the CUDA API, so "cuda" does not imply NVIDIA.
+    """
+    if getattr(torch.version, "hip", None):
+        return f"ROCm {torch.version.hip}"
+    if torch.version.cuda:
+        return f"CUDA {torch.version.cuda}"
+    return "no GPU support"
+
+
+def describe_device(device: torch.device) -> str:
+    """`device`, named, for the training log."""
+    if device.type != "cuda":
+        return str(device)
+    try:
+        name = torch.cuda.get_device_name(device)
+    except Exception:  # pragma: no cover - driver-dependent
+        name = "unknown gpu"
+    return f"{device} ({name}, {gpu_backend()})"
+
+
+def resolve_device(spec: str = "auto") -> torch.device:
+    """
+    Turn a `--device` string into a `torch.device`.
+
+    "auto" takes cuda when it is genuinely usable and falls back to cpu, so the
+    same command works on a laptop and on a training box. Anything torch
+    understands is accepted, including "cuda:1".
+
+    A gpu request that cannot be honoured is refused here rather than left to
+    surface as an opaque failure on the first forward pass.
+    """
+    if spec == "auto":
+        spec = "cuda" if torch.cuda.is_available() else "cpu"
+    device = torch.device(spec)
+    if device.type == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError(
+            f"device {spec!r} was requested but torch reports no usable GPU.\n"
+            f"  torch:      {torch.__version__} ({gpu_backend()})\n"
+            f"  python:     {sys.executable}\n"
+            "A GPU needs a torch built for one - CUDA for NVIDIA, ROCm for AMD; "
+            'both are addressed as "cuda". Check that the interpreter above is '
+            "the one holding that build: this project's own venv pins the "
+            "CPU-only wheel index (see [tool.uv.sources] in pyproject.toml), so "
+            "a GPU run usually means a different interpreter or a re-pinned "
+            "index."
+        )
+    return device
+
+
 class DQN:
     def __init__(
         self,
-        device: str = "cpu",
+        device: str = "auto",
         epsilon: float = 0.98,
         epsilon_decay: float = 0.99995,
         epsilon_min: float = 0.10,
@@ -29,8 +85,11 @@ class DQN:
         model=skat.models.SuitSoloNet,
         model_path: str = DEFAULT_MODEL_PATH,
     ) -> None:
-        # use either 'cuda' or 'cpu'
-        self.device = device
+        # "auto", "cpu", "cuda", "cuda:1", ... - see resolve_device
+        self.device = resolve_device(device)
+        # Two torch installs can resolve differently (venv vs system), so say
+        # which one won rather than let a long run sit on the cpu unnoticed.
+        print(f"DQN device: {describe_device(self.device)}")
 
         # Hyperparameter
         self.epsilon = epsilon
@@ -49,7 +108,9 @@ class DQN:
         self.model_path = model_path
 
         if os.path.exists(self.model_path):
-            existing_model = torch.load(self.model_path, map_location=device)
+            # the resolved device, not the raw spec: map_location has no idea
+            # what "auto" means and refuses to restore the storages
+            existing_model = torch.load(self.model_path, map_location=self.device)
             self.policy_net.load_state_dict(existing_model)
 
         self.target_net.load_state_dict(self.policy_net.state_dict())
@@ -76,6 +137,11 @@ class DQN:
         self.epsilon = max(self.epsilon, self.epsilon_min)
 
         valid_indices: list[int] = [i for i, t in enumerate(valid_actions) if t]
+
+        # The observation and the legal-move mask are built on the cpu (that is
+        # where the replay buffer wants them); move them to wherever the net is.
+        state = state.to(self.device)
+        valid_actions = valid_actions.to(self.device)
 
         action = torch.zeros((1, 32), dtype=torch.long)
         if explore and random.random() <= self.epsilon:

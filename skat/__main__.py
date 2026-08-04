@@ -31,6 +31,15 @@ def get_args():
     parser.add_argument("-m2", type=str, default="./trained_models/checkpoint_p2.pt")
     parser.add_argument("-v", action=argparse.BooleanOptionalAction)
     parser.add_argument("--iss-file", type=str, default=None)
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="auto",
+        metavar="{auto,cpu,cuda,...}",
+        help="Torch device the DQN agents train on. "
+        "auto picks cuda when it is usable, else cpu. Accepts anything "
+        "torch understands, e.g. cuda:1.",
+    )
     parser.add_argument("--epsilon", type=float, default=0.98)
     parser.add_argument("--epsilon-decay", type=float, default=0.995)
     styles = "{" + ",".join(style.value for style in BiddingStyle) + "}"
@@ -60,6 +69,7 @@ def get_player(
     epsilon_decay: float = None,
     simulations: int = 600,
     seed=None,
+    device: str = "auto",
     bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
 ):
     from skat.agents.command_line import CommandLineAgent
@@ -80,6 +90,7 @@ def get_player(
                 path=path,
                 epsilon=epsilon,
                 epsilon_decay=epsilon_decay,
+                device=device,
                 bidding=bidding,
             )
         case _:
@@ -118,6 +129,7 @@ if __name__ == "__main__":
                 epsilon_decay=args.epsilon_decay,
                 simulations=args.simulations,
                 seed=args.seed,
+                device=args.device,
                 bidding=bidding_args[i],
             )
         )

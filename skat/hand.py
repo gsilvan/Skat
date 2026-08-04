@@ -73,8 +73,9 @@ class Hand(collections.abc.MutableSequence):
 
     @property
     def as_tensor_mask(self) -> torch.Tensor:
+        # cpu like `Round.get_state_t`; DQN moves the mask to the training
+        # device alongside the observation.
         tensor = torch.zeros(32, dtype=bool, device="cpu")
-        # TODO: device should be derived from a config file
         for card in self.__hand:
             tensor[card.np_index] = True
         return tensor

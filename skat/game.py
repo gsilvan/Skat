@@ -433,8 +433,9 @@ class Round:
 
     def get_state_t(self, player_id) -> torch.Tensor:
         state = self.get_state(player_id)
+        # Built on the cpu on purpose: this is what goes into the replay
+        # buffer, and DQN moves it to the training device when it needs it.
         return torch.tensor(state, device="cpu").unsqueeze(0)
-        # TODO: device should be derived from a config file
 
     def cumulative_reward(self, player_id) -> float:
         is_solo = player_id == self.solo_player_id
