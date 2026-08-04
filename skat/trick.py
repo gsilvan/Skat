@@ -64,6 +64,21 @@ class Trick(ABC):
             arr[card.np_index] = 1
         return arr
 
+    def to_numpy(self, player_id=None) -> np.ndarray:
+        """
+        The trick as a one-hot vector, optionally restricted to one player's
+        card. Mirrors `TrickHistory.to_numpy`.
+
+        Attribution matters: told only *which* cards are on the table, an agent
+        cannot tell whether the ace was played by its partner or by the
+        declarer, which is most of the decision in Skat.
+        """
+        arr = np.zeros(32)
+        for pid, card in self.buffer:
+            if player_id is None or pid == player_id:
+                arr[card.np_index] = 1
+        return arr
+
 
 class TrickHistory:
     def __init__(self) -> None:

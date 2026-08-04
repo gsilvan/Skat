@@ -6,6 +6,7 @@ import torch
 from skat.card import Card
 from skat.game import GamePhase, Round
 from skat.games.suit import SuitGame
+from skat.models import SuitSoloNet
 
 
 class GameTest(unittest.TestCase):
@@ -85,7 +86,9 @@ class GameTest(unittest.TestCase):
     def test_get_state_t(self) -> None:
         self.round.deal()
         st: torch.Tensor = self.round.get_state_t(0)
-        self.assertEqual(torch.Size([1, 171]), st.size())
+        # against INPUT_SIZE rather than a literal: the two are coupled by hand,
+        # so restating the number here would just let them drift in step
+        self.assertEqual(torch.Size([1, SuitSoloNet.INPUT_SIZE]), st.size())
 
     def test_reward(self) -> None:
         soloist_id = 0

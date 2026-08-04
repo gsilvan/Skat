@@ -14,6 +14,7 @@ from unittest.mock import patch
 import torch
 
 from skat.agents.rl.dqn import describe_device, gpu_backend, resolve_device
+from skat.models import SuitSoloNet
 
 
 class GpuBackendTest(unittest.TestCase):
@@ -153,8 +154,6 @@ class DeviceReachesTheTensorsTest(unittest.TestCase):
 
         from skat.agents.rl import dqn as dqn_module
 
-        from skat.models import SuitSoloNet
-
         net = SuitSoloNet()
         # Run a forward first, exactly as DQN does before it ever checkpoints.
         # A state_dict saved from an un-forwarded net still holds LazyLinear's
@@ -168,6 +167,25 @@ class DeviceReachesTheTensorsTest(unittest.TestCase):
             torch.save(net.state_dict(), path)
             # would raise if "auto" reached torch.load
             dqn_module.DQN(device="auto", model_path=str(path))
+
+    def test_a_stale_checkpoint_says_why_it_does_not_fit(self) -> None:
+        """A layout change retires every checkpoint; say so, not 'size mismatch'."""
+        import tempfile
+        from pathlib import Path
+
+        from torch import nn
+
+        from skat.agents.rl import dqn as dqn_module
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "old.pt"
+            stale = nn.Sequential(nn.Linear(171, 32))  # the previous input width
+            torch.save(stale.state_dict(), path)
+            with self.assertRaises(RuntimeError) as caught:
+                dqn_module.DQN(device="cpu", model_path=str(path))
+        message = str(caught.exception)
+        self.assertIn("does not fit", message)
+        self.assertIn(str(SuitSoloNet.INPUT_SIZE), message)
 
     def test_the_replay_buffer_keeps_cpu_tensors(self) -> None:
         # states are stored as produced; only DQN moves copies to the device

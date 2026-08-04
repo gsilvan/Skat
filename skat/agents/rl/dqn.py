@@ -111,7 +111,18 @@ class DQN:
             # the resolved device, not the raw spec: map_location has no idea
             # what "auto" means and refuses to restore the storages
             existing_model = torch.load(self.model_path, map_location=self.device)
-            self.policy_net.load_state_dict(existing_model)
+            try:
+                self.policy_net.load_state_dict(existing_model)
+            except RuntimeError as mismatch:
+                raise RuntimeError(
+                    f"{self.model_path} does not fit the current network.\n"
+                    f"  expected input width: {skat.models.SuitSoloNet.INPUT_SIZE}\n"
+                    "A checkpoint is only loadable by the state layout it was "
+                    "trained on, so any change to Round.get_state retires the "
+                    "ones that came before. Move the file aside (or point -m at "
+                    "a fresh path) and train again.\n"
+                    f"  original error: {mismatch}"
+                ) from mismatch
 
         self.target_net.load_state_dict(self.policy_net.state_dict())
 

@@ -50,7 +50,9 @@ class Null(skat.games.Game):
         return self.value
 
     def to_numpy(self) -> np.ndarray:
-        return np.array([self.trick.value])
+        arr = super().to_numpy()  # null has no trumps
+        arr[5] = 1  # is_null
+        return arr
 
 
 class NullTrick(Trick):

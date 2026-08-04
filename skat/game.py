@@ -391,42 +391,69 @@ class Round:
                 player.hand.sort(order=HandOrder("♦♥♠♣", "789QKXA", "♦♥♠♣", "J"))
             self.skat = self.initial_cards[3]  # type: ignore
 
+    @staticmethod
+    def seats_from(player_id: int) -> list[int]:
+        """
+        The three seats in play order starting at `player_id`, so slot 0 is
+        always the observer and slot 1 whoever plays next.
+
+        This is what makes the state *egocentric*. Indexing per-player blocks by
+        absolute seat instead would give the same situation a different vector
+        from each chair, and a network would have to learn every concept three
+        times over - one model per seat.
+        """
+        return [(player_id + offset) % 3 for offset in range(3)]
+
     def get_state(self, player_id) -> np.ndarray:
         """Return a state vector for a given player. A player has a limited view on the
         state in incomplete information games."""
-        __hand = self.player[player_id].hand.as_vector
-        __color = self.game.to_numpy()  # type: ignore
-        __points = np.array(
-            [self.points_soloist / 120.0, self.points_defenders / 120.0]
+        assert self.game is not None
+        seats = self.seats_from(player_id)
+        soloist = self.solo_player_id
+        is_soloist = player_id == soloist
+
+        __hand = self.player[player_id].hand.as_vector  # 32
+        __game = self.game.to_numpy()  # 6
+        # Which side we are on. Without it the same observation carries opposite
+        # rewards - `cumulative_reward` flips sign on exactly this - and nothing
+        # in the vector said so.
+        __role = np.array([float(is_soloist)])  # 1
+        __soloist_seat = np.zeros(3)  # 3
+        if soloist != -42:
+            __soloist_seat[seats.index(soloist)] = 1
+        # Points of our own party first, so the pair means the same thing to
+        # every observer.
+        mine, theirs = (
+            (self.points_soloist, self.points_defenders)
+            if is_soloist
+            else (self.points_defenders, self.points_soloist)
         )
-        __played_cards = np.array([])
-        for i in range(3):
-            __played_cards = np.concatenate(
-                (__played_cards, self.trick_history.to_numpy(player_id=i))
-            )
-        __trick_value = np.array([self.game.trick.value / 120.0])  # type: ignore
-        __current_trick = self.game.trick.as_vector
-        __front_hand = np.zeros(3, dtype=int)
-        if player_id == self.front_hand:
-            __front_hand[0] = 1
-        elif player_id == self.middle_hand:
-            __front_hand[1] = 1
-        elif player_id == self.back_hand:
-            __front_hand[2] = 1
-        # assert len(__hand) == 32
-        # assert len(__color) == 5
-        # assert len(__points) == 2
-        # assert len(__trick_value) == 1
-        # assert len(__played_cards) == 96
+        __points = np.array([mine / 120.0, theirs / 120.0])  # 2
+        __played_cards = np.concatenate(  # 96
+            [self.trick_history.to_numpy(player_id=seat) for seat in seats]
+        )
+        __current_trick = np.concatenate(  # 96
+            [self.game.trick.to_numpy(player_id=seat) for seat in seats]
+        )
+        __front_hand = np.zeros(3)  # 3
+        for slot, seat in enumerate(
+            (self.front_hand, self.middle_hand, self.back_hand)
+        ):
+            if player_id == seat:
+                __front_hand[slot] = 1
+        __trick_value = np.array([self.game.trick.value / 120.0])  # 1
+
         return np.concatenate(
             (
                 __hand,
-                __color,
+                __game,
+                __role,
+                __soloist_seat,
                 __points,
                 __played_cards,
-                __trick_value,
                 __current_trick,
                 __front_hand,
+                __trick_value,
             ),
             dtype=np.float32,
         )

@@ -2,23 +2,29 @@ import torch.nn as nn
 
 
 class SuitSoloNet(nn.Module):
-    __hand = 32  # 32 cards
-    __color = 5  # clubs, spades, hearts, diamonds
-    __points = 2  # soloist, defender 1 + defender 2
-    # __free_colors = 15  # solist, defender 1, defender 2
+    # Listed in the order `Round.get_state` concatenates them - the two are
+    # coupled by hand, so keeping them in step is the only thing that keeps the
+    # coupling readable. `tests/test_state_vector.py` asserts the total matches.
+    __hand = 32  # own cards
+    __game = 6  # trump one-hot, is_grand, is_null
+    __role = 1  # am I the soloist
+    __soloist_seat = 3  # where the soloist sits, relative to me
+    __points = 2  # my party, their party
+    __played_cards = 96  # 3 x 32, slot 0 = me
+    __current_trick = 96  # 3 x 32, slot 0 = me
+    __front_hand = 3  # front / middle / back hand
     __trick_value = 1
-    __current_trick = 32
-    __played_cards = 96
-    __front_hand = 3
 
     INPUT_SIZE = (
         __hand
-        + __color
+        + __game
+        + __role
+        + __soloist_seat
         + __points
-        + __trick_value
-        + __current_trick
         + __played_cards
+        + __current_trick
         + __front_hand
+        + __trick_value
     )
     OUTPUT_SIZE = 32
 

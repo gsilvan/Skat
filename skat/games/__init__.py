@@ -85,6 +85,20 @@ class Game(ABC):
                 values.append(self.spielwert(held | {first, second}))
         return min(values), max(values)
 
-    @abstractmethod
+    #: Width of `to_numpy` - identical for every game type, so the state
+    #: vector keeps one shape no matter what was declared.
+    NUMPY_SIZE = 6
+
     def to_numpy(self) -> np.ndarray:
-        raise NotImplementedError
+        """
+        Fixed-width encoding of *which game is being played*: the trump suit
+        one-hot, then a flag each for grand and null.
+
+        Every game type has to answer with `NUMPY_SIZE` values - a null game
+        used to return a single one, which made its state vector too short for
+        the network to accept at all.
+        """
+        arr = np.zeros(self.NUMPY_SIZE, dtype=float)
+        if self.suit is not None:
+            arr[self.suit] = 1
+        return arr

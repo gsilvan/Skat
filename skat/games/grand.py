@@ -41,10 +41,8 @@ class Grand(skat.games.Game):
         return 24
 
     def to_numpy(self) -> np.ndarray:
-        arr_size = 5
-        arr = np.zeros(arr_size, dtype=int)
-        # encode current trick value TODO: check if current or interpolated works better
-        arr[4] = self.trick.value
+        arr = super().to_numpy()  # no trump suit to mark
+        arr[4] = 1  # is_grand
         return arr
 
 
