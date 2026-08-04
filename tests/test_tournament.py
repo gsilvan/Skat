@@ -2,7 +2,10 @@ import unittest
 from unittest.mock import patch
 
 from skat.agents.random import RandomAgent
+from skat.card import Card
 from skat.game import Round, SeatScore, Tournament
+from skat.hand import FULL_HAND
+from tests.test_bidding import FixedBidAgent
 
 
 def dealt_hands(seed, rounds=6):
@@ -198,6 +201,58 @@ class OverbidTest(unittest.TestCase):
     def test_skipped_bidding_is_never_an_overbid(self) -> None:
         # ISS replays and most tests never bid, so highest_bid stays 0
         self.assertFalse(self.round_with(0, 36).overbid)
+
+
+class OverbidRoundTest(unittest.TestCase):
+    """
+    Same deal twice: seat 1 holds ten of the eleven club trumps and wins the
+    cards either way, but loses the round when it bid past what the game is
+    worth.
+    """
+
+    def deal(self):
+        """Seat 1 gets every club plus ♠J and ♥J; ♦J is pinned in seat 0."""
+        soloist = [Card(3, rank) for rank in range(8)]  # all clubs
+        soloist += [Card(2, 3), Card(1, 3)]  # ♠J, ♥J
+        rest = [c for c in FULL_HAND if c not in soloist]
+        jack_of_diamonds = Card(0, 3)
+        rest.remove(jack_of_diamonds)
+        # ♦J to seat 0, never the skat - in the skat it would extend the run of
+        # held matadors and change the Spielwert out from under the test
+        return [[jack_of_diamonds] + rest[0:9], soloist, rest[9:19], rest[19:21]]
+
+    def play(self, competitor_ceiling: int):
+        # seat 1 is front hand (dealer 0) and will hold against seat 2
+        max_bids = [0, 120, competitor_ceiling]
+        round_ = Round(
+            dealer=0,
+            skip_bidding=False,
+            hand_game=True,
+            agents=[FixedBidAgent(m) for m in max_bids],
+            start=False,
+            initial_cards=self.deal(),
+        )
+        return round_, round_.start()
+
+    def test_the_declared_game_is_worth_48(self) -> None:
+        # mit 3 (♣J ♠J ♥J held, ♦J missing) in clubs -> 4 x 12
+        round_, _ = self.play(24)
+        self.assertEqual(1, round_.solo_player_id)
+        self.assertEqual(48, round_.game_value)
+
+    def test_an_overbid_soloist_loses_despite_winning_the_cards(self) -> None:
+        round_, won = self.play(60)  # pushed to 60, game only worth 48
+        self.assertEqual(60, round_.highest_bid)
+        self.assertTrue(round_.overbid)
+        self.assertGreater(round_.points_soloist, round_.points_defenders)
+        self.assertFalse(won)
+
+    def test_the_same_hand_wins_when_the_bid_stays_low(self) -> None:
+        round_, won = self.play(24)  # 24 is within the game's 48
+        self.assertEqual(24, round_.highest_bid)
+        self.assertFalse(round_.overbid)
+        self.assertGreater(round_.points_soloist, round_.points_defenders)
+        self.assertTrue(won)
 
 
 if __name__ == "__main__":

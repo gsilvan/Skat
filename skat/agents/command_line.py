@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from skat.agents import Agent
+from skat.agents.bidding import BiddingStyle
 from skat.card import Card
 from skat.games.grand import Grand
 from skat.games.null import Null
@@ -14,8 +15,8 @@ if TYPE_CHECKING:
 
 
 class CommandLineAgent(Agent):
-    def __init__(self) -> None:
-        self.state: Optional[Player] = None
+    def __init__(self, bidding: BiddingStyle = BiddingStyle.CONSERVATIVE) -> None:
+        super().__init__(bidding=bidding)
 
     def choose_card(self, valid_moves: set[Card]) -> Card:
         print(f"choose one of {list(valid_moves)}:")
@@ -41,9 +42,13 @@ class CommandLineAgent(Agent):
         else:
             return True
 
-    def bid(self, current_bid, offer=False) -> int:
-        print(f"current bid: {current_bid}")
-        user_input = input("your bid: ")  # TODO: input sanitation
+    def bid(self, current_bid, offer: Optional[int] = None) -> int:
+        """A human overrides the style entirely - we only show what it advises."""
+        if offer:
+            user_input = input(f"hold {offer}? [y/n]: ")  # TODO: input sanitation
+            return offer if user_input == "y" else 0
+        print(f"current bid: {current_bid} (your hand is worth {self.max_bid()})")
+        user_input = input("your bid (0 to pass): ")  # TODO: input sanitation
         return int(user_input)
 
     def declare_game(self, state) -> Game:

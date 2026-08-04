@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 import random
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from skat.agents import Agent
+from skat.agents.bidding import BiddingStyle
 from skat.card import Card
-from skat.games.grand import Grand
-from skat.games.null import Null
 from skat.games.suit import SuitGame
-from skat.player import Player
 
 if TYPE_CHECKING:
     from skat.games import Game
@@ -18,20 +16,30 @@ class RandomAgent(Agent):
     """
     Random-Agent: An agent that identifies valid moves and chooses on of those
     by an equal distributed random policy.
+
+    Bidding is the one decision it does not make at random by default: it
+    inherits `BiddingStyle.CONSERVATIVE`, because a tournament reuses one agent
+    object per seat and a ceiling drawn from the whole ladder (up to 264) wins
+    every auction and then loses the round to überreizt. Pass
+    `BiddingStyle.RANDOM` for the uniform-random bidder.
     """
 
-    def __init__(self) -> None:
-        """Initializes the random agent with a fixed seed."""
-        self.state: Optional[Player] = None
-        self.max_bid = random.choice(self.VALID_BIDS)
+    def __init__(self, bidding: BiddingStyle = BiddingStyle.CONSERVATIVE) -> None:
+        super().__init__(bidding=bidding)
+        self.game: Game = SuitGame(random.randint(0, 3))
 
-    def bid(self, current_bid, offer=False) -> int:
-        """Random Agent selects a bid from a list containing valid bids"""
-        bid_index = self.VALID_BIDS.index(current_bid)
-        max_bid_index = self.VALID_BIDS.index(self.max_bid)
-        if bid_index < max_bid_index:
-            return self.VALID_BIDS[bid_index + 1]
-        return 0
+    def new_round_event(self) -> None:
+        super().new_round_event()
+        # Settle the declaration up front so the hand is valued for the game we
+        # will actually declare - otherwise a conservative ceiling means nothing.
+        self.game = SuitGame(random.randint(0, 3))
+
+    def intended_game(self) -> Game:
+        return self.game
+
+    def declare_game(self, state) -> Game:
+        """Random Agent declares games equal distributed"""
+        return self.game
 
     def pickup_skat(self, state) -> bool:
         """Random Agent selects skats equal distributed"""
@@ -44,18 +52,6 @@ class RandomAgent(Agent):
         for i in range(2):
             skat.append(self.state.hand.pop(random.randint(0, 11 - i)))
         return skat
-
-    def declare_game(self, state) -> Game:
-        """Random Agent declares games equal distributed"""
-        available_games = (
-            # Grand(),
-            # Null(),
-            SuitGame(0),
-            SuitGame(1),
-            SuitGame(2),
-            SuitGame(3),
-        )
-        return random.choice(available_games)
 
     def choose_card(self, valid_moves: set[Card]) -> Card:
         """Random Agent chooses a random valid move"""

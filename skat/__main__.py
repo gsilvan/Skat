@@ -1,6 +1,7 @@
 import argparse
 from typing import Optional
 
+from skat.agents.bidding import BiddingStyle
 from skat.game import Tournament
 
 
@@ -32,6 +33,16 @@ def get_args():
     parser.add_argument("--iss-file", type=str, default=None)
     parser.add_argument("--epsilon", type=float, default=0.98)
     parser.add_argument("--epsilon-decay", type=float, default=0.995)
+    styles = "{" + ",".join(style.value for style in BiddingStyle) + "}"
+    for seat in range(3):
+        parser.add_argument(
+            f"-b{seat}",
+            type=BiddingStyle,
+            choices=list(BiddingStyle),
+            metavar=styles,
+            default=BiddingStyle.CONSERVATIVE,
+            help=f"Bidding style for player {seat} (default: conservative).",
+        )
     return parser.parse_args()
 
 
@@ -42,6 +53,7 @@ def get_player(
     epsilon: float = None,
     epsilon_decay: float = None,
     seed=None,
+    bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
 ):
     from skat.agents.command_line import CommandLineAgent
     from skat.agents.dqn import DQNAgent
@@ -49,15 +61,16 @@ def get_player(
 
     match arg:
         case "random":
-            return RandomAgent()
+            return RandomAgent(bidding=bidding)
         case "cli":
-            return CommandLineAgent()
+            return CommandLineAgent(bidding=bidding)
         case "dqn":
             return DQNAgent(
                 train=training,
                 path=path,
                 epsilon=epsilon,
                 epsilon_decay=epsilon_decay,
+                bidding=bidding,
             )
         case _:
             raise Exception("Agent not found.")
@@ -83,6 +96,7 @@ if __name__ == "__main__":
     agent_args = [args.p0, args.p1, args.p2]
     train_args = [args.t0, args.t1, args.t2]
     path_args = [args.m0, args.m1, args.m2]
+    bidding_args = [args.b0, args.b1, args.b2]
     agents = []
     for i, a in enumerate(agent_args):
         agents.append(
@@ -93,6 +107,7 @@ if __name__ == "__main__":
                 epsilon=args.epsilon,
                 epsilon_decay=args.epsilon_decay,
                 seed=args.seed,
+                bidding=bidding_args[i],
             )
         )
 

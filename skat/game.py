@@ -576,6 +576,8 @@ class Round:
         while self.phase == GamePhase.WAITING:
             if len(self.player) == 3:
                 self.phase = GamePhase.DEALING
+        for p in self.player:
+            p.strategy.new_round_event()
         # card dealing
         self.deal()
         if not self.skip_bidding:

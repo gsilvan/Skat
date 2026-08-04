@@ -1,16 +1,20 @@
 import random
-from typing import Optional
 
 import skat.models
 from skat.agents import Agent
+from skat.agents.bidding import BiddingStyle
 from skat.card import Card
 from skat.games import Game
-from skat.player import Player
 
 
 class DeepAgent(Agent):
-    def __init__(self, bidding_model=None, play_model=None):
-        self.state: Optional[Player] = None
+    def __init__(
+        self,
+        bidding_model=None,
+        play_model=None,
+        bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
+    ):
+        super().__init__(bidding=bidding)
         self.model = play_model
 
     def choose_card(self, valid_moves: set[Card]) -> Card:
@@ -21,9 +25,6 @@ class DeepAgent(Agent):
         return random.choice(list(valid_moves))  # TODO: select card from model
 
     def pickup_skat(self, state) -> bool:
-        pass
-
-    def bid(self, current_bid, offer=False) -> int:
         pass
 
     def declare_game(self, state) -> Game:

@@ -4,14 +4,22 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 
 import skat.agents.command_line
+from skat.agents.bidding import BiddingStyle
 from skat.agents.rl.dqn import DQN
 from skat.card import Card
 from skat.hand import FULL_HAND, Hand
 
 
 class DQNAgent(skat.agents.command_line.CommandLineAgent):
-    def __init__(self, train=False, path=None, epsilon=None, epsilon_decay=None):
-        super().__init__()
+    def __init__(
+        self,
+        train=False,
+        path=None,
+        epsilon=None,
+        epsilon_decay=None,
+        bidding=BiddingStyle.CONSERVATIVE,
+    ):
+        super().__init__(bidding=bidding)
         self.dqn = DQN(model_path=path, epsilon=epsilon, epsilon_decay=epsilon_decay)
         self.train = train
         self.initial_state: Optional[torch.Tensor] = None
