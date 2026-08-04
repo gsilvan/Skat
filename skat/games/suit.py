@@ -13,6 +13,9 @@ MULTIPLIERS = (9, 10, 11, 12)
 class SuitGame(skat.games.Game):
     """Implements rules for a Suit-Game"""
 
+    #: Always set, unlike the base class default - a suit game has a trump suit.
+    suit: int
+
     def __init__(self, suit):
         self.suit = suit
         self.trick = SuitGameTrick(self.suit)

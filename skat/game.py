@@ -37,10 +37,10 @@ def _rate(wins: int, rounds: int) -> str:
 
 
 def _row(
-    seat: str, agent: str, solo: str, defence: str, points: str
+    seat: str, agent: str, solo: str, overbid: str, defence: str, points: str
 ) -> str:
     """One line of the summary table."""
-    return f"{seat:>4}  {agent:<14} {solo:>14} {defence:>14} {points:>9}"
+    return f"{seat:>4}  {agent:<14} {solo:>14} {overbid:>8} {defence:>14} {points:>9}"
 
 
 class SeatScore:
@@ -53,6 +53,7 @@ class SeatScore:
     def __init__(self) -> None:
         self.solo_rounds = 0
         self.solo_wins = 0
+        self.overbids = 0  # solo rounds lost to überreizt rather than to cards
         self.defence_rounds = 0
         self.defence_wins = 0
         self.card_points = 0
@@ -115,6 +116,7 @@ class Tournament:
             if seat == round_.solo_player_id:
                 score.solo_rounds += 1
                 score.solo_wins += int(soloist_won)
+                score.overbids += int(round_.overbid)
                 score.card_points += round_.points_soloist
             else:
                 score.defence_rounds += 1
@@ -128,7 +130,7 @@ class Tournament:
             f"{self.rounds} rounds, {played} played, {self.passed} passed out",
             f"soloists won {self.scores[0]}, defenders won {self.scores[1]}",
             "",
-            _row("seat", "agent", "as soloist", "on defence", "card pts"),
+            _row("seat", "agent", "as soloist", "overbid", "on defence", "card pts"),
         ]
         for seat, score in enumerate(self.seat_scores):
             lines.append(
@@ -136,6 +138,7 @@ class Tournament:
                     str(seat),
                     type(self.agents[seat]).__name__,
                     _rate(score.solo_wins, score.solo_rounds),
+                    str(score.overbids),
                     _rate(score.defence_wins, score.defence_rounds),
                     str(score.card_points),
                 )
@@ -205,6 +208,8 @@ class Round:
         self.phase: GamePhase = phase
         self.dealer: int = dealer
         self.highest_bid: int = 0
+        #: Spielwert of the declared game; set once the game is known.
+        self.game_value: int = 0
         self.solo_player_id: int = solo_player_id
         self.deck: Deck = deck
         self.deal_deck: bool = True
@@ -274,6 +279,16 @@ class Round:
             self.player[(soloist + 1) % 3].trick_stack_value
             + self.player[(soloist + 2) % 3].trick_stack_value
         )
+
+    @property
+    def overbid(self) -> bool:
+        """
+        True if the soloist bid more than the declared game turned out to be
+        worth ("überreizt", ISkO 5.2.3) - the round is lost regardless of how
+        the cards fell. False until the game is declared, and whenever bidding
+        was skipped (`highest_bid` stays 0).
+        """
+        return 0 < self.game_value < self.highest_bid
 
     def is_solo_player(self, player_id) -> bool:
         return self.solo_player_id == player_id
@@ -599,6 +614,16 @@ class Round:
         # game declaration
         if self.game is None:
             self.game = self.player[self.solo_player_id].declare_game()
+        # What the declared game is actually worth. The skat counts towards the
+        # matadors whether or not the soloist looked at it, so this is only
+        # knowable now - and it is what decides an overbid.
+        self.game_value = self.game.spielwert(
+            list(self.player[self.solo_player_id].hand) + list(self.skat)
+        )
+        if self.verbose and self.overbid:
+            print(
+                f"p={self.solo_player_id} overbid: {self.highest_bid} > {self.game_value}"
+            )
         # add skat to tricks
         for card in self.skat:
             self.player[self.solo_player_id].trick_stack.append(card)
@@ -614,8 +639,8 @@ class Round:
                 print(
                     f"p={p.seat_id} {'*' if is_soloist else ' '} h={p.hand} points={p.trick_stack_value}"
                 )
-        # winner
-        soloist_won = self.points_soloist > self.points_defenders
+        # winner - überreizt beats any card result (ISkO 5.2.3)
+        soloist_won = not self.overbid and self.points_soloist > self.points_defenders
         if self.verbose:
             print(f"p={self.solo_player_id} {'won' if soloist_won else 'lost'}")
         if soloist_won:

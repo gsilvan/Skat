@@ -84,9 +84,12 @@ class FakeRound(Round):
     would say nothing extra about the tallying.
     """
 
-    def __init__(self, soloist: int, solo_points: int) -> None:
+    def __init__(self, soloist: int, solo_points: int, overbid: bool = False) -> None:
         self.solo_player_id = soloist
         self.solo_points = solo_points
+        # drive the real `Round.overbid` rather than stubbing it out
+        self.game_value = 36
+        self.highest_bid = 40 if overbid else 24
 
     @property
     def points_soloist(self) -> int:
@@ -119,6 +122,17 @@ class RecordTest(unittest.TestCase):
         self.assertEqual(1, seats[1].defence_wins)
         self.assertEqual(1, seats[2].defence_wins)
         self.assertEqual([0, 1], self.tournament.scores)
+
+    def test_overbids_are_counted_against_the_soloist(self) -> None:
+        self.tournament.record(FakeRound(2, 100, overbid=True), False)
+        seats = self.tournament.seat_scores
+        self.assertEqual(1, seats[2].overbids)
+        self.assertEqual(0, seats[2].solo_wins)
+        self.assertEqual([0, 0], [seats[0].overbids, seats[1].overbids])
+
+    def test_a_clean_solo_round_records_no_overbid(self) -> None:
+        self.tournament.record(FakeRound(2, 100), True)
+        self.assertEqual(0, self.tournament.seat_scores[2].overbids)
 
     def test_a_passed_round_counts_for_nobody(self) -> None:
         self.tournament.record(FakeRound(-42, 0), None)
@@ -156,6 +170,34 @@ class SummaryTest(unittest.TestCase):
         tournament = Tournament(rounds=2, agents=[RandomAgent() for _ in range(3)])
         tournament.record(FakeRound(-42, 0), None)
         self.assertIn("1 passed out", tournament.summary())
+
+
+class OverbidTest(unittest.TestCase):
+    """Überreizt (ISkO 5.2.3): a soloist whose game is worth less than the
+    bid loses no matter how the cards fell."""
+
+    def round_with(self, highest_bid: int, game_value: int) -> Round:
+        round_ = Round(start=False, agents=[RandomAgent() for _ in range(3)])
+        round_.highest_bid = highest_bid
+        round_.game_value = game_value
+        return round_
+
+    def test_bidding_beyond_the_game_is_an_overbid(self) -> None:
+        self.assertTrue(self.round_with(40, 36).overbid)
+
+    def test_bidding_exactly_the_game_value_is_fine(self) -> None:
+        self.assertFalse(self.round_with(36, 36).overbid)
+
+    def test_bidding_under_the_game_value_is_fine(self) -> None:
+        self.assertFalse(self.round_with(24, 36).overbid)
+
+    def test_undeclared_game_is_never_an_overbid(self) -> None:
+        # game_value is 0 until the game is declared
+        self.assertFalse(self.round_with(40, 0).overbid)
+
+    def test_skipped_bidding_is_never_an_overbid(self) -> None:
+        # ISS replays and most tests never bid, so highest_bid stays 0
+        self.assertFalse(self.round_with(0, 36).overbid)
 
 
 if __name__ == "__main__":

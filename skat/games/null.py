@@ -42,6 +42,10 @@ class Null(skat.games.Game):
     def value(self) -> int:
         return self.VALUES[(self.hand, self.ouvert)]
 
+    def spielwert(self, cards) -> int:
+        """Null has no trumps and so no matadors - the value is flat."""
+        return self.value
+
     def to_numpy(self) -> np.ndarray:
         return np.array([self.trick.value])
 
