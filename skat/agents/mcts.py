@@ -1,18 +1,10 @@
 from __future__ import annotations
 
-from collections import Counter
 from random import Random
-from typing import TYPE_CHECKING, Optional
 
 from skat.agents import Agent
-from skat.agents.bidding import (
-    BiddingStyle,
-    aces,
-    best_game,
-    covering_game,
-    playable,
-    trump_count,
-)
+from skat.agents.bidding import BiddingStyle, playable
+from skat.agents.declaring import HeuristicDeclarer
 from skat.agents.search import (
     DEFAULT_EXPLORATION,
     SKAT_SLOT,
@@ -23,17 +15,11 @@ from skat.agents.search import (
 )
 from skat.agents.search.playout import copy_trick
 from skat.card import Card
-from skat.games.grand import Grand
 from skat.games.null import Null
-from skat.games.suit import SuitGame
 from skat.hand import FULL_HAND
 
-if TYPE_CHECKING:
-    from skat.games import Game
-    from skat.player import Player
 
-
-class MCTSAgent(Agent):
+class MCTSAgent(HeuristicDeclarer, Agent):
     """
     Monte-Carlo tree search over determinized worlds (PIMC / determinized UCT).
 
@@ -161,61 +147,9 @@ class MCTSAgent(Agent):
 
     # -------------------------------------------------------------- bidding
 
-    def intended_game(self) -> Game:
-        assert self.state is not None
-        return best_game(set(self.state.hand))
-
     def max_bid(self) -> int:
         """Pass outright on a hand not worth playing, whatever the style says."""
         assert self.state is not None
         if not playable(set(self.state.hand)):
             return 0
         return super().max_bid()
-
-    def pickup_skat(self, state) -> bool:
-        assert self.state is not None
-        cards = set(self.state.hand)
-        game = best_game(cards)
-        # Two extra cards beat the hand-game multiplier unless the hand already
-        # plays itself. Grand can never reach seven trumps - only four exist -
-        # so there it is the aces that have to carry the game.
-        if isinstance(game, Grand):
-            strong = trump_count(cards, game) >= 3 and aces(cards) >= 3
-        else:
-            strong = trump_count(cards, game) >= 7
-        return not strong
-
-    def _declaration(self, cards: set[Card]) -> Game:
-        """
-        The game we will declare, given all twelve cards. Has to cover what we
-        bid: re-deriving the natural game after the skat arrives can land on a
-        cheaper suit and turn a bid we could afford into an overbid.
-        """
-        round_ = self.state.public_state if self.state else None
-        return covering_game(cards, round_.highest_bid if round_ else 0)
-
-    def press_skat(self) -> list[Card]:
-        assert self.state is not None
-        hand = self.state.hand
-        game = self._declaration(set(hand))
-        trumps = set(game.trump_cards(game.suit))
-        candidates = [card for card in hand if card not in trumps] or list(hand)
-        lengths = Counter(card.suit for card in candidates)
-        # Never an ace if avoidable; then prefer the shortest suit (a void lets
-        # us trump in), and inside it the fattest card — its points are safe in
-        # the skat rather than at risk on the table.
-        candidates.sort(key=lambda c: (c.rank == "A", lengths[c.suit], -c.value))
-        pressed = candidates[:2]
-        for card in pressed:
-            hand.remove(card)
-        return pressed
-
-    def declare_game(self, state) -> Game:
-        assert self.state is not None
-        round_ = self.state.public_state
-        if round_ is None or round_.hand_game:
-            # We never saw the skat, so the only declaration we can still stand
-            # behind is the one the bid was priced on.
-            return self.intended_game()
-        # Same twelve cards `press_skat` weighed up, so the two agree.
-        return self._declaration(set(self.state.hand) | set(round_.skat))

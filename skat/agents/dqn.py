@@ -3,14 +3,25 @@ from typing import Optional
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-import skat.agents.command_line
+from skat.agents import Agent
 from skat.agents.bidding import BiddingStyle
+from skat.agents.declaring import HeuristicDeclarer
 from skat.agents.rl.dqn import DQN
 from skat.card import Card
 from skat.hand import FULL_HAND, Hand
 
 
-class DQNAgent(skat.agents.command_line.CommandLineAgent):
+class DQNAgent(HeuristicDeclarer, Agent):
+    """
+    Learns card play; everything else is automatic.
+
+    It used to subclass `CommandLineAgent` to borrow prompts for the decisions
+    the network does not make, which meant an unattended training run blocked
+    on `input()` at the first bid. Bidding now comes from `Agent` (so the
+    `BiddingStyle` applies, conservative by default) and the skat/declaration
+    phase from `HeuristicDeclarer`.
+    """
+
     def __init__(
         self,
         train=False,
@@ -20,7 +31,14 @@ class DQNAgent(skat.agents.command_line.CommandLineAgent):
         bidding=BiddingStyle.CONSERVATIVE,
     ):
         super().__init__(bidding=bidding)
-        self.dqn = DQN(model_path=path, epsilon=epsilon, epsilon_decay=epsilon_decay)
+        # Only forward what was actually given - passing None through would
+        # overwrite DQN's own defaults with it and blow up on first use.
+        options = {
+            "model_path": path,
+            "epsilon": epsilon,
+            "epsilon_decay": epsilon_decay,
+        }
+        self.dqn = DQN(**{k: v for k, v in options.items() if v is not None})
         self.train = train
         self.initial_state: Optional[torch.Tensor] = None
         self.last_action: Optional[torch.Tensor] = None

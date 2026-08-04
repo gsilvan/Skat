@@ -2,7 +2,6 @@ import os
 import random
 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim
 from torch.utils.tensorboard import SummaryWriter
@@ -11,6 +10,8 @@ import skat.models
 
 from .buffer import ReplayBuffer, Transition
 from .mask import MaskedCategorical
+
+DEFAULT_MODEL_PATH = "./trained_models/checkpoint.pt"
 
 
 class DQN:
@@ -26,7 +27,7 @@ class DQN:
         buffer_size: int = 50000,
         learning_rate: float = 1e-4,
         model=skat.models.SuitSoloNet,
-        model_path="./trained_models/checkpoint.pt",
+        model_path: str = DEFAULT_MODEL_PATH,
     ) -> None:
         # use either 'cuda' or 'cpu'
         self.device = device
