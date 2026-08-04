@@ -23,9 +23,47 @@ class GamePhase(Enum):
     WAITING = auto()
     DEALING = auto()
     BIDDING = auto()
+    EINGEPASST = auto()
     DECLARING = auto()
     PLAYING = auto()
     COUNTING = auto()
+
+
+def _rate(wins: int, rounds: int) -> str:
+    """`wins/rounds (pct)`, or a dash if the seat never held that role."""
+    if not rounds:
+        return "-"
+    return f"{wins}/{rounds} ({100 * wins // rounds}%)"
+
+
+def _row(
+    seat: str, agent: str, solo: str, defence: str, points: str
+) -> str:
+    """One line of the summary table."""
+    return f"{seat:>4}  {agent:<14} {solo:>14} {defence:>14} {points:>9}"
+
+
+class SeatScore:
+    """
+    What one seat achieved over a tournament. `card_points` accumulates the
+    points of the party that seat played for, so the two defenders of a round
+    are each credited with the full defence total.
+    """
+
+    def __init__(self) -> None:
+        self.solo_rounds = 0
+        self.solo_wins = 0
+        self.defence_rounds = 0
+        self.defence_wins = 0
+        self.card_points = 0
+
+    @property
+    def rounds(self) -> int:
+        return self.solo_rounds + self.defence_rounds
+
+    @property
+    def wins(self) -> int:
+        return self.solo_wins + self.defence_wins
 
 
 class Tournament:
@@ -42,16 +80,67 @@ class Tournament:
     ) -> None:
         self.rounds = rounds
         self.agents = agents
+        #: [rounds won by the soloist, rounds won by the defence] - by role, so
+        #: this says nothing about which agent played well. See `seat_scores`.
         self.scores = [0, 0]
+        self.seat_scores = [SeatScore() for _ in range(3)]
+        self.passed = 0  # rounds nobody bid on ("eingepasst")
         self.dealer = 0
         self.verbose = verbose
         self.seed = seed
+        # One generator for the whole tournament, drawn from once per round, so
+        # a seeded run stays reproducible while still dealing a fresh hand each
+        # round. Reusing `seed` itself would deal the identical hand every time.
+        self.round_seeds = Random(seed) if seed is not None else None
         self.hold_position = hold_position
         self.declare_game = declare_game
         self.initial_cards = initial_cards
         self.iss_games = None
         if iss_file:
             self.iss_games = iss.ISSGames(file_name=iss_file)
+
+    def next_seed(self) -> Optional[int]:
+        """A fresh per-round seed, or None when the tournament is unseeded."""
+        if self.round_seeds is None:
+            return None
+        return self.round_seeds.randrange(2**32)
+
+    def record(self, round_: "Round", soloist_won: Optional[bool]) -> None:
+        """Fold one finished round into the running tallies."""
+        if soloist_won is None:
+            self.passed += 1
+            return
+        self.scores[0 if soloist_won else 1] += 1
+        for seat, score in enumerate(self.seat_scores):
+            if seat == round_.solo_player_id:
+                score.solo_rounds += 1
+                score.solo_wins += int(soloist_won)
+                score.card_points += round_.points_soloist
+            else:
+                score.defence_rounds += 1
+                score.defence_wins += int(not soloist_won)
+                score.card_points += round_.points_defenders
+
+    def summary(self) -> str:
+        """Per-seat result table - who actually played well."""
+        played = self.rounds - self.passed
+        lines = [
+            f"{self.rounds} rounds, {played} played, {self.passed} passed out",
+            f"soloists won {self.scores[0]}, defenders won {self.scores[1]}",
+            "",
+            _row("seat", "agent", "as soloist", "on defence", "card pts"),
+        ]
+        for seat, score in enumerate(self.seat_scores):
+            lines.append(
+                _row(
+                    str(seat),
+                    type(self.agents[seat]).__name__,
+                    _rate(score.solo_wins, score.solo_rounds),
+                    _rate(score.defence_wins, score.defence_rounds),
+                    str(score.card_points),
+                )
+            )
+        return "\n".join(lines)
 
     def start(self):
         iss_sample = None
@@ -60,31 +149,34 @@ class Tournament:
 
         print(f"starting tournament with {self.rounds}...")
         for i in tqdm.tqdm(range(self.rounds)):
-            __soloist = self.dealer
-            __dealer = self.dealer
-            __declare = self.declare_game
             if self.iss_games:
+                # ISS records already fix who bid what and won - replay as-is.
                 self.initial_cards = iss_sample[i].deck.to_list()
-                __soloist = iss_sample[i].soloist
-                __dealer = 0
-                __declare = get_game(iss_sample[i].type)
-            r = Round(
-                dealer=self.dealer,
-                skip_bidding=True,
-                solo_player_id=__soloist,
-                start=False,
-                verbose=self.verbose,
-                agents=self.agents,
-                seed=self.seed,
-                hand_game=True,
-                declare_game=__declare,
-                initial_cards=self.initial_cards,
-            )
-            win = r.start()
-            if win:
-                self.scores[0] += 1
-            elif not win:
-                self.scores[1] += 1
+                r = Round(
+                    dealer=0,
+                    skip_bidding=True,
+                    solo_player_id=iss_sample[i].soloist,
+                    start=False,
+                    verbose=self.verbose,
+                    agents=self.agents,
+                    seed=self.next_seed(),
+                    hand_game=True,
+                    declare_game=get_game(iss_sample[i].type),
+                    initial_cards=self.initial_cards,
+                )
+            else:
+                # let the actual Sagen/Hören bidding determine the soloist.
+                r = Round(
+                    dealer=self.dealer,
+                    skip_bidding=False,
+                    start=False,
+                    verbose=self.verbose,
+                    agents=self.agents,
+                    seed=self.next_seed(),
+                    declare_game=self.declare_game,
+                    initial_cards=self.initial_cards,
+                )
+            self.record(r, r.start())
             if not self.hold_position:
                 self.dealer = (self.dealer + 1) % 3
 
@@ -98,7 +190,7 @@ class Round:
         declare_game: Game = None,
         hand_game: Optional[bool] = None,
         agents: Optional[list] = None,
-        deck: Deck = Deck(),
+        deck: Optional[Deck] = None,
         start: bool = True,
         verbose: bool = False,
         seed=None,
@@ -107,6 +199,8 @@ class Round:
     ) -> None:
         if agents is None:
             agents = list()
+        if deck is None:
+            deck = Deck()
         self.player: list[Player] = list()
         self.phase: GamePhase = phase
         self.dealer: int = dealer
@@ -410,36 +504,59 @@ class Round:
                 reward = current_points - old_points
                 return reward, self.is_finished
 
-    def bidding(self) -> None:
+    def _duel(
+        self,
+        sayer_id: int,
+        hearer_id: int,
+        current_value: int,
+        hearer_holds=False,
+    ) -> tuple[Optional[int], int]:
+        """
+        One Sagen/Hören exchange (ISkO §3.3.2): `sayer_id` states ascending bid
+        values; `hearer_id` either holds (accepts) each exact value or passes.
+        Returns `(winner_id, value)`. `winner_id` is `None` if the sayer never
+        said anything the hearer had to react to and `hearer_holds` was False
+        (i.e. nobody in this duel has claimed a value yet).
+        """
         while True:
-            middle_hand_bid = self.player[self.middle_hand].bid(self.highest_bid)
-            if middle_hand_bid > self.highest_bid:
-                self.highest_bid = middle_hand_bid
-                self.solo_player_id = self.middle_hand
-            else:
+            said = self.player[sayer_id].bid(current_value)
+            if not said or said <= current_value:
                 break
-            front_hand_bid = self.player[self.front_hand].bid(self.highest_bid)
-            if front_hand_bid > self.highest_bid:
-                self.highest_bid = front_hand_bid
-                self.solo_player_id = self.front_hand
+            held = self.player[hearer_id].bid(current_value, offer=said)
+            if held == said:
+                current_value = said
+                hearer_holds = True
             else:
-                break
-        stage_one_winner = self.solo_player_id
-        while True:
-            back_hand_bid = self.player[self.back_hand].bid(self.highest_bid)
-            if back_hand_bid > self.highest_bid:
-                self.highest_bid = back_hand_bid
-                self.solo_player_id = self.back_hand
-            else:
-                break
-            stage_one_winner_bid = self.player[stage_one_winner].bid(self.highest_bid)
-            if stage_one_winner_bid > self.highest_bid:
-                self.highest_bid = stage_one_winner_bid
-                self.solo_player_id = stage_one_winner
-            else:
-                break
+                # hearer passed on `said` -> sayer's claim stands
+                return sayer_id, said
+        if hearer_holds:
+            return hearer_id, current_value
+        return None, 0
 
-    def start(self):
+    def bidding(self) -> None:
+        """
+        Determine the soloist via the official Sagen/Hören procedure (ISkO
+        §3.3): Mittelhand states ascending values against Vorhand (§3.3.2-3.3.4);
+        the winner of that duel then faces Hinterhand, who always says
+        (§3.3.3-3.3.5). If nobody ever bids, Vorhand may still claim the skat or
+        a hand game unprompted (§3.3.6). If she declines too, nothing was bid at
+        all — the round is "eingepasst" (§3.3.7) and `solo_player_id` is left at
+        its unset sentinel for `start()` to handle.
+        """
+        winner, value = self._duel(self.middle_hand, self.front_hand, 0)
+        if winner is None:
+            winner, value = self._duel(self.back_hand, self.front_hand, 0)
+        else:
+            winner, value = self._duel(self.back_hand, winner, value, hearer_holds=True)
+        if winner is None:
+            claim = self.player[self.front_hand].bid(0)
+            if claim:
+                winner, value = self.front_hand, claim
+        self.highest_bid = value
+        if winner is not None:
+            self.solo_player_id = winner
+
+    def start(self) -> Optional[bool]:
         # Wait for players
         while self.phase == GamePhase.WAITING:
             if len(self.player) == 3:
@@ -450,6 +567,11 @@ class Round:
             self.phase = GamePhase.BIDDING
             # game bidding
             self.bidding()
+            if self.solo_player_id == -42:
+                # nobody bid anything -> "eingepasst" (ISkO §3.2.19, §3.3.7),
+                # a valid round outcome, not an error.
+                self.phase = GamePhase.EINGEPASST
+                return None
         # take skat or not
         if self.hand_game is None:
             # ask player

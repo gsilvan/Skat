@@ -7,6 +7,7 @@ from skat.hand import Hand
 if TYPE_CHECKING:
     from skat.agents import Agent
     from skat.card import Card
+    from skat.game import Round
     from skat.games import Game
     from skat.trick import Trick
 
@@ -19,7 +20,8 @@ class Player:
         self.seat_id: int = seat_id
         self.hand: Hand = Hand()
         self.trick_stack: Hand = Hand()
-        self.public_state: Optional[Game] = None
+        # set by Round.init_players - the round this player is seated in
+        self.public_state: Optional[Round] = None
 
     def __str__(self) -> str:
         return f"{self.seat_id} hand={self.hand} score={self.trick_stack_value}"
@@ -42,7 +44,7 @@ class Player:
         for card in cards:
             self.hand.append(card)
 
-    def bid(self, current_bid: int, offer=False) -> int:
+    def bid(self, current_bid: int, offer: Optional[int] = None) -> int:
         """
         Make a bid given a current bid. This function delegates the bidding to
         the specified agent. The agent returns a new bid or folds.
@@ -74,5 +76,5 @@ class Player:
         for _, card in trick.buffer:
             self.trick_stack.append(card)
 
-    def set_state(self, state) -> None:
+    def set_state(self, state: Round) -> None:
         self.public_state = state

@@ -1,4 +1,5 @@
 import argparse
+from typing import Optional
 
 from skat.game import Tournament
 
@@ -11,7 +12,12 @@ def get_args():
     parser.add_argument("-p0", type=str, default="random")
     parser.add_argument("-p1", type=str, default="random")
     parser.add_argument("-p2", type=str, default="random")
-    parser.add_argument("--seed", default=None)
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Reproducible deals. Each round still gets its own hand.",
+    )
     parser.add_argument("--suit-game-only", action=argparse.BooleanOptionalAction)
     parser.add_argument("--hold-position", action=argparse.BooleanOptionalAction)
     parser.add_argument("--declare-game", type=int)
@@ -35,6 +41,7 @@ def get_player(
     path: str = None,
     epsilon: float = None,
     epsilon_decay: float = None,
+    seed=None,
 ):
     from skat.agents.command_line import CommandLineAgent
     from skat.agents.dqn import DQNAgent
@@ -47,14 +54,20 @@ def get_player(
             return CommandLineAgent()
         case "dqn":
             return DQNAgent(
-                train=training, path=path, epsilon=epsilon, epsilon_decay=epsilon_decay
+                train=training,
+                path=path,
+                epsilon=epsilon,
+                epsilon_decay=epsilon_decay,
             )
         case _:
             raise Exception("Agent not found.")
 
 
-def get_game(arg: int):
+def get_game(arg: Optional[int]):
     from skat.games.suit import SuitGame
+
+    if arg is None:
+        return None  # no forced game type - every soloist declares their own
 
     match arg:
         case 0 | 1 | 2 | 3:
@@ -79,6 +92,7 @@ if __name__ == "__main__":
                 path=path_args[i],
                 epsilon=args.epsilon,
                 epsilon_decay=args.epsilon_decay,
+                seed=args.seed,
             )
         )
 
@@ -92,4 +106,4 @@ if __name__ == "__main__":
         iss_file=args.iss_file,
     )
     t.start()
-    print(f"{t.scores}")
+    print(t.summary())

@@ -9,9 +9,19 @@ from skat.trick import Trick
 
 
 class Null(skat.games.Game):
-    def __init__(self) -> None:
+    #: Fixed Spielwert per ISkO §2.4.2, keyed by (hand, ouvert).
+    VALUES = {
+        (False, False): 23,  # Null
+        (True, False): 35,  # Null Hand
+        (False, True): 46,  # Null ouvert
+        (True, True): 59,  # Null Hand ouvert
+    }
+
+    def __init__(self, hand: bool = False, ouvert: bool = False) -> None:
         self.trick = NullTrick()
         self.order = HandOrder(ranks="789XJQKA")
+        self.hand = hand
+        self.ouvert = ouvert
 
     def new_trick(self) -> None:
         self.trick = NullTrick()
@@ -30,7 +40,7 @@ class Null(skat.games.Game):
 
     @property
     def value(self) -> int:
-        return 23
+        return self.VALUES[(self.hand, self.ouvert)]
 
     def to_numpy(self) -> np.ndarray:
         return np.array([self.trick.value])

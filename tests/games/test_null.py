@@ -44,3 +44,10 @@ class NullTest(unittest.TestCase):
     def test_trick_is_trump(self) -> None:
         self.game.trick.append(0, Card(3, 3))
         self.assertFalse(self.game.trick.is_trump)  # null has no trump
+
+    def test_game_values(self) -> None:
+        # ISkO §2.4.2: Null 23, Null Hand 35, Null ouvert 46, Null Hand ouvert 59
+        self.assertEqual(23, Null().value)
+        self.assertEqual(35, Null(hand=True).value)
+        self.assertEqual(46, Null(ouvert=True).value)
+        self.assertEqual(59, Null(hand=True, ouvert=True).value)

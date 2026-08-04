@@ -139,3 +139,9 @@ cython_debug/
 
 # pycharm
 .idea/
+
+# Copyrighted rules-document transcription — the source PDF is marked
+# "Nachdruck, auch auszugsweise, nur mit Genehmigung beider Verbände gestattet"
+# (DSkV/ISPA-World). Keep local-only, don't push to the public GitHub remote.
+Internationale-Skatordnung-2018.pdf
+internationale-skatordnung.md
