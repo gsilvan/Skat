@@ -11,8 +11,11 @@ A pure-Python engine for the German card game Skat, built to train and run autom
 Dependency management is via `uv` (see `pyproject.toml` / `uv.lock`). There is no dev-dependency group defined, so tools like `pytest`, `mypy`, and `ruff` are not installed into `.venv` by default — pull them in ad hoc with `uv run --with <tool>`.
 
 ```bash
-# sync the environment (installs numpy, torch-cpu, tensorboard, pysgf, tqdm)
+# sync the environment (installs numpy, torch-cpu, tensorboard, tqdm)
 uv sync
+
+# ...plus pysgf, needed only to parse raw .sgf records (see ISS integration)
+uv sync --extra sgf
 
 # run the full test suite
 uv run --with pytest pytest
@@ -77,6 +80,8 @@ The "never overbids" guarantee needs **two** things, not just a safe ceiling: th
 - `DeepAgent` (`agents/deep.py`) — unfinished stub (not wired into `skat/__main__.py`'s `get_player`); `choose_card` still just picks randomly with a `# TODO: select card from model` marker, and the pickup/declare/press methods are unimplemented (`pass`). It does bid, via the shared machinery.
 
 ### ISS integration (`iss/`)
+
+**`pysgf` is an optional dependency** (`[project.optional-dependencies] sgf`), and it is needed for exactly one thing: turning raw `.sgf` *text* into an `ISSGame`. Everything else here — the `GameType` enum, the card table, `.pkl` corpora, `sample()`, the `Deck` reconstruction and `game_converter` — is plain Python and works without it, so a corpus parsed once can be replayed through `Tournament(iss_file=...pkl)` forever afterwards on an install that has no pysgf. `iss.HAS_SGF_SUPPORT` is the capability flag; `iss.require_sgf_support()` guards `ISSGame._parse_sgf_line` and `ISSGames.read_sgf` (the latter *before* opening the file, since these archives are gigabytes) and raises `iss.MissingSgfSupport`, an `ImportError` subclass carrying install instructions. Tests that parse `.sgf` are `skipUnless(HAS_SGF_SUPPORT)`.
 
 Parses SGF-formatted game logs from the International Skat Server into `ISSGame`/`ISSGames` objects (regex-based parsing of the SGF `MV`/`R` properties — deliberately tolerant of malformed/edge-case records via `is_valid`/`is_won` flags rather than raising). `ISSGames` supports `.sgf` (raw) and `.pkl` (pre-parsed, pickled) inputs and can `sample()` a seeded subset. `skat/utils/game_converter.py:get_game` bridges `iss.GameType` to the corresponding `skat.games.Game` subclass so sampled ISS deals can be replayed through `Round`/`Tournament`. `iss/extractor.py` is a standalone CLI (`python -m iss.extractor <file>`) that filters an `.sgf` archive down to won games, split by game type, into new `.sgf` files alongside the source.
 

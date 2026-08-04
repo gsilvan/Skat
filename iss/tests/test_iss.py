@@ -1,9 +1,10 @@
 import unittest
 
-from iss import GameType, ISSGame
+from iss import HAS_SGF_SUPPORT, GameType, ISSGame
 from skat.card import Card
 
 
+@unittest.skipUnless(HAS_SGF_SUPPORT, "parsing .sgf needs the optional pysgf")
 class ISSTest(unittest.TestCase):
     def setUp(self) -> None:
         pass

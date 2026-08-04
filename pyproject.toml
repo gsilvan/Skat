@@ -9,11 +9,16 @@ readme = "README.md"
 requires-python = ">=3.12.3"
 dependencies = [
     "numpy>=2.2.0",
-    "pysgf>=0.9.0",
     "tensorboard>=2.18.0",
     "torch>=2.5.1",
     "tqdm>=4.67.1",
 ]
+
+[project.optional-dependencies]
+# Parsing raw .sgf game records from the International Skat Server. Everything
+# else in the `iss` package - the GameType enum, .pkl corpora, sampling - works
+# without it; see iss.HAS_SGF_SUPPORT.
+sgf = ["pysgf>=0.9.0"]
 
 
 [[tool.uv.index]]
