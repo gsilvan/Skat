@@ -27,6 +27,7 @@ from skat.card import Card
 from skat.game import GamePhase, Round
 from skat.games.suit import SuitGame
 from skat.hand import FULL_HAND
+from skat.models.card_transformer import CardTransformer
 from skat.models.policy import PolicyNet
 from skat.models.suit_solo import SuitSoloNet
 
@@ -206,6 +207,48 @@ class RefusalTest(unittest.TestCase):
         with self.assertRaises(RuntimeError) as caught:
             PolicyAgent(path=path, device="cpu")
         self.assertIn("Q-values", str(caught.exception))
+
+
+class TransformerSeatTest(PolicyAgentTest):
+    """
+    `PolicyAgent` was not touched to add a second architecture - dispatch lives
+    in the checkpoint, and the agent's only coupling is `net(state) -> logits`.
+    This class is what proves that: the same cases, a different network behind
+    the same file.
+    """
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.directory = tempfile.TemporaryDirectory()
+        cls.path = os.path.join(cls.directory.name, "transformer.pt")
+        torch.manual_seed(0)
+        save_policy(cls.path, CardTransformer())
+
+    def test_it_loads_as_a_transformer(self) -> None:
+        self.assertIsInstance(self.agent().net, CardTransformer)
+
+    def test_it_plays_a_full_round_against_random_agents(self) -> None:
+        round_ = make_round(self.agent())
+        round_.start()
+        self.assertTrue(round_.is_finished)
+        self.assertEqual(120, round_.points_soloist + round_.points_defenders)
+
+    def test_it_never_plays_a_card_it_does_not_hold(self) -> None:
+        agent = self.agent()
+        round_ = make_round(agent)
+        assert round_.game is not None
+        valid = round_.player[0].valid_moves(round_.game.trick)
+        outsider = FULL_HAND[25]
+        self.assertNotIn(outsider, round_.player[0].hand)
+        agent.net = favouring(outsider.np_index)
+        self.assertIn(agent.select(valid), valid)
+
+    def test_it_is_deterministic_at_temperature_zero(self) -> None:
+        agent = self.agent()
+        round_ = make_round(agent)
+        assert round_.game is not None
+        valid = round_.player[0].valid_moves(round_.game.trick)
+        self.assertEqual(1, len({agent.select(valid) for _ in range(5)}))
 
 
 class DeclaringTest(PolicyAgentTest):

@@ -40,7 +40,7 @@ uv run python -m iss.extractor ~/Downloads/iss-games-07-2024.sgf
 uv run python -m skat --rounds 650 -p0 mcts -p1 mcts -p2 mcts \
     --simulations 2000 --determinizations 20 --seed 1 --record-mcts data/distill
 uv run python -m skat.agents.distill.train --data data/distill \
-    --out trained_models/policy.pt
+    --arch transformer --out trained_models/policy.pt
 uv run python -m skat --rounds 2000 -p0 policy -p1 random -p2 random --seed 7
 ```
 
@@ -105,15 +105,31 @@ Same layering rule as `agents/search/` and `agents/rl/`: **nothing in `agents/di
 
 Collection throughput: ~0.5 rounds/s per process with three MCTS seats at `--simulations 2000 --determinizations 20`, ~23 recorded decisions per round, ~66 bytes/row compressed. Parallelise over seats with `--seed`; the CLI offsets the seed per seat (`args.seed + i`) so three MCTS agents at one table don't march their determinizations in step.
 
-Measured on a 102k-decision corpus (~5200 rounds, 8 workers, ~20 min wall-clock, 6.5 MB), 25 epochs, seat 0 against two `RandomAgent`s over the same seeded deals:
+Measured on a 102k-decision corpus (~5200 rounds, 8 workers, ~20 min wall-clock, 6.5 MB), seat 0 against two `RandomAgent`s over the same seeded deals:
 
-| agent | as soloist | on defence | speed |
-| --- | --- | --- | --- |
-| `RandomAgent` | 29% | 69% | — |
-| `PolicyAgent` | 77% | 82% | ~250 rounds/s |
-| `MCTSAgent` (2000 sims) | 91% | 86% | ~1.5 rounds/s |
+| agent | as soloist | on defence | params | speed |
+| --- | --- | --- | --- | --- |
+| `RandomAgent` | 29% | 69% | — | — |
+| `PolicyAgent`, `--arch mlp` | 80% | 82% | 2.94M | ~250 rounds/s |
+| `PolicyAgent`, `--arch transformer` | **86%** | **85%** | 536k | ~120 rounds/s |
+| `MCTSAgent` (2000 sims) | 91% | 86% | — | ~1.5 rounds/s |
 
-So the distillation recovers most of the gap for ~1/150th of the cost, and stops short of the teacher. Top-1 agreement with the teacher plateaus at **~54%** by epoch 8 while train agreement keeps climbing to 65% — the corpus, not the network, is the binding constraint, and more collection is the lever. `--target value` was run as a control and came out level (80.4% vs 81.6% of rounds won, ~1 standard error) despite being a far sharper target; see `targets.py`.
+So the distillation recovers most of the gap for ~1/150th of the cost, and the transformer closes most of what was left — its defence is level with the teacher's, its soloing still ~5 points behind.
+
+`--target value` was run as a control on the MLP and came out level (80.4% vs 81.6% of rounds won, ~1 standard error) despite being a far sharper target; see `targets.py`.
+
+### Architectures (`--arch`)
+
+Two networks are registered in `skat/models/__init__.py:ARCHITECTURES`, and `--arch` picks one at training time. Serving does **not** take a flag: `save_policy` writes the name into the checkpoint and `load_policy` dispatches on it, so `--policy PATH` keeps meaning "whatever is in this file" and `PolicyAgent` never learned there is more than one. A checkpoint with no `arch` key means `mlp` — the key arrived with the second architecture and the files that predate it are all MLPs.
+
+- `mlp` — `models/policy.py:PolicyNet`, the 5-layer dense baseline over the flat 240-vector.
+- `transformer` — `models/card_transformer.py:CardTransformer`, self-attention over **32 tokens, one per card in the pack**. The observation decomposes losslessly into 7 mutually exclusive per-card status columns (held, played by me/next/previous, on the table by me/next/previous), so the tokenisation is exact and needs no recollection — it happens inside `forward`, keeping the `(B,240) -> (B,32)` contract every caller depends on. Card identity is a suit+rank embedding, which is also why there is no positional encoding; the head is one shared `Linear(d_model, 1)` per token, which is what makes the output line up with the legal-move mask. `tests/test_card_tokens.py` pins the tokeniser against real `Round.get_state` output rather than synthetic vectors.
+
+**The transformer wins, and it wins on variance, not capacity.** With a fifth of the parameters it reaches 60% top-1 agreement with the teacher against the MLP's ~54%, and its train/val gap is *zero* (59.4% / 59.8%) where the MLP's was 5–11 points. Paired over 2000 identical deals it takes 85.5% of rounds against the MLP's 81.7%, McNemar p < 0.001 (257 discordant rounds to 181); against the `--target value` MLP it is 84.4% to 80.8%, p = 0.001. Small data with a strong known symmetry is exactly where architecture pays, and the MLP was spending 2.94M parameters rediscovering that input slot 3 and output slot 3 are the same card.
+
+`--features raw` is the control: it drops the derived per-card features (`is_trump`, trick order, led suit) and keeps only status. It came out **indistinguishable** from `full` (84.2% vs 84.2%, 197 discordant to 196, p = 1.000), so the win is attention over a card set, not the domain features — worth knowing before adding more of them.
+
+Per-architecture training defaults live in one table, `train.py:ARCH_DEFAULTS`, with `default=None` in argparse and `resolve()` filling the gap; the run prints which defaults it used. This is the `--epsilon-decay` bug inverted — that one was a real argparse default silently outranking the class default.
 
 ### ISS integration (`iss/`)
 

@@ -1,12 +1,18 @@
 """
-The two networks in this repo are the same shape and mean different things.
+Three networks in this repo take 240 floats and return 32 numbers, and all
+three mean different things.
 
-`SuitSoloNet` maps the 240-wide observation to 32 Q-values regressed against
-`Round.cumulative_reward`; `PolicyNet` maps it to 32 policy logits trained
-against MCTS visit counts. Nothing about the tensors distinguishes them, the
-DQN checkpoints sit one flag away at `./trained_models/checkpoint_p*.pt`, and
-loading one into the other produces an agent that plays confidently and wrongly
+`SuitSoloNet` maps the observation to Q-values regressed against
+`Round.cumulative_reward`; `PolicyNet` maps it to policy logits trained against
+MCTS visit counts; `CardTransformer` maps it to the same logits through a
+different architecture. Nothing about the tensors distinguishes any of them,
+the DQN checkpoints sit one flag away at `./trained_models/checkpoint_p*.pt`,
+and loading the wrong one produces an agent that plays confidently and wrongly
 without a word of complaint. These tests are what makes that impossible.
+
+The other property here is back-compatibility. The `arch` key arrived with the
+second architecture, so every checkpoint older than it - including the one
+holding the measured MLP baseline - has to keep loading.
 """
 
 import os
@@ -16,10 +22,13 @@ import unittest
 import torch
 
 from skat.agents.distill.checkpoint import POLICY_FORMAT, load_policy, save_policy
+from skat.models import ARCHITECTURES
+from skat.models.card_transformer import CardTransformer
 from skat.models.policy import PolicyNet
 from skat.models.suit_solo import SuitSoloNet
 
 CPU = torch.device("cpu")
+BASELINE = "trained_models/policy.pt"
 
 
 class RoundTripTest(unittest.TestCase):
@@ -82,6 +91,99 @@ class ConfusabilityTest(unittest.TestCase):
         with self.assertRaises(RuntimeError) as caught:
             load_policy(path, CPU)
         self.assertIn(str(PolicyNet.INPUT_SIZE), str(caught.exception))
+
+
+class ArchitectureDispatchTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        torch.manual_seed(0)
+
+    def path(self, name: str) -> str:
+        return os.path.join(self.directory.name, name)
+
+    def test_a_transformer_checkpoint_comes_back_as_a_transformer(self) -> None:
+        path = self.path("transformer.pt")
+        save_policy(path, CardTransformer())
+        net, _ = load_policy(path, CPU)
+        self.assertIsInstance(net, CardTransformer)
+
+    def test_a_transformer_round_trips_to_the_same_predictions(self) -> None:
+        path = self.path("transformer.pt")
+        net = CardTransformer()
+        net.eval()
+        observation = torch.rand((1, CardTransformer.INPUT_SIZE))
+        with torch.no_grad():
+            before = net(observation)
+        save_policy(path, net)
+        restored, _ = load_policy(path, CPU)
+        restored.eval()
+        with torch.no_grad():
+            self.assertTrue(torch.equal(before, restored(observation)))
+
+    def test_an_arch_less_checkpoint_is_still_an_mlp(self) -> None:
+        # Built by hand, because `save_policy` always writes the key now. This
+        # is the shape of every checkpoint from before the second architecture
+        # existed, and it has to keep loading.
+        path = self.path("legacy.pt")
+        net = PolicyNet()
+        torch.save(
+            {
+                "format": POLICY_FORMAT,
+                "input_size": net.INPUT_SIZE,
+                "output_size": net.OUTPUT_SIZE,
+                "state_dict": net.state_dict(),
+                "meta": {},
+            },
+            path,
+        )
+        restored, _ = load_policy(path, CPU)
+        self.assertIsInstance(restored, PolicyNet)
+
+    @unittest.skipUnless(os.path.exists(BASELINE), f"no {BASELINE} in this tree")
+    def test_the_shipped_baseline_checkpoint_still_loads(self) -> None:
+        # Weak - it is skipped wherever the artefact is absent - but it is the
+        # only test that touches the real file rather than a fixture.
+        net, _ = load_policy(BASELINE, CPU)
+        self.assertIsInstance(net, PolicyNet)
+
+    def test_an_unknown_architecture_names_the_ones_it_knows(self) -> None:
+        path = self.path("future.pt")
+        save_policy(path, PolicyNet(), arch="perceiver")
+        with self.assertRaises(RuntimeError) as caught:
+            load_policy(path, CPU)
+        message = str(caught.exception)
+        self.assertIn("perceiver", message)
+        for known in ARCHITECTURES:
+            self.assertIn(known, message)
+
+    def test_the_arch_kwargs_survive_the_round_trip(self) -> None:
+        path = self.path("raw.pt")
+        save_policy(
+            path, CardTransformer(features="raw"), arch_kwargs={"features": "raw"}
+        )
+        net, _ = load_policy(path, CPU)
+        self.assertEqual("raw", net.features)
+
+    def test_a_transformer_checkpoint_is_refused_by_the_mlp(self) -> None:
+        path = self.path("transformer.pt")
+        save_policy(path, CardTransformer())
+        blob = torch.load(path, weights_only=False)
+        with self.assertRaises(RuntimeError):
+            PolicyNet().load_state_dict(blob["state_dict"])
+
+    def test_an_mlp_checkpoint_is_refused_by_the_transformer(self) -> None:
+        path = self.path("mlp.pt")
+        save_policy(path, PolicyNet())
+        blob = torch.load(path, weights_only=False)
+        with self.assertRaises(RuntimeError):
+            CardTransformer().load_state_dict(blob["state_dict"])
+
+    def test_an_unregistered_network_cannot_be_saved_unnamed(self) -> None:
+        # Saving one would produce a file nothing can load.
+        with self.assertRaises(ValueError) as caught:
+            save_policy(self.path("stray.pt"), SuitSoloNet())
+        self.assertIn("ARCHITECTURES", str(caught.exception))
 
 
 class PolicyNetTest(unittest.TestCase):
