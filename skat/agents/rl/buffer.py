@@ -1,7 +1,13 @@
 import random
 from collections import deque, namedtuple
 
-Transition = namedtuple("Transition", ("state", "action", "next_state", "reward"))
+# `next_mask` is the legal-move mask that belongs to `next_state`, and it is
+# what keeps the bootstrap honest: without it the target maxes over all 32
+# cards, including the ones the agent does not hold. It is None exactly when
+# `next_state` is (a terminal transition bootstraps from nothing).
+Transition = namedtuple(
+    "Transition", ("state", "action", "next_state", "next_mask", "reward")
+)
 
 
 class ReplayBuffer:

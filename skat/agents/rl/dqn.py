@@ -79,7 +79,7 @@ class DQN:
         epsilon_min: float = 0.10,
         batch_size: int = 256,
         learn_start: int = 10000,
-        gamma: float = 0.5,
+        gamma: float = 1.0,
         target_update: int = 4096,
         buffer_size: int = 100000,
         learning_rate: float = 1e-4,
@@ -106,6 +106,15 @@ class DQN:
         self.buffer_size = buffer_size
         self.batch_size = batch_size
         self.learn_start = learn_start
+        # Undiscounted, on purpose. A round is exactly ten tricks and every
+        # terminal transition is flagged, so returns are bounded without a
+        # discount doing it. The per-trick reward is a difference of
+        # `Round.cumulative_reward`, so the rewards telescope: summed
+        # undiscounted over a round they come to exactly the final outcome,
+        # which is the number the agent should be predicting. gamma was 0.5,
+        # which shrank the terminal win/schneider/schwarz bonus to 0.5^9 ~
+        # 0.002 by the first trick - it was, in effect, playing for card points
+        # and ignoring whether it won.
         self.gamma = gamma
         self.target_update = target_update
         self.learning_rate = learning_rate
@@ -203,6 +212,21 @@ class DQN:
             action[0][argmax] = 1
             return action
 
+    def bootstrap(
+        self, next_states: torch.Tensor, next_masks: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        `max_a' Q_target(s', a')`, over the *legal* continuations only.
+
+        Unmasked, this maxed over all 32 cards - and a hand holds at most ten,
+        so the target was nearly always the value of a move the agent could not
+        make, most often one already lying in a completed trick. Every state
+        ended up valued by a fantasy continuation.
+        """
+        q = self.target_net(next_states)
+        masked = q.masked_fill(~next_masks.to(q.device), torch.finfo(q.dtype).min)
+        return masked.max(1)[0].detach()
+
     def optimize_model(self):
         self.episode += 1
         if self.warming_up:
@@ -240,9 +264,12 @@ class DQN:
             .squeeze(1)
         )
 
+        # The masks belonging to those next states, in the same order.
+        next_masks = torch.stack([m for m in batch.next_mask if m is not None])
+
         next_state_values = torch.zeros(self.batch_size, device=self.device)
-        next_state_values[non_final_mask] = (
-            self.target_net(non_final_next_states).max(1)[0].detach()
+        next_state_values[non_final_mask] = self.bootstrap(
+            non_final_next_states, next_masks
         )
 
         # Compute the expected Q values

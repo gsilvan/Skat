@@ -68,6 +68,14 @@ def get_args():
         default=None,
         help="Replay buffer capacity, FIFO (default: 100000).",
     )
+    parser.add_argument(
+        "--gamma",
+        type=float,
+        default=None,
+        help="Discount factor (default: 1.0). A round is a fixed ten tricks "
+        "and the shaped rewards telescope to the final outcome, so "
+        "undiscounted returns are both bounded and the quantity of interest.",
+    )
     styles = "{" + ",".join(style.value for style in BiddingStyle) + "}"
     for seat in range(3):
         parser.add_argument(
@@ -99,6 +107,7 @@ def get_player(
     batch_size: Optional[int] = None,
     learn_start: Optional[int] = None,
     buffer_size: Optional[int] = None,
+    gamma: Optional[float] = None,
     bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
 ):
     from skat.agents.command_line import CommandLineAgent
@@ -123,6 +132,7 @@ def get_player(
                 batch_size=batch_size,
                 learn_start=learn_start,
                 buffer_size=buffer_size,
+                gamma=gamma,
                 bidding=bidding,
             )
         case _:
@@ -165,6 +175,7 @@ if __name__ == "__main__":
                 batch_size=args.batch_size,
                 learn_start=args.learn_start,
                 buffer_size=args.buffer_size,
+                gamma=args.gamma,
                 bidding=bidding_args[i],
             )
         )

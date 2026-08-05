@@ -32,6 +32,7 @@ class DQNAgent(HeuristicDeclarer, Agent):
         batch_size=None,
         learn_start=None,
         buffer_size=None,
+        gamma=None,
         bidding=BiddingStyle.CONSERVATIVE,
     ):
         super().__init__(bidding=bidding)
@@ -45,6 +46,7 @@ class DQNAgent(HeuristicDeclarer, Agent):
             "batch_size": batch_size,
             "learn_start": learn_start,
             "buffer_size": buffer_size,
+            "gamma": gamma,
         }
         self.dqn = DQN(**{k: v for k, v in options.items() if v is not None})
         self.train = train
@@ -84,6 +86,7 @@ class DQNAgent(HeuristicDeclarer, Agent):
 
         if is_terminal:
             next_state = None
+            next_mask = None
             if self.state.seat_id == self.state.public_state.solo_player_id:
                 points = self.state.public_state.points_soloist
                 self.writer.add_scalar("Points solo", points, self.epoch)
@@ -95,12 +98,19 @@ class DQNAgent(HeuristicDeclarer, Agent):
             next_state = self.state.public_state.get_state_t(
                 player_id=self.state.seat_id
             )
+            # The cards still in hand - `choose_card` already removed the one
+            # just played. The next trick has not been led yet, so follow-suit
+            # cannot narrow this further; the remaining hand is the tightest
+            # legal-move mask that exists at this point, and it is what stops
+            # the bootstrap from valuing cards the agent cannot play.
+            next_mask = self.state.hand.as_tensor_mask
 
         # store in buffer
         self.dqn.replay_buffer.push(
             state=self.initial_state,
             action=self.last_action,
             next_state=next_state,
+            next_mask=next_mask,
             reward=reward,
         )
 

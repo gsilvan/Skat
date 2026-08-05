@@ -40,6 +40,7 @@ def fill(dqn, count: int) -> None:
             state=torch.zeros((1, 4)),
             action=torch.zeros((1, 32), dtype=torch.long),
             next_state=torch.zeros((1, 4)),
+            next_mask=torch.ones(32, dtype=torch.bool),
             reward=torch.zeros((1, 1)),
         )
 
