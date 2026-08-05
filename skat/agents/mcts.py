@@ -64,7 +64,17 @@ class MCTSAgent(HeuristicDeclarer, Agent):
         moves = list(valid_moves)
         if len(moves) == 1:
             return moves[0]
+        return self.best(moves, self.tally(moves))
 
+    def tally(self, moves: list[Card]) -> dict[Card, list[float]]:
+        """
+        Run the search and report `{move: [visits, value_sum]}`, summed over
+        every determinization.
+
+        Split out from `search` so `RecordingMCTSAgent` can write the numbers
+        down on the way past: they are what a distilled policy learns from, and
+        the base agent throws them away as soon as it has picked a card.
+        """
         per_world = max(1, self.simulations // max(1, self.determinizations))
         totals: dict[Card, list[float]] = {move: [0, 0.0] for move in moves}
         for _ in range(self.determinizations):
@@ -75,6 +85,11 @@ class MCTSAgent(HeuristicDeclarer, Agent):
                 stats = totals.setdefault(move, [0, 0.0])
                 stats[0] += visits
                 stats[1] += value_sum
+        return totals
+
+    @staticmethod
+    def best(moves: list[Card], totals: dict[Card, list[float]]) -> Card:
+        """The move with the best average value. An unvisited move scores -1."""
 
         def score(move: Card) -> float:
             visits, value_sum = totals[move]
@@ -153,3 +168,51 @@ class MCTSAgent(HeuristicDeclarer, Agent):
         if not playable(set(self.state.hand)):
             return 0
         return super().max_bid()
+
+
+class RecordingMCTSAgent(MCTSAgent):
+    """
+    An `MCTSAgent` that writes down what its search believed, as training data
+    for `skat.agents.distill`.
+
+    Play is identical to the base agent given the same seed - the only thing
+    added is the write. It lives here rather than in `skat.agents.distill`
+    because it is the one piece of the distillation that has to know about
+    `Player` and `Round`, the same way `skat.agents.dqn` sits above the
+    `Round`-free `skat.agents.rl`.
+
+    `recorder` is a `skat.agents.distill.ShardWriter` in practice, but only its
+    `new_round()` and `add()` are used.
+    """
+
+    def __init__(self, recorder, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.recorder = recorder
+
+    def new_round_event(self) -> None:
+        super().new_round_event()
+        # Groups the round's samples so the train/validation split can cut on
+        # round boundaries. All three agents fire this before a card is played,
+        # so the counter jumps by three per round; only the cuts matter.
+        self.recorder.new_round()
+
+    def search(self, valid_moves: set[Card]) -> Card:
+        moves = list(valid_moves)
+        if len(moves) == 1:
+            # Forced, and never searched. A masked softmax over a single legal
+            # card has probability 1 and gradient 0, so there is nothing here
+            # to learn - `PolicyAgent.select` short-circuits the same way, so
+            # not recording it costs no train/serve skew either.
+            return moves[0]
+        totals = self.tally(moves)
+        choice = self.best(moves, totals)
+        assert self.state is not None and self.state.public_state is not None
+        # Before `choose_card` takes the card out of the hand, so the recorded
+        # observation is the one the student will be looking at.
+        self.recorder.add(
+            state=self.state.public_state.get_state(player_id=self.state.seat_id),
+            totals=totals,
+            moves=moves,
+            choice=choice,
+        )
+        return choice
