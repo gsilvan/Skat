@@ -3,7 +3,7 @@ from typing import ClassVar
 import torch
 from torch import nn
 
-from skat.models.suit_solo import SuitSoloNet
+from skat.models.observation import INPUT_SIZE, OUTPUT_SIZE
 
 
 class CardTransformer(nn.Module):
@@ -36,13 +36,13 @@ class CardTransformer(nn.Module):
     the only one.
     """
 
-    INPUT_SIZE = SuitSoloNet.INPUT_SIZE
-    OUTPUT_SIZE = SuitSoloNet.OUTPUT_SIZE
+    INPUT_SIZE = INPUT_SIZE
+    OUTPUT_SIZE = OUTPUT_SIZE
 
     #: How much of the input is `Round.get_state`. The same as `INPUT_SIZE`
     #: here, and smaller than it in `skat.models.belief.BeliefNet`, which
     #: appends a block the observation does not contain.
-    OBSERVATION_SIZE = SuitSoloNet.INPUT_SIZE
+    OBSERVATION_SIZE = INPUT_SIZE
 
     CARDS = 32
 
@@ -53,7 +53,7 @@ class CardTransformer(nn.Module):
     # trick into the history and calls `new_trick()` together - so a card sets
     # at most one of these seven.
     #
-    # Restated here rather than imported from `suit_solo.py` or the tests. This
+    # Restated here rather than imported from `observation.py` or the tests. This
     # module is the second reader of that layout, and two independent
     # statements of it are what catch a change to one of them.
     STATUS_BLOCKS = (0, 44, 76, 108, 140, 172, 204)

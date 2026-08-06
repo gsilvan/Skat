@@ -29,7 +29,7 @@ from skat.games.suit import SuitGame
 from skat.hand import FULL_HAND
 from skat.models.card_transformer import CardTransformer
 from skat.models.policy import PolicyNet
-from skat.models.suit_solo import SuitSoloNet
+from skat.models.q_net import QNet
 
 CLUBS = 3
 
@@ -201,9 +201,7 @@ class RefusalTest(unittest.TestCase):
         # Same 240 -> 32 shape, different meaning. Loading it would give an
         # agent that plays Q-values as policy logits, silently.
         path = os.path.join(self.directory.name, "checkpoint_p0.pt")
-        net = SuitSoloNet()
-        net(torch.zeros((1, SuitSoloNet.INPUT_SIZE)))  # materialize lazy layers
-        torch.save(net.state_dict(), path)
+        torch.save(QNet().state_dict(), path)
         with self.assertRaises(RuntimeError) as caught:
             PolicyAgent(path=path, device="cpu")
         self.assertIn("Q-values", str(caught.exception))

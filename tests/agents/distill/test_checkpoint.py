@@ -2,7 +2,7 @@
 Three networks in this repo take 240 floats and return 32 numbers, and all
 three mean different things.
 
-`SuitSoloNet` maps the observation to Q-values regressed against
+`QNet` maps the observation to Q-values regressed against
 `Round.cumulative_reward`; `PolicyNet` maps it to policy logits trained against
 MCTS visit counts; `CardTransformer` maps it to the same logits through a
 different architecture. Nothing about the tensors distinguishes any of them,
@@ -25,7 +25,7 @@ from skat.agents.distill.checkpoint import POLICY_FORMAT, load_policy, save_poli
 from skat.models import ARCHITECTURES
 from skat.models.card_transformer import CardTransformer
 from skat.models.policy import PolicyNet
-from skat.models.suit_solo import SuitSoloNet
+from skat.models.q_net import QNet
 
 CPU = torch.device("cpu")
 BASELINE = "trained_models/policy.pt"
@@ -67,9 +67,7 @@ class ConfusabilityTest(unittest.TestCase):
     def test_a_dqn_checkpoint_is_refused(self) -> None:
         # Exactly what `DQN.optimize_model` writes: a bare state dict.
         path = os.path.join(self.directory.name, "checkpoint_p0.pt")
-        net = SuitSoloNet()
-        net(torch.zeros((1, SuitSoloNet.INPUT_SIZE)))  # materialize the lazy layers
-        torch.save(net.state_dict(), path)
+        torch.save(QNet().state_dict(), path)
         with self.assertRaises(RuntimeError) as caught:
             load_policy(path, CPU)
         message = str(caught.exception)
@@ -83,7 +81,7 @@ class ConfusabilityTest(unittest.TestCase):
         path = os.path.join(self.directory.name, "policy.pt")
         save_policy(path, PolicyNet())
         with self.assertRaises(RuntimeError):
-            SuitSoloNet().load_state_dict(torch.load(path, weights_only=False))
+            QNet().load_state_dict(torch.load(path, weights_only=False))
 
     def test_a_checkpoint_from_another_state_layout_is_refused(self) -> None:
         path = os.path.join(self.directory.name, "narrow.pt")
@@ -182,13 +180,13 @@ class ArchitectureDispatchTest(unittest.TestCase):
     def test_an_unregistered_network_cannot_be_saved_unnamed(self) -> None:
         # Saving one would produce a file nothing can load.
         with self.assertRaises(ValueError) as caught:
-            save_policy(self.path("stray.pt"), SuitSoloNet())
+            save_policy(self.path("stray.pt"), QNet())
         self.assertIn("ARCHITECTURES", str(caught.exception))
 
 
 class PolicyNetTest(unittest.TestCase):
     def test_it_is_shaped_like_the_observation_and_the_pack(self) -> None:
-        self.assertEqual(SuitSoloNet.INPUT_SIZE, PolicyNet.INPUT_SIZE)
+        self.assertEqual(QNet.INPUT_SIZE, PolicyNet.INPUT_SIZE)
         self.assertEqual(32, PolicyNet.OUTPUT_SIZE)
         out = PolicyNet()(torch.zeros((3, PolicyNet.INPUT_SIZE)))
         self.assertEqual((3, 32), tuple(out.shape))
@@ -198,7 +196,7 @@ class PolicyNetTest(unittest.TestCase):
             PolicyNet()(torch.zeros((1, PolicyNet.INPUT_SIZE - 1)))
 
     def test_its_dropout_is_real(self) -> None:
-        # `SuitSoloNet` takes a dropout argument and has no Dropout layer, so
+        # `QNet` takes a dropout argument and has no Dropout layer, so
         # train() and eval() are the same net. Here they must not be.
         torch.manual_seed(0)
         net = PolicyNet(dropout=0.5)

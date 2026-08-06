@@ -18,7 +18,7 @@ from skat.games.grand import Grand
 from skat.games.null import Null
 from skat.games.suit import SuitGame
 from skat.hand import FULL_HAND
-from skat.models import SuitSoloNet
+from skat.models import QNet
 
 # block offsets, in the order Round.get_state concatenates them
 HAND = slice(0, 32)
@@ -155,10 +155,10 @@ class RoleTest(unittest.TestCase):
 class WidthTest(unittest.TestCase):
     def test_the_vector_matches_the_network_input(self) -> None:
         """
-        `Round.get_state` and `SuitSoloNet.INPUT_SIZE` are coupled by hand and
+        `Round.get_state` and `QNet.INPUT_SIZE` are coupled by hand and
         nothing else enforces it.
         """
-        self.assertEqual(SuitSoloNet.INPUT_SIZE, len(make_round(DEAL).get_state(0)))
+        self.assertEqual(QNet.INPUT_SIZE, len(make_round(DEAL).get_state(0)))
 
     def test_every_game_type_yields_the_same_width(self) -> None:
         # a null game used to produce a 1-wide game block, i.e. a state vector
@@ -166,7 +166,7 @@ class WidthTest(unittest.TestCase):
         for game in (SuitGame(0), SuitGame(3), Grand(), Null()):
             round_ = make_round(DEAL, game=game)
             self.assertEqual(
-                SuitSoloNet.INPUT_SIZE,
+                QNet.INPUT_SIZE,
                 len(round_.get_state(0)),
                 type(game).__name__,
             )

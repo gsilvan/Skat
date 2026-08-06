@@ -2,7 +2,7 @@
 `CardTransformer` is the second reader of the 240-wide observation, and unlike
 `PolicyNet` it does not merely consume it - it takes the layout apart by index.
 `Round.get_state` and those indices are coupled by hand, exactly as
-`SuitSoloNet.INPUT_SIZE` is, and this file is the only thing that says so.
+`QNet.INPUT_SIZE` is, and this file is the only thing that says so.
 
 Every case here starts from a real `Round`. A synthetic 240-vector would pin
 the tokeniser against my reading of the layout rather than against the layout,

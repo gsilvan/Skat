@@ -1,6 +1,6 @@
 from torch import nn
 
-from skat.models.suit_solo import SuitSoloNet
+from skat.models.observation import INPUT_SIZE, OUTPUT_SIZE
 
 
 class PolicyNet(nn.Module):
@@ -8,27 +8,24 @@ class PolicyNet(nn.Module):
     Card-play policy: the 240 observation floats in, 32 logits out - one per
     card slot, to be read under a legal-move mask.
 
-    Same geometry as `SuitSoloNet` and deliberately a separate class. Its
-    outputs are policy logits, not Q-values: `SuitSoloNet` is regressed against
+    Same geometry as `QNet` and deliberately a separate class. Its
+    outputs are policy logits, not Q-values: `QNet` is regressed against
     `Round.cumulative_reward`, this is trained against MCTS visit counts, and
     the two mean different things. Sharing the class would make the checkpoints
     interchangeable at `load_state_dict` and silently wrong at play time -
     `skat.agents.distill.checkpoint` is the other half of stopping that.
 
-    Two differences from `SuitSoloNet`, both on purpose:
-
-    - Fixed `nn.Linear` throughout rather than `nn.LazyLinear`. Lazy layers
-      materialize from whatever state dict they are handed, so a checkpoint
-      from a different state layout loads cleanly and fails much later; these
-      fail at load.
-    - Dropout that exists. `SuitSoloNet` takes a `dropout` argument, names its
-      stack after it and contains no `Dropout` layer. Three million parameters
-      against ~100k samples, of which each group of ~22 comes from one round
-      and is highly correlated, will overfit without one.
+    The one structural difference is dropout, and it goes the way it does
+    because the two are trained differently. `QNet` has none on purpose:
+    dropout inside a Q-network perturbs the bootstrap target as well as the
+    prediction, which is a poor trade in TD learning. This net is doing
+    supervised classification against a fixed corpus, where three million
+    parameters against ~100k samples - each group of ~22 coming from one round
+    and highly correlated - will overfit without it.
     """
 
-    INPUT_SIZE = SuitSoloNet.INPUT_SIZE
-    OUTPUT_SIZE = SuitSoloNet.OUTPUT_SIZE
+    INPUT_SIZE = INPUT_SIZE
+    OUTPUT_SIZE = OUTPUT_SIZE
 
     WIDTHS = (1024, 1024, 1024, 512, 128)
 

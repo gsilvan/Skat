@@ -83,7 +83,7 @@ class DQN:
         target_update: int = 4096,
         buffer_size: int = 100000,
         learning_rate: float = 1e-4,
-        model=skat.models.SuitSoloNet,
+        model=skat.models.QNet,
         model_path: str = DEFAULT_MODEL_PATH,
     ) -> None:
         # "auto", "cpu", "cuda", "cuda:1", ... - see resolve_device
@@ -134,11 +134,13 @@ class DQN:
             except RuntimeError as mismatch:
                 raise RuntimeError(
                     f"{self.model_path} does not fit the current network.\n"
-                    f"  expected input width: {skat.models.SuitSoloNet.INPUT_SIZE}\n"
-                    "A checkpoint is only loadable by the state layout it was "
-                    "trained on, so any change to Round.get_state retires the "
-                    "ones that came before. Move the file aside (or point -m at "
-                    "a fresh path) and train again.\n"
+                    f"  expected input width: {skat.models.INPUT_SIZE}\n"
+                    "A checkpoint is only loadable by the network and the state "
+                    "layout it was trained on, so a change to either - to "
+                    "`Round.get_state`, or to the module names inside "
+                    "`skat.models.QNet` - retires the ones that came before. "
+                    "Move the file aside (or point -m at a fresh path) and "
+                    "train again.\n"
                     f"  original error: {mismatch}"
                 ) from mismatch
 

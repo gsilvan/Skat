@@ -72,7 +72,9 @@ class BootstrapTest(unittest.TestCase):
     def test_the_filler_never_becomes_the_value(self) -> None:
         # masked entries are set to finfo.min; if a row's legal cards were ever
         # dropped, the target would be ~-3e38 and the loss would explode
-        values = self.dqn.bootstrap(torch.zeros((4, 240)), torch.stack([mask_of(3)] * 4))
+        values = self.dqn.bootstrap(
+            torch.zeros((4, 240)), torch.stack([mask_of(3)] * 4)
+        )
         self.assertTrue(bool((values > -1e30).all()))
 
     def test_it_does_not_carry_gradients(self) -> None:

@@ -36,4 +36,4 @@ class DeepAgent(Agent):
     @staticmethod
     def __create_model(phase, declared_game=None, solo_player=False):
         """Factory method, returns a Suitable Net for a given game."""
-        return skat.models.SuitSoloNet()
+        return skat.models.QNet()

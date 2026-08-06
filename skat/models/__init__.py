@@ -1,8 +1,10 @@
 from typing import Any
 
+from .belief import BeliefNet
 from .card_transformer import CardTransformer
+from .observation import INPUT_SIZE, OUTPUT_SIZE
 from .policy import PolicyNet
-from .suit_solo import SuitSoloNet  # noqa: F401
+from .q_net import QNet
 
 #: Policy architectures, by the name `--arch` takes and the name written into
 #: every policy checkpoint. That makes these names permanent: rename one and
@@ -20,3 +22,14 @@ ARCHITECTURES: dict[str, Any] = {
 #: What a checkpoint without an `arch` key means. The key was added once there
 #: was a second architecture, so the files that predate it are all MLPs.
 DEFAULT_ARCH = "mlp"
+
+__all__ = [
+    "ARCHITECTURES",
+    "DEFAULT_ARCH",
+    "INPUT_SIZE",
+    "OUTPUT_SIZE",
+    "BeliefNet",
+    "CardTransformer",
+    "PolicyNet",
+    "QNet",
+]

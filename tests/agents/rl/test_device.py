@@ -15,7 +15,7 @@ import torch
 
 from skat.agents.rl.buffer import ReplayBuffer
 from skat.agents.rl.dqn import describe_device, gpu_backend, resolve_device
-from skat.models import SuitSoloNet
+from skat.models import QNet
 
 
 class GpuBackendTest(unittest.TestCase):
@@ -158,13 +158,7 @@ class DeviceReachesTheTensorsTest(unittest.TestCase):
 
         from skat.agents.rl import dqn as dqn_module
 
-        net = SuitSoloNet()
-        # Run a forward first, exactly as DQN does before it ever checkpoints.
-        # A state_dict saved from an un-forwarded net still holds LazyLinear's
-        # UninitializedParameter objects, which torch >= 2.6 refuses to restore
-        # under the weights_only=True default - unloadable, but not a shape a
-        # real checkpoint ever takes.
-        net(torch.zeros(1, SuitSoloNet.INPUT_SIZE))
+        net = QNet()
 
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "checkpoint.pt"
@@ -189,7 +183,7 @@ class DeviceReachesTheTensorsTest(unittest.TestCase):
                 dqn_module.DQN(device="cpu", model_path=str(path))
         message = str(caught.exception)
         self.assertIn("does not fit", message)
-        self.assertIn(str(SuitSoloNet.INPUT_SIZE), message)
+        self.assertIn(str(QNet.INPUT_SIZE), message)
 
     def test_the_replay_buffer_keeps_cpu_tensors(self) -> None:
         # states are stored as produced; only DQN moves copies to the device

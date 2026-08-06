@@ -5,7 +5,7 @@ A collection run is an hour of MCTS and is the expensive half of the whole
 exercise, so what it writes has to survive a Ctrl-C, has to be readable by
 several collectors at once, and has to refuse to be read by a trainer that
 expects a different observation. The last one matters most: `Round.get_state`
-and `SuitSoloNet.INPUT_SIZE` are coupled by hand, and a corpus collected before
+and `QNet.INPUT_SIZE` are coupled by hand, and a corpus collected before
 a layout change is silently wrong rather than obviously broken.
 """
 
