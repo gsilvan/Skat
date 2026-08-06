@@ -17,6 +17,14 @@ from skat.agents.rl import dqn as dqn_module
 from skat.agents.rl.buffer import ReplayBuffer
 
 
+class Zeros(torch.nn.Module):
+    """A stand-in policy net. A real `nn.Module` because `select_action` runs
+    it through `evaluating`, which sets and restores its mode."""
+
+    def forward(self, state: torch.Tensor) -> torch.Tensor:
+        return torch.zeros((1, 32))
+
+
 def bare_dqn(learn_start: int = 10, batch_size: int = 4, **kwargs):
     """A DQN with no nets, no writer and no io - just the schedule fields."""
     dqn = dqn_module.DQN.__new__(dqn_module.DQN)
@@ -120,7 +128,7 @@ class ExplorationRateTest(unittest.TestCase):
     def test_it_does_not_decay_on_an_evaluation_pass(self) -> None:
         # epsilon is never read when explore=False, so decaying there just
         # burns the schedule of whatever run comes next
-        dqn = bare_dqn(learn_start=0, policy_net=lambda state: torch.zeros((1, 32)))
+        dqn = bare_dqn(learn_start=0, policy_net=Zeros())
         with patch.object(dqn_module, "MaskedCategorical") as masked:
             masked.return_value.probs.argmax.return_value = torch.tensor(0)
             dqn.select_action(torch.zeros((1, 4)), self.mask(), explore=False)

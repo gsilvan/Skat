@@ -129,8 +129,10 @@ class DeviceReachesTheTensorsTest(unittest.TestCase):
 
         seen: dict[str, torch.device] = {}
 
-        class SpyNet:
-            def __call__(self, state):
+        class SpyNet(torch.nn.Module):
+            # A real Module: `select_action` runs it through `evaluating`,
+            # which needs a mode to set and restore.
+            def forward(self, state):
                 seen["state"] = state.device
                 return torch.zeros((1, 32))
 

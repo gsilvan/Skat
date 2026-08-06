@@ -23,11 +23,26 @@ from skat.games.suit import SuitGame
 from skat.hand import FULL_HAND
 
 
+class FixedNet(torch.nn.Module):
+    """A stand-in target net that always answers with the same row.
+
+    A real `nn.Module` rather than a lambda because `DQN.bootstrap` runs it
+    through `evaluating`, which sets eval mode - a bare function has none.
+    """
+
+    def __init__(self, row: torch.Tensor) -> None:
+        super().__init__()
+        self.row = row
+
+    def forward(self, states: torch.Tensor) -> torch.Tensor:
+        return self.row.expand(states.shape[0], -1).clone()
+
+
 def bare_dqn(q_row: torch.Tensor):
     """A DQN whose target net answers with `q_row`, and nothing else."""
     dqn = dqn_module.DQN.__new__(dqn_module.DQN)
     dqn.device = torch.device("cpu")
-    dqn.target_net = lambda states: q_row.expand(states.shape[0], -1).clone()
+    dqn.target_net = FixedNet(q_row)
     return dqn
 
 

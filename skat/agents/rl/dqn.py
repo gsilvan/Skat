@@ -1,6 +1,7 @@
 import os
 import random
 import sys
+from contextlib import contextmanager
 
 import torch
 import torch.nn.functional as F
@@ -13,6 +14,45 @@ from .buffer import ReplayBuffer, Transition
 from .mask import MaskedCategorical
 
 DEFAULT_MODEL_PATH = "./trained_models/checkpoint.pt"
+
+#: What `--dqn-arch` takes. Separate from `skat.models.ARCHITECTURES`, which is
+#: the *policy* family: "mlp" there means `PolicyNet`, which carries dropout
+#: for supervised training, and that is the wrong net to regress Q-values with.
+#:
+#: The transformer is built with `dropout=0.0` deliberately. It is here to test
+#: whether attention over a card set helps a Q-function the way it helped the
+#: policy, and leaving dropout on would confound that with a regularisation
+#: change - and put noise on the bootstrap target besides.
+DQN_ARCHITECTURES: dict[str, tuple] = {
+    "mlp": (skat.models.QNet, {}),
+    "transformer": (skat.models.CardTransformer, {"dropout": 0.0}),
+}
+
+
+@contextmanager
+def evaluating(net: torch.nn.Module):
+    """
+    Run `net` in eval mode with autograd off, then put it back as it was.
+
+    Both halves matter and for different reasons. Autograd off is the cheap
+    win: `select_action` built a graph on every card it chose and threw it
+    away.
+
+    Eval mode is the correctness half, and it is only latent today because
+    `QNet` has no dropout or batch norm. The moment a model that does is used
+    - `CardTransformer` has dropout, and `--dqn-arch transformer` hands it
+    straight to `DQN` - a training-mode forward would make action selection
+    stochastic on top of the epsilon-greedy schedule, and would turn the
+    bootstrap target into a random variable. TD learning chases a moving
+    target already; multiplicative noise on top of it is not a help.
+    """
+    was_training = net.training
+    net.eval()
+    try:
+        with torch.no_grad():
+            yield net
+    finally:
+        net.train(was_training)
 
 
 def gpu_backend() -> str:
@@ -84,6 +124,7 @@ class DQN:
         buffer_size: int = 100000,
         learning_rate: float = 1e-4,
         model=skat.models.QNet,
+        model_kwargs: dict | None = None,
         model_path: str = DEFAULT_MODEL_PATH,
     ) -> None:
         # "auto", "cpu", "cuda", "cuda:1", ... - see resolve_device
@@ -120,8 +161,13 @@ class DQN:
         self.learning_rate = learning_rate
 
         # Networks
-        self.policy_net = model().to(self.device)
-        self.target_net = model().to(self.device)
+        model_kwargs = dict(model_kwargs or {})
+        self.policy_net = model(**model_kwargs).to(self.device)
+        self.target_net = model(**model_kwargs).to(self.device)
+        print(
+            f"DQN model: {model.__name__} "
+            f"({sum(p.numel() for p in self.policy_net.parameters())} parameters)"
+        )
 
         self.model_path = model_path
 
@@ -205,7 +251,8 @@ class DQN:
             return action
         else:
             # select with (1-epsilon) probability a greedy argmax action
-            prediction = self.policy_net(state)
+            with evaluating(self.policy_net):
+                prediction = self.policy_net(state)
             mc = MaskedCategorical(
                 logits=prediction,
                 mask=valid_actions,
@@ -225,9 +272,13 @@ class DQN:
         make, most often one already lying in a completed trick. Every state
         ended up valued by a fantasy continuation.
         """
-        q = self.target_net(next_states)
+        # The target network is never trained, only copied into - but it is
+        # constructed in training mode like any other module, so this is what
+        # keeps a dropout-bearing architecture from randomising the target.
+        with evaluating(self.target_net):
+            q = self.target_net(next_states)
         masked = q.masked_fill(~next_masks.to(q.device), torch.finfo(q.dtype).min)
-        return masked.max(1)[0].detach()
+        return masked.max(1)[0]
 
     def optimize_model(self):
         self.episode += 1

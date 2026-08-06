@@ -116,6 +116,16 @@ def get_args():
         help="Decisions per shard file (default: 50000).",
     )
     parser.add_argument(
+        "--dqn-arch",
+        type=str,
+        choices=("mlp", "transformer"),
+        default=None,
+        help="Q-network for `-p{i} dqn` (default: mlp, the dense QNet). "
+        "`transformer` uses CardTransformer, which as a policy beat the dense "
+        "net on the same corpus with a fifth of the parameters. Checkpoints "
+        "are not interchangeable between the two.",
+    )
+    parser.add_argument(
         "--policy",
         type=str,
         default="./trained_models/policy.pt",
@@ -162,6 +172,7 @@ def get_player(
     learn_start: Optional[int] = None,
     buffer_size: Optional[int] = None,
     gamma: Optional[float] = None,
+    dqn_arch: Optional[str] = None,
     bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
     determinizations: Optional[int] = None,
     recorder=None,
@@ -245,6 +256,7 @@ def get_player(
                 learn_start=learn_start,
                 buffer_size=buffer_size,
                 gamma=gamma,
+                arch=dqn_arch,
                 bidding=bidding,
             )
         case _:
@@ -318,6 +330,7 @@ if __name__ == "__main__":
                 learn_start=args.learn_start,
                 buffer_size=args.buffer_size,
                 gamma=args.gamma,
+                dqn_arch=args.dqn_arch,
                 bidding=bidding_args[i],
                 determinizations=args.determinizations,
                 recorder=recorder,

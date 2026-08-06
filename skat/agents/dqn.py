@@ -6,7 +6,7 @@ from torch.utils.tensorboard import SummaryWriter
 from skat.agents import Agent
 from skat.agents.bidding import BiddingStyle
 from skat.agents.declaring import HeuristicDeclarer
-from skat.agents.rl.dqn import DQN
+from skat.agents.rl.dqn import DQN, DQN_ARCHITECTURES
 from skat.card import Card
 from skat.hand import FULL_HAND, Hand
 
@@ -33,6 +33,7 @@ class DQNAgent(HeuristicDeclarer, Agent):
         learn_start=None,
         buffer_size=None,
         gamma=None,
+        arch=None,
         bidding=BiddingStyle.CONSERVATIVE,
     ):
         super().__init__(bidding=bidding)
@@ -48,6 +49,15 @@ class DQNAgent(HeuristicDeclarer, Agent):
             "buffer_size": buffer_size,
             "gamma": gamma,
         }
+        if arch is not None:
+            if arch not in DQN_ARCHITECTURES:
+                raise ValueError(
+                    f"unknown dqn architecture {arch!r}; known: "
+                    f"{', '.join(sorted(DQN_ARCHITECTURES))}"
+                )
+            model, model_kwargs = DQN_ARCHITECTURES[arch]
+            options["model"] = model
+            options["model_kwargs"] = model_kwargs
         self.dqn = DQN(**{k: v for k, v in options.items() if v is not None})
         self.train = train
         self.initial_state: Optional[torch.Tensor] = None
