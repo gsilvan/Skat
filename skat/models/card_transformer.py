@@ -39,6 +39,11 @@ class CardTransformer(nn.Module):
     INPUT_SIZE = SuitSoloNet.INPUT_SIZE
     OUTPUT_SIZE = SuitSoloNet.OUTPUT_SIZE
 
+    #: How much of the input is `Round.get_state`. The same as `INPUT_SIZE`
+    #: here, and smaller than it in `skat.models.belief.BeliefNet`, which
+    #: appends a block the observation does not contain.
+    OBSERVATION_SIZE = SuitSoloNet.INPUT_SIZE
+
     CARDS = 32
 
     # Where each 32-wide block in which a card can appear starts, in the order
@@ -85,6 +90,7 @@ class CardTransformer(nn.Module):
                 f"features={features!r}, expected one of {sorted(self.TOKEN_FEATURES)}"
             )
         self.features = features
+        self.d_model = d_model
 
         cards = torch.arange(self.CARDS)
         # `persistent=False` keeps these out of the state dict. They are
@@ -178,12 +184,13 @@ class CardTransformer(nn.Module):
         deriving it twice is a tenth of the batch-1 latency. `tokens` and
         `context_vector` are the readable single-purpose views onto this.
         """
-        if x.shape[-1] != self.INPUT_SIZE:
+        if x.shape[-1] != self.OBSERVATION_SIZE:
             # Every block below is a fixed index into `Round.get_state`, so a
             # vector of the wrong width would be silently mis-sliced rather
             # than merely wrong. Say so instead.
             raise RuntimeError(
-                f"expected {self.INPUT_SIZE} observation features, got {x.shape[-1]}"
+                f"expected {self.OBSERVATION_SIZE} observation features, got "
+                f"{x.shape[-1]}"
             )
         status = self.status(x)
         # A card in none of the seven blocks is in the skat or in an opponent's
@@ -229,7 +236,15 @@ class CardTransformer(nn.Module):
 
     # ---------------------------------------------------------------- forward
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def trunk(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        One encoded vector per card, `(B, 32, d_model)`.
+
+        Split out from `forward` so a different head can sit on the same
+        tokeniser and encoder. `skat.models.belief.BeliefNet` is the second
+        user: same 32 cards, same features, but asking where each *unseen* card
+        is rather than which one to play.
+        """
         # Adding the projected context to every token is the same function as
         # concatenating the raw context onto every token's features, since
         # Linear([t; g]) = W_t t + W_g g + b. It is written this way because it
@@ -241,4 +256,7 @@ class CardTransformer(nn.Module):
             + identity.unsqueeze(0)
             + self.context(context).unsqueeze(1)
         )
-        return self.head(self.encoder(h)).squeeze(-1)
+        return self.encoder(h)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.head(self.trunk(x)).squeeze(-1)

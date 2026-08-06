@@ -131,6 +131,35 @@ Two networks are registered in `skat/models/__init__.py:ARCHITECTURES`, and `--a
 
 Per-architecture training defaults live in one table, `train.py:ARCH_DEFAULTS`, with `default=None` in argparse and `resolve()` filling the gap; the run prints which defaults it used. This is the `--epsilon-decay` bug inverted — that one was a real argparse default silently outranking the class default.
 
+### Hand prediction (`skat/agents/belief/`)
+
+`MCTSAgent` samples worlds *uniformly* over everything consistent with what it has seen. Consistency is a weak filter — it rules out the observer's own cards, the played cards and shown voids, and nothing else — so a Grand declarer is as likely to be dealt no jacks as three, and the simulations spent on worlds nobody would reach are lost. `BeliefNet` estimates where the unseen cards actually are, and `BeliefMCTSAgent` samples its determinizations from that.
+
+- `models/belief.py:BeliefNet` — 32×3 logits (next player / previous player / skat), reusing `CardTransformer`'s tokeniser and encoder through its `trunk()` seam. **Its input is wider than the observation**: `INPUT_SIZE = 304` = `get_state` (240) ++ both opponents' 32-wide void masks. That block exists because `Round.get_state` ORs all ten tricks into one set per seat, losing which cards fell *together* — so "failed to follow suit" is structurally unreconstructible from the observation, and void inference is the strongest read in Skat. The masks come from the search's own `infer_voids`, so the net is trained on exactly the evidence the sampler constrains with. Measured on the corpus, **69% of positions carry at least one void bit** (averaging 10).
+- `belief_recorder.py` — ground truth, mirroring `MCTSAgent.determinize`'s exact definition of "already seen" (own hand, played cards, and the skat only for a soloist who picked it up). A mixin, because the labels do not depend on who is playing; the agent only decides which positions the corpus covers.
+- `search/determinize.py:deal_unseen` gains an optional `weights` argument. Left `None` — which is what `MCTSAgent` passes — the behaviour is exactly what it always was. `_pick` documents the approximation: assigning card by card in proportion to a per-card belief is a *sequential* approximation of the belief-weighted distribution over whole worlds, since capacity couples the cards.
+- `belief_mcts.py:BeliefMCTSAgent(MCTSAgent)` overrides only the new `deal()` seam, so any difference against the baseline is attributable to the sampling alone. The net runs **once per decision**, not once per determinization.
+
+Collection is cheap — `policy` seats give ~1100 observations/s, so 304k observations from 10,200 rounds took under a minute against the MCTS corpus's 20. Training: ~40 min for 12 epochs.
+
+| | cross-entropy | accuracy |
+| --- | --- | --- |
+| uniform determinization (`capacity_prior`) | 0.9026 | 46.5% |
+| `BeliefNet` | **0.5884** | **68.5%** |
+
+The baseline is deliberately `capacity_prior` — what the uniform dealer already believes given the slot sizes — not a flat 1/3, against which anything looks good.
+
+**Playing strength depends on who is at the table, and this is the load-bearing caveat.** Seat 0 paired over 1000 identical deals at 600 simulations:
+
+| opponents | `mcts` | `belief-mcts` | McNemar |
+| --- | --- | --- | --- |
+| two `RandomAgent`s | 86.4% | 86.1% | p = 0.88, indistinguishable |
+| two `PolicyAgent`s | 47.7% | **51.7%** | 79 to 39, **p < 0.001** |
+
+A belief is always relative to an opponent model. Trained on competent play, the net reads discards as evidence; a random player breaks that inference and the evidence becomes misleading, which is why the first table is flat. Against the population it was trained on, the gain is real and lands **almost entirely on defence** (47.4% vs 41.8%) — the soloist knows its own hand and has less to infer, while a defender must place every card between its partner and the declarer.
+
+Retrain the belief on whatever population it will actually face; do not assume it transfers.
+
 ### ISS integration (`iss/`)
 
 **`pysgf` is an optional dependency** (`[project.optional-dependencies] sgf`), and it is needed for exactly one thing: turning raw `.sgf` *text* into an `ISSGame`. Everything else here — the `GameType` enum, the card table, `.pkl` corpora, `sample()`, the `Deck` reconstruction and `game_converter` — is plain Python and works without it, so a corpus parsed once can be replayed through `Tournament(iss_file=...pkl)` forever afterwards on an install that has no pysgf. `iss.HAS_SGF_SUPPORT` is the capability flag; `iss.require_sgf_support()` guards `ISSGame._parse_sgf_line` and `ISSGames.read_sgf` (the latter *before* opening the file, since these archives are gigabytes) and raises `iss.MissingSgfSupport`, an `ImportError` subclass carrying install instructions. Tests that parse `.sgf` are `skipUnless(HAS_SGF_SUPPORT)`.

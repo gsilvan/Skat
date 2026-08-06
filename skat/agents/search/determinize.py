@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from random import Random
-from typing import Optional
 
 from skat.agents.search.playout import copy_trick
 from skat.card import Card
@@ -42,6 +41,7 @@ def deal_unseen(
     voids: Mapping[int, frozenset[Card]],
     rng: Random,
     attempts: int = 16,
+    weights: Mapping[Card, Mapping[int, float]] | None = None,
 ) -> dict[int, list[Card]]:
     """
     Sample one world: hand `unseen` out over the slots in `capacities`
@@ -51,6 +51,11 @@ def deal_unseen(
     A greedy assignment can paint itself into a corner, so retry a few times;
     if the constraints stay unsatisfiable, fall back to an unconstrained deal —
     a slightly impossible world beats having no search at all.
+
+    `weights` optionally biases the sampling: `{card: {slot: probability}}`,
+    as estimated by `skat.agents.belief`. Left `None` — which is what
+    `MCTSAgent` passes — every feasible slot is equally likely, and the
+    behaviour is exactly what it always was.
     """
     cards = list(unseen)
     if sum(capacities.values()) != len(cards):
@@ -59,10 +64,10 @@ def deal_unseen(
             f"{sum(capacities.values())} slots"
         )
     for _ in range(attempts):
-        deal = _try_deal(cards, capacities, voids, rng)
+        deal = _try_deal(cards, capacities, voids, rng, weights)
         if deal is not None:
             return deal
-    unconstrained = _try_deal(cards, capacities, {}, rng)
+    unconstrained = _try_deal(cards, capacities, {}, rng, weights)
     assert unconstrained is not None  # without voids every deal succeeds
     return unconstrained
 
@@ -72,7 +77,8 @@ def _try_deal(
     capacities: Mapping[int, int],
     voids: Mapping[int, frozenset[Card]],
     rng: Random,
-) -> Optional[dict[int, list[Card]]]:
+    weights: Mapping[Card, Mapping[int, float]] | None = None,
+) -> dict[int, list[Card]] | None:
     slots = list(capacities)
     remaining = dict(capacities)
     deal: dict[int, list[Card]] = {slot: [] for slot in slots}
@@ -87,10 +93,41 @@ def _try_deal(
         ]
         if not options:
             return None
-        slot = rng.choice(options)
+        slot = _pick(card, options, rng, weights)
         deal[slot].append(card)
         remaining[slot] -= 1
     return deal
+
+
+def _pick(
+    card: Card,
+    options: list[int],
+    rng: Random,
+    weights: Mapping[Card, Mapping[int, float]] | None,
+) -> int:
+    """
+    Choose a slot for `card`, uniformly or in proportion to `weights`.
+
+    Note what this is and is not. Assigning card by card in proportion to a
+    per-card belief does not sample exactly from the belief-weighted
+    distribution over *whole* consistent worlds — the cards are not
+    independent, and the capacity constraint couples them. It is a sequential
+    approximation, which is the same class of approximation the uniform dealer
+    already makes, and it moves the sampling in the right direction for a cost
+    of one dictionary lookup per card.
+    """
+    if weights is None:
+        return rng.choice(options)
+    per_slot = weights.get(card)
+    if per_slot is None:
+        return rng.choice(options)
+    scores = [max(0.0, per_slot.get(slot, 0.0)) for slot in options]
+    total = sum(scores)
+    if total <= 0.0:
+        # The belief rules out every slot the constraints allow. Trust the
+        # constraints, which are facts, over the belief, which is a guess.
+        return rng.choice(options)
+    return rng.choices(options, weights=scores, k=1)[0]
 
 
 def _fits(card: Card, slot: int, voids: Mapping[int, frozenset[Card]]) -> bool:

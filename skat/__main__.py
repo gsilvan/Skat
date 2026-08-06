@@ -128,6 +128,24 @@ def get_args():
         default=0.0,
         help="0 (default) plays the argmax and is deterministic; >0 samples.",
     )
+    parser.add_argument(
+        "--record-belief",
+        type=str,
+        default=None,
+        metavar="DIR",
+        help="Write every decision to DIR as hand-prediction training data: "
+        "the observation, the void masks, and where the hidden cards really "
+        "were. Works behind any agent - collect with `policy` seats, which are "
+        "fast and play realistically.",
+    )
+    parser.add_argument(
+        "--belief",
+        type=str,
+        default="./trained_models/belief.pt",
+        help="Hand-prediction checkpoint for `-p{i} belief-mcts`, which is "
+        "`mcts` with its determinizations drawn from that belief rather than "
+        "uniformly.",
+    )
     return parser.parse_args()
 
 
@@ -147,17 +165,38 @@ def get_player(
     bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
     determinizations: Optional[int] = None,
     recorder=None,
+    belief_recorder=None,
     policy_path: str = "./trained_models/policy.pt",
     policy_temperature: float = 0.0,
+    belief_path: str = "./trained_models/belief.pt",
 ):
     from skat.agents.command_line import CommandLineAgent
     from skat.agents.dqn import DQNAgent
     from skat.agents.mcts import MCTSAgent, RecordingMCTSAgent
     from skat.agents.random import RandomAgent
 
+    def build(agent_class, **kwargs):
+        """Construct `agent_class`, recording beliefs if asked to.
+
+        The mixin is applied to the class rather than there being a recording
+        subclass per agent, because the labels do not depend on who is playing
+        - the engine knows the hands whoever sits there. Which agent plays only
+        decides which positions the corpus covers.
+        """
+        if belief_recorder is None:
+            return agent_class(**kwargs)
+        from skat.agents.belief_recorder import BeliefRecorder
+
+        recording = type(
+            f"BeliefRecording{agent_class.__name__}",
+            (BeliefRecorder, agent_class),
+            {},
+        )
+        return recording(recorder=belief_recorder, **kwargs)
+
     match arg:
         case "random":
-            return RandomAgent(bidding=bidding)
+            return build(RandomAgent, bidding=bidding)
         case "cli":
             return CommandLineAgent(bidding=bidding)
         case "mcts":
@@ -165,13 +204,30 @@ def get_player(
             if determinizations is not None:
                 options["determinizations"] = determinizations
             if recorder is None:
-                return MCTSAgent(**options)
+                return build(MCTSAgent, **options)
             return RecordingMCTSAgent(recorder=recorder, **options)
+        case "belief-mcts":
+            from skat.agents.belief_mcts import BeliefMCTSAgent
+
+            return build(
+                BeliefMCTSAgent,
+                path=belief_path,
+                device=device,
+                simulations=simulations,
+                seed=seed,
+                bidding=bidding,
+                **(
+                    {"determinizations": determinizations}
+                    if determinizations is not None
+                    else {}
+                ),
+            )
         case "policy":
             # Local like the rest, so a table of RandomAgents never imports torch.
             from skat.agents.policy import PolicyAgent
 
-            return PolicyAgent(
+            return build(
+                PolicyAgent,
                 path=policy_path,
                 device=device,
                 temperature=policy_temperature,
@@ -233,6 +289,17 @@ if __name__ == "__main__":
             },
         )
 
+    belief_recorder = None
+    if args.record_belief:
+        from skat.agents.belief import BeliefShardWriter
+        from skat.models.belief import BeliefNet
+
+        belief_recorder = BeliefShardWriter(
+            args.record_belief,
+            input_size=BeliefNet.INPUT_SIZE,
+            tag=str(args.seed),
+        )
+
     agents = []
     for i, a in enumerate(agent_args):
         agents.append(
@@ -254,8 +321,10 @@ if __name__ == "__main__":
                 bidding=bidding_args[i],
                 determinizations=args.determinizations,
                 recorder=recorder,
+                belief_recorder=belief_recorder,
                 policy_path=args.policy,
                 policy_temperature=args.policy_temperature,
+                belief_path=args.belief,
             )
         )
 
@@ -271,7 +340,9 @@ if __name__ == "__main__":
     try:
         t.start()
     finally:
+        # An hour into a collection run, a Ctrl-C must not cost the tail.
         if recorder is not None:
-            # An hour into a collection run, a Ctrl-C must not cost the tail.
             recorder.close()
+        if belief_recorder is not None:
+            belief_recorder.close()
     print(t.summary())

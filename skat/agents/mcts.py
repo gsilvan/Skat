@@ -97,6 +97,18 @@ class MCTSAgent(HeuristicDeclarer, Agent):
 
         return max(moves, key=score)
 
+    def deal(self, unseen, capacities, voids) -> dict[int, list[Card]]:
+        """
+        Sample one assignment of the unseen cards over the seats and the skat.
+
+        Uniform over everything the constraints allow. Split out from
+        `determinize` as the seam `skat.agents.belief_mcts.BeliefMCTSAgent`
+        replaces to sample from a learned belief instead - which is the only
+        thing that agent changes, so any difference between the two is
+        attributable to the sampling alone.
+        """
+        return deal_unseen(unseen, capacities, voids, self.rng)
+
     def determinize(self) -> PlayoutState:
         """
         Sample one perfect-information world consistent with what we've seen,
@@ -136,8 +148,12 @@ class MCTSAgent(HeuristicDeclarer, Agent):
         if skat_size:
             capacities[SKAT_SLOT] = skat_size
 
-        voids = infer_voids(round_.trick_history.buffer, game.trick)
-        deal = deal_unseen(unseen, capacities, voids, self.rng)
+        # The live trick counts too. If the seat before me could not follow a
+        # moment ago, that is the freshest and most relevant void evidence
+        # there is - and passing only the completed tricks threw away up to two
+        # cards of it at every single decision.
+        voids = infer_voids([*round_.trick_history.buffer, game.trick], game.trick)
+        deal = self.deal(unseen, capacities, voids)
 
         hands: list[list[Card]] = [[], [], []]
         hands[me] = my_hand
