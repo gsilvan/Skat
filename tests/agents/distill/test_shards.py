@@ -157,6 +157,20 @@ class ShardingTest(unittest.TestCase):
         samples = load_shards(self.directory.name, input_size=WIDTH)
         self.assertEqual(2, len(set(samples.groups.tolist())))
 
+    def test_full_width_seed_in_provenance_is_lossless(self):
+        # SHA-256 stage seeds are uint32; signed int32 used to raise here for
+        # values above 2**31 (the standard seed=42 run hit exactly that path).
+        w = writer(self.directory.name, provenance={"seed": 2_522_612_516})
+        w.new_round()
+        add_one(w)
+        w.close()
+        path = next(
+            os.path.join(self.directory.name, name)
+            for name in os.listdir(self.directory.name)
+        )
+        with np.load(path) as shard:
+            self.assertEqual(2_522_612_516, int(shard["seed"]))
+
 
 class RefusalTest(unittest.TestCase):
     def setUp(self) -> None:

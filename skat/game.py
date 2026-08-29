@@ -85,6 +85,10 @@ class Tournament:
         #: this says nothing about which agent played well. See `seat_scores`.
         self.scores = [0, 0]
         self.seat_scores = [SeatScore() for _ in range(3)]
+        # Machine-readable per-deal outcomes for paired benchmark comparisons.
+        # `summary()` stays aggregate; this preserves which exact common deal a
+        # candidate won so two runs can be compared with McNemar/bootstrap later.
+        self.round_records: list[dict] = []
         self.passed = 0  # rounds nobody bid on ("eingepasst")
         self.dealer = 0
         self.verbose = verbose
@@ -106,8 +110,49 @@ class Tournament:
             return None
         return self.round_seeds.randrange(2**32)
 
-    def record(self, round_: "Round", soloist_won: Optional[bool]) -> None:
+    def record(
+        self,
+        round_: "Round",
+        soloist_won: Optional[bool],
+        round_index: Optional[int] = None,
+        seed: Optional[int] = None,
+    ) -> None:
         """Fold one finished round into the running tallies."""
+        seat_wins = None
+        if soloist_won is not None:
+            seat_wins = [
+                soloist_won if seat == round_.solo_player_id else not soloist_won
+                for seat in range(3)
+            ]
+        game = getattr(round_, "game", None)
+        players = getattr(round_, "player", None)
+        bidding_probabilities = (
+            [
+                getattr(player.strategy, "last_bidding_probability", None)
+                for player in players
+            ]
+            if players is not None
+            else [None, None, None]
+        )
+        self.round_records.append(
+            {
+                "round": round_index,
+                "seed": seed,
+                "soloist": (
+                    None if round_.solo_player_id == -42 else round_.solo_player_id
+                ),
+                "soloist_won": soloist_won,
+                "seat_wins": seat_wins,
+                "game": type(game).__name__ if game is not None else None,
+                "suit": game.suit if game is not None else None,
+                "highest_bid": getattr(round_, "highest_bid", 0),
+                "game_value": getattr(round_, "game_value", 0),
+                "overbid": round_.overbid,
+                "points_soloist": round_.points_soloist,
+                "points_defenders": round_.points_defenders,
+                "bidding_probabilities": bidding_probabilities,
+            }
+        )
         if soloist_won is None:
             self.passed += 1
             return
@@ -152,6 +197,7 @@ class Tournament:
 
         print(f"starting tournament with {self.rounds}...")
         for i in tqdm.tqdm(range(self.rounds)):
+            round_seed = self.next_seed()
             if self.iss_games:
                 # ISS records already fix who bid what and won - replay as-is.
                 self.initial_cards = iss_sample[i].deck.to_list()
@@ -162,7 +208,7 @@ class Tournament:
                     start=False,
                     verbose=self.verbose,
                     agents=self.agents,
-                    seed=self.next_seed(),
+                    seed=round_seed,
                     hand_game=True,
                     declare_game=get_game(iss_sample[i].type),
                     initial_cards=self.initial_cards,
@@ -175,11 +221,11 @@ class Tournament:
                     start=False,
                     verbose=self.verbose,
                     agents=self.agents,
-                    seed=self.next_seed(),
+                    seed=round_seed,
                     declare_game=self.declare_game,
                     initial_cards=self.initial_cards,
                 )
-            self.record(r, r.start())
+            self.record(r, r.start(), round_index=i, seed=round_seed)
             if not self.hold_position:
                 self.dealer = (self.dealer + 1) % 3
 
@@ -622,7 +668,12 @@ class Round:
             # ask player
             self.hand_game = not self.player[self.solo_player_id].pickup_skat()
         if not self.hand_game:
-            _cards_in_skat = self.deck.deal_cards(2)
+            # A replay/fixed deal stores the skat in `initial_cards`; its Deck
+            # is deliberately empty.  Taking the skat must use those two cards
+            # rather than silently receiving nothing.
+            _cards_in_skat = (
+                self.deck.deal_cards(2) if self.deal_deck else list(self.skat)
+            )
             if self.verbose:
                 print(f"p={self.solo_player_id} picks the skat: {_cards_in_skat}")
             self.player[self.solo_player_id].receive_cards(_cards_in_skat)

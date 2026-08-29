@@ -75,8 +75,9 @@ The engine is built around three layers that compose per-round:
 | `NOMINAL` | `spielwert(hand)` — the hand at face value | ~14% of solo rounds |
 | `OPTIMISTIC` | `spielwert_range(hand)[1]` — the best the skat could give | ~81% |
 | `RANDOM` | any rung on the ladder, hand ignored | ~98% |
+| `NEURAL` | learned play/pass gate, then the conservative ceiling | never |
 
-The "never overbids" guarantee needs **two** things, not just a safe ceiling: the declared game must also cover the bid. Re-deriving `best_game` after picking the skat up can land on a cheaper suit and turn an affordable bid into an overbid (it did, in ~9% of deals), so agents that re-evaluate must declare via `covering_game(cards, highest_bid)`. An agent's `intended_game()` and `declare_game()` have to agree, or the style means nothing. CLI: `-b0/-b1/-b2 {conservative,nominal,optimistic,random}`.
+The "never overbids" guarantee needs **two** things, not just a safe ceiling: the declared game must also cover the bid. Re-deriving `best_game` after picking the skat up can land on a cheaper suit and turn an affordable bid into an overbid (it did, in ~9% of deals), so agents that re-evaluate must declare via `covering_game(cards, highest_bid)`. An agent's `intended_game()` and `declare_game()` have to agree, or the style means nothing. `NEURAL` additionally needs `--bidding-model PATH`; `--bidding-threshold` controls accepted risk (0.65 defensive, 0.50 balanced, 0.35 aggressive). CLI: `-b0/-b1/-b2 {conservative,nominal,optimistic,random,neural}`.
 
 `VALID_BIDS` (the official ladder) and the hand-evaluation helpers (`best_game`, `playable`, `trump_count`, `suit_length`, `aces`) live in `agents/bidding.py` too; `Agent.VALID_BIDS` re-exports the ladder.
 
@@ -88,10 +89,35 @@ The "never overbids" guarantee needs **two** things, not just a safe ceiling: th
   Every forward that is not the gradient step runs through `agents/rl/dqn.py:evaluating`, a context manager that sets `eval()` and `no_grad()` and restores the previous mode. `DQN` never did either, which was invisible while `QNet` was the only model (no dropout, no batch norm) and becomes a correctness bug the moment `--dqn-arch transformer` is used: a training-mode forward makes `select_action` stochastic on top of ε-greedy — including on evaluation passes, where ε is never read — and turns the bootstrap target into a random variable. `tests/agents/rl/test_eval_mode.py` pins it against a deliberately dropout-heavy stub, because against `QNet` every one of those cases passes either way.
   Masking applies to the **bootstrap target** as well as to action selection: `Transition` carries a `next_mask` alongside `next_state` (both `None` exactly on a terminal transition), and `DQN.bootstrap` maxes only over cards still in hand. Unmasked it maxed over all 32, i.e. almost always over a card already played. The mask is the agent's remaining hand rather than its true legal moves, because the next trick has not been led when `trick_done_event` fires — it is the tightest mask that exists at that point.
   `gamma` is **1.0**: a round is exactly ten tricks and every terminal transition is flagged (`Round.step` passes `len(trick_history) == 10`), so returns are bounded without a discount. Each trick's reward is a *difference* of `Round.cumulative_reward`, so undiscounted they telescope to exactly the final outcome. It was 0.5, which left the terminal win/schneider/schwarz bonus worth `0.5^9 ≈ 0.002` by the first trick — the agent was effectively playing for card points and ignoring whether it won.
-- `MCTSAgent` (`agents/mcts.py`) — determinized UCT / PIMC over the card-play phase, with its search internals in `agents/search/` (mirroring how `agents/rl/` backs `DQNAgent`). Each move samples `determinizations` complete deals consistent with what the agent has seen, runs an independent UCT tree per world (`search/uct.py`) and plays the best average value. Worlds come from `search/determinize.py`, which infers void suits by replaying the trick history through the game's own `Trick.forced_cards`. `search/playout.py:PlayoutState` is the search model — `Round` can't be cloned for search because it owns the agents that point back at it. Bidding/skat/declaration are not searched: the ceiling comes from its `BiddingStyle`, and it declares via `covering_game` so a post-skat re-evaluation can't undercut what it bid. It passes outright on a hand `playable()` rejects. CLI: `-p0 mcts --simulations N --determinizations M`. `search()` is split into `tally()` (run the worlds, return `{move: [visits, value_sum]}`) and `best()` (the argmax of `value_sum / visits`, `-1` for an unvisited move) so `RecordingMCTSAgent` can write the tally down on the way past; `search` itself still short-circuits a forced move without searching. Note `best` scores by *mean value*, not by visits — the most-visited move and the played move genuinely disagree, which is why the distillation corpus stores the choice rather than deriving it.
+- `MCTSAgent` (`agents/mcts.py`) — determinized UCT / PIMC over the card-play phase, with its search internals in `agents/search/` (mirroring how `agents/rl/` backs `DQNAgent`). Each move samples `determinizations` complete deals consistent with what the agent has seen, runs an independent UCT tree per world (`search/uct.py`) and plays the best average value. Worlds come from `search/determinize.py`, which infers void suits by replaying the trick history through the game's own `Trick.forced_cards`. `search/playout.py:PlayoutState` is the search model — `Round` can't be cloned for search because it owns the agents that point back at it. Bidding/skat/declaration are not searched: the ceiling comes from its `BiddingStyle`, and it declares via `covering_game` so a post-skat re-evaluation can't undercut what it bid. It passes outright on a hand `playable()` rejects unless `BiddingStyle.NEURAL` is active; in that mode the learned gate replaces rather than stacks with the heuristic. CLI: `-p0 mcts --simulations N --determinizations M`. `search()` is split into `tally()` (run the worlds, return `{move: [visits, value_sum]}`) and `best()` (the argmax of `value_sum / visits`, `-1` for an unvisited move) so `RecordingMCTSAgent` can write the tally down on the way past; `search` itself still short-circuits a forced move without searching. Note `best` scores by *mean value*, not by visits — the most-visited move and the played move genuinely disagree, which is why the distillation corpus stores the choice rather than deriving it.
 - `RecordingMCTSAgent` (`agents/mcts.py`) — an `MCTSAgent` that hands every searched decision to a recorder (`agents/distill/samples.py:ShardWriter`). Play is identical to the base agent given the same seed. It lives beside the agent it subclasses rather than in `agents/distill/`, because it is the one piece of the distillation that has to know about `Player`/`Round` — same split as `agents/dqn.py` above the `Round`-free `agents/rl/`. The observation is taken inside `search`, i.e. *before* `choose_card` removes the card from the hand, so it is the one the student will face. Forced moves are not recorded: a masked softmax over one legal card has probability 1 and gradient 0, and `PolicyAgent.select` short-circuits identically, so there is no train/serve skew. CLI: `--record-mcts DIR` on any run with an `mcts` seat, closed in a `finally` so a Ctrl-C keeps the tail.
 - `PolicyAgent` (`agents/policy.py`) — a `PolicyNet` (`models/policy.py`) distilled from `MCTSAgent`, playing the masked argmax of 32 logits in one forward pass instead of `simulations` playouts: ~250 rounds/s against MCTS's ~4.4. Card play only, like `DQNAgent`. **One checkpoint serves all three seats** — `get_state` is egocentric, so the corpus pools every chair into one file and `--policy PATH` is a single flag, deliberately *not* the DQN's per-seat `-m{i}` (whose defaults are named `checkpoint_p{i}.pt` and which exist because the observation used to be seat-indexed). A missing checkpoint raises rather than starting from a random init the way `DQN` does: this agent never trains, so a random init would just be a bad player that reads like a trained one in `Tournament.summary()`. `--policy-temperature 0` (the default) is exactly deterministic and touches no RNG; `>0` samples, which is there for a future ExIt round where a greedy student would generate a degenerate self-play distribution.
 - `DeepAgent` (`agents/deep.py`) — unfinished stub (not wired into `skat/__main__.py`'s `get_player`); `choose_card` still just picks randomly with a `# TODO: select card from model` marker, and the pickup/declare/press methods are unimplemented (`pass`). It does bid, via the shared machinery.
+
+### Neural bidding (`skat/agents/neural_bidding/`)
+
+`BiddingNet` (`models/bidding.py`) is a shared win-probability model, not a new
+card-playing agent. Its 35 inputs are the original ten-card hand in the normal
+32-card one-hot order plus a one-hot `[front, middle, rear]` position matching
+`Round.get_state`'s semantics. Its one output is a logit; sigmoid gives the
+estimated chance that the hand wins as soloist. `Agent.max_bid` uses it only as
+a play/pass gate and applies the conservative ceiling to accepted hands. The
+±1 outcome does not identify an optimal bid rung, so training a rung target
+from it would invent supervision and lose the no-overbid guarantee.
+
+`collect.py` makes an unbiased counterfactual corpus: each SHA-256-seeded deal
+is replayed three times with every seat forced to be soloist, while all three
+seats use MCTS for card play. A win stores reward `+1`, a loss `-1`. The three
+rows share a deal group so `train.py` cannot leak one distribution across the
+train/validation split. Fixed-deal skat pickup uses the two cards from
+`initial_cards`; do not regress it to reading an empty `Deck`.
+
+One checkpoint supports risk modes through its threshold: 0.35 aggressive,
+0.50 balanced and 0.65 defensive by benchmark default. These are policy costs
+over the same calibrated probabilities, not separately initialized models.
+The benchmark retains the conservative baseline and evaluates every playable
+agent with all three neural modes on identical deals. Standalone commands and
+CLI use are documented in `README.md`.
 
 ### Distillation (`skat/agents/distill/`)
 
@@ -161,6 +187,52 @@ The baseline is deliberately `capacity_prior` — what the uniform dealer alread
 A belief is always relative to an opponent model. Trained on competent play, the net reads discards as evidence; a random player breaks that inference and the evidence becomes misleading, which is why the first table is flat. Against the population it was trained on, the gain is real and lands **almost entirely on defence** (47.4% vs 41.8%) — the soloist knows its own hand and has less to infer, while a defender must place every card between its partner and the declarer.
 
 Retrain the belief on whatever population it will actually face; do not assume it transfers.
+
+### Reproducible benchmarking (`skat/benchmark/`)
+
+`python -m skat.benchmark --profile {smoke,standard,full}` is the canonical
+end-to-end comparison. It first builds the counterfactual MCTS bidding corpus
+and trains `BiddingNet`, trains both registered DQN architectures, collects one
+fixed MCTS corpus and distils every requested policy variant from it, collects a
+belief corpus with the transformer policy, trains the belief, and evaluates
+`random`, `mcts`, both DQNs, every distilled policy and `belief-mcts`.
+The value-target and raw-feature policy controls are included by default;
+`--no-controls` restricts a run to the two primary policies.
+`cli`, recorder wrappers and the unfinished `DeepAgent` are explicit manifest
+exclusions rather than silently missing rows.
+
+Evaluation uses common deals and rotates the candidate through all seats against
+two fixed panels: random and the trained transformer policy. Do not collapse
+this to the random panel: the belief model is opponent-population-specific and
+the measured gain disappears against random play. Ranking is the designated
+candidate seat's party win rate across both panels, with Wilson intervals and
+role-specific rates alongside it.
+Each entrant keeps its `BiddingStyle.CONSERVATIVE` baseline and gains
+`-neural-aggressive`, `-neural-balanced`, and `-neural-defensive` rows using the
+same bidding checkpoint. This explicitly measures the shared bidder's effect
+without confusing it with a new card-playing agent. `results.json` retains the
+outcome and seed for every deal/seat/panel, so progress comparisons should be
+paired on those raw outcomes rather than inferred from aggregate percentages.
+
+Runs under `benchmark_runs/` are resumable at stage boundaries and write a
+manifest, append-only events, checkpoint hashes, fixed corpora, TensorBoard logs,
+JSON/CSV results and a Markdown report. `history.jsonl` records completed runs so
+progress survives beyond any one output directory. The smoke profile validates
+the whole pipeline but is far too small for a meaningful ranking.
+`python -m skat.benchmark --compare OLD_RUN NEW_RUN` pairs common agents by
+panel, seat and deal seed and reports the win-rate delta plus an exact McNemar
+p-value. Comparisons with different seeds have no paired rows by design.
+
+Reproducibility has two layers. `seed_everything` covers Python, NumPy, Torch and
+deterministic kernels; agents and replay buffers also own private generators so
+one policy cannot perturb another's random stream. Never turn a set of legal
+cards directly into a list on a stochastic or tie-breaking path—sort by
+`Card.np_index` first, because `Card.__hash__` contains salted strings. Stage
+seeds are derived with SHA-256, never Python's salted `hash()`. Exact repetition
+is expected only on the same device/software stack; the manifest records both.
+All DQN architectures share one family training seed, as do all policy variants;
+do not namespace those seeds by variant, because that changes the deals or
+train/validation split and confounds the intended architecture/target comparison.
 
 ### ISS integration (`iss/`)
 

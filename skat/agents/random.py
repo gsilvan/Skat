@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import random
 from typing import TYPE_CHECKING
 
 from skat.agents import Agent
@@ -24,15 +23,19 @@ class RandomAgent(Agent):
     `BiddingStyle.RANDOM` for the uniform-random bidder.
     """
 
-    def __init__(self, bidding: BiddingStyle = BiddingStyle.CONSERVATIVE) -> None:
-        super().__init__(bidding=bidding)
-        self.game: Game = SuitGame(random.randint(0, 3))
+    def __init__(
+        self,
+        bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
+        seed: int | None = None,
+    ) -> None:
+        super().__init__(bidding=bidding, seed=seed)
+        self.game: Game = SuitGame(self.rng.randint(0, 3))
 
     def new_round_event(self) -> None:
         super().new_round_event()
         # Settle the declaration up front so the hand is valued for the game we
         # will actually declare - otherwise a conservative ceiling means nothing.
-        self.game = SuitGame(random.randint(0, 3))
+        self.game = SuitGame(self.rng.randint(0, 3))
 
     def intended_game(self) -> Game:
         return self.game
@@ -43,20 +46,20 @@ class RandomAgent(Agent):
 
     def pickup_skat(self, state) -> bool:
         """Random Agent selects skats equal distributed"""
-        return bool(random.getrandbits(1))
+        return bool(self.rng.getrandbits(1))
 
     def press_skat(self) -> list[Card]:
         if self.state is None:
             raise Exception("Can't choose a card without having a state.")
         skat = list()
         for i in range(2):
-            skat.append(self.state.hand.pop(random.randint(0, 11 - i)))
+            skat.append(self.state.hand.pop(self.rng.randint(0, 11 - i)))
         return skat
 
     def choose_card(self, valid_moves: set[Card]) -> Card:
         """Random Agent chooses a random valid move"""
         if self.state is None:
             raise Exception("Can't choose a card without having a state.")
-        choice = random.choice(list(valid_moves))
+        choice = self.rng.choice(sorted(valid_moves, key=lambda card: card.np_index))
         self.state.hand.remove(choice)
         return choice

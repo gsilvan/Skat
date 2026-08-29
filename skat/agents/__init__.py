@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Optional
+from random import Random
+from typing import TYPE_CHECKING, Optional
 
 from skat.agents.bidding import (
     VALID_BIDS,
@@ -12,6 +15,9 @@ from skat.card import Card
 from skat.games import Game
 from skat.player import Player
 
+if TYPE_CHECKING:
+    from skat.agents.neural_bidding import NeuralBidder
+
 
 class Agent(ABC):
     """Defines a minimal Agent Object"""
@@ -20,10 +26,17 @@ class Agent(ABC):
 
     VALID_BIDS = VALID_BIDS
 
-    def __init__(self, bidding: BiddingStyle = BiddingStyle.CONSERVATIVE) -> None:
+    def __init__(
+        self,
+        bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
+        seed: Optional[int] = None,
+    ) -> None:
         self.state = None
         self.bidding = bidding
+        self.rng = Random(seed)
         self._ceiling: Optional[int] = None
+        self.neural_bidder: Optional[NeuralBidder] = None
+        self.last_bidding_probability: Optional[float] = None
 
     @abstractmethod
     def choose_card(self, valid_moves: set[Card]) -> Card:
@@ -63,10 +76,36 @@ class Agent(ABC):
         if self._ceiling is None:
             if self.state is None:
                 raise Exception("Can't value a hand without having a state.")
-            self._ceiling = ceiling(
-                self.bidding, self.intended_game(), set(self.state.hand)
-            )
+            cards = set(self.state.hand)
+            if self.bidding is BiddingStyle.NEURAL:
+                if self.neural_bidder is None:
+                    raise RuntimeError(
+                        "BiddingStyle.NEURAL requires a NeuralBidder checkpoint."
+                    )
+                round_ = self.state.public_state
+                if round_ is None:
+                    raise RuntimeError("neural bidding requires a seated round")
+                self.last_bidding_probability = self.neural_bidder.probability(
+                    cards, self.state.seat_id, round_.dealer
+                )
+                if self.last_bidding_probability < self.neural_bidder.threshold:
+                    self._ceiling = 0
+                else:
+                    self._ceiling = ceiling(
+                        BiddingStyle.CONSERVATIVE, self.intended_game(), cards
+                    )
+            else:
+                self._ceiling = ceiling(
+                    self.bidding,
+                    self.intended_game(),
+                    cards,
+                    rng=self.rng,
+                )
         return self._ceiling
+
+    def set_neural_bidder(self, bidder: NeuralBidder) -> None:
+        """Attach one immutable bidding model; it may be shared by all seats."""
+        self.neural_bidder = bidder
 
     def bid(self, current_bid, offer: Optional[int] = None) -> int:
         """
@@ -92,6 +131,7 @@ class Agent(ABC):
     def new_round_event(self) -> None:
         """Called before dealing, for agents holding per-round state."""
         self._ceiling = None  # a new hand needs a new valuation
+        self.last_bidding_probability = None
 
     def trick_done_event(self, is_terminal) -> None:
         return

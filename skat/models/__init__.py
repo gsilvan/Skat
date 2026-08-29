@@ -1,6 +1,7 @@
 from typing import Any
 
 from .belief import BeliefNet
+from .bidding import BiddingNet
 from .card_transformer import CardTransformer
 from .observation import INPUT_SIZE, OUTPUT_SIZE
 from .policy import PolicyNet
@@ -29,6 +30,7 @@ __all__ = [
     "INPUT_SIZE",
     "OUTPUT_SIZE",
     "BeliefNet",
+    "BiddingNet",
     "CardTransformer",
     "PolicyNet",
     "QNet",

@@ -15,11 +15,16 @@ if TYPE_CHECKING:
 
 
 class CommandLineAgent(Agent):
-    def __init__(self, bidding: BiddingStyle = BiddingStyle.CONSERVATIVE) -> None:
-        super().__init__(bidding=bidding)
+    def __init__(
+        self,
+        bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
+        seed: int | None = None,
+    ) -> None:
+        super().__init__(bidding=bidding, seed=seed)
 
     def choose_card(self, valid_moves: set[Card]) -> Card:
-        print(f"choose one of {list(valid_moves)}:")
+        moves = sorted(valid_moves, key=lambda card: card.np_index)
+        print(f"choose one of {moves}:")
         index = None
         while index is None:
             user_input = input("index: ")
@@ -29,7 +34,7 @@ class CommandLineAgent(Agent):
                     index = _in
             except ValueError:
                 print("Error: index out of range!")
-        choice = list(valid_moves)[index]
+        choice = moves[index]
         self.state.hand.remove(choice)
         return choice
 

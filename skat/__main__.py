@@ -3,6 +3,7 @@ from typing import Optional
 
 from skat.agents.bidding import BiddingStyle
 from skat.game import Tournament
+from skat.utils.reproducibility import seed_everything
 
 
 def get_args():
@@ -156,6 +157,17 @@ def get_args():
         "`mcts` with its determinizations drawn from that belief rather than "
         "uniformly.",
     )
+    parser.add_argument(
+        "--bidding-model",
+        default="./trained_models/bidding.pt",
+        help="Checkpoint used by every seat whose -b{i} style is neural.",
+    )
+    parser.add_argument(
+        "--bidding-threshold",
+        type=float,
+        default=0.5,
+        help="Bid when the neural model predicts at least this win probability.",
+    )
     return parser.parse_args()
 
 
@@ -180,11 +192,21 @@ def get_player(
     policy_path: str = "./trained_models/policy.pt",
     policy_temperature: float = 0.0,
     belief_path: str = "./trained_models/belief.pt",
+    neural_bidder=None,
 ):
     from skat.agents.command_line import CommandLineAgent
     from skat.agents.dqn import DQNAgent
     from skat.agents.mcts import MCTSAgent, RecordingMCTSAgent
     from skat.agents.random import RandomAgent
+
+    def configure(agent):
+        if bidding is BiddingStyle.NEURAL:
+            if neural_bidder is None:
+                raise ValueError(
+                    "neural bidding needs --bidding-model or a NeuralBidder"
+                )
+            agent.set_neural_bidder(neural_bidder)
+        return agent
 
     def build(agent_class, **kwargs):
         """Construct `agent_class`, recording beliefs if asked to.
@@ -195,7 +217,7 @@ def get_player(
         decides which positions the corpus covers.
         """
         if belief_recorder is None:
-            return agent_class(**kwargs)
+            return configure(agent_class(**kwargs))
         from skat.agents.belief_recorder import BeliefRecorder
 
         recording = type(
@@ -203,13 +225,13 @@ def get_player(
             (BeliefRecorder, agent_class),
             {},
         )
-        return recording(recorder=belief_recorder, **kwargs)
+        return configure(recording(recorder=belief_recorder, **kwargs))
 
     match arg:
         case "random":
-            return build(RandomAgent, bidding=bidding)
+            return build(RandomAgent, bidding=bidding, seed=seed)
         case "cli":
-            return CommandLineAgent(bidding=bidding)
+            return configure(CommandLineAgent(bidding=bidding, seed=seed))
         case "mcts":
             options = {"simulations": simulations, "seed": seed, "bidding": bidding}
             if determinizations is not None:
@@ -246,18 +268,21 @@ def get_player(
                 bidding=bidding,
             )
         case "dqn":
-            return DQNAgent(
-                train=training,
-                path=path,
-                epsilon=epsilon,
-                epsilon_decay=epsilon_decay,
-                device=device,
-                batch_size=batch_size,
-                learn_start=learn_start,
-                buffer_size=buffer_size,
-                gamma=gamma,
-                arch=dqn_arch,
-                bidding=bidding,
+            return configure(
+                DQNAgent(
+                    train=training,
+                    path=path,
+                    epsilon=epsilon,
+                    epsilon_decay=epsilon_decay,
+                    device=device,
+                    batch_size=batch_size,
+                    learn_start=learn_start,
+                    buffer_size=buffer_size,
+                    gamma=gamma,
+                    arch=dqn_arch,
+                    bidding=bidding,
+                    seed=seed,
+                )
             )
         case _:
             raise Exception("Agent not found.")
@@ -279,11 +304,22 @@ def get_game(arg: Optional[int]):
 
 if __name__ == "__main__":
     args = get_args()
+    seed_everything(args.seed)
     rounds = args.rounds
     agent_args = [args.p0, args.p1, args.p2]
     train_args = [args.t0, args.t1, args.t2]
     path_args = [args.m0, args.m1, args.m2]
     bidding_args = [args.b0, args.b1, args.b2]
+
+    neural_bidder = None
+    if BiddingStyle.NEURAL in bidding_args:
+        from skat.agents.neural_bidding import NeuralBidder
+
+        neural_bidder = NeuralBidder(
+            args.bidding_model,
+            device=args.device,
+            threshold=args.bidding_threshold,
+        )
 
     recorder = None
     if args.record_mcts:
@@ -338,6 +374,7 @@ if __name__ == "__main__":
                 policy_path=args.policy,
                 policy_temperature=args.policy_temperature,
                 belief_path=args.belief,
+                neural_bidder=neural_bidder,
             )
         )
 
@@ -358,4 +395,11 @@ if __name__ == "__main__":
             recorder.close()
         if belief_recorder is not None:
             belief_recorder.close()
+        # DQN used to save only on exact target-network update boundaries, so
+        # the tail of every training run was silently lost.
+        for agent, training in zip(agents, train_args):
+            if training and hasattr(agent, "save"):
+                agent.save()
+            if hasattr(agent, "close"):
+                agent.close()
     print(t.summary())

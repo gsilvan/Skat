@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 
 import torch
@@ -35,8 +36,10 @@ class DQNAgent(HeuristicDeclarer, Agent):
         gamma=None,
         arch=None,
         bidding=BiddingStyle.CONSERVATIVE,
+        seed=None,
+        log_dir=None,
     ):
-        super().__init__(bidding=bidding)
+        super().__init__(bidding=bidding, seed=seed)
         # Only forward what was actually given - passing None through would
         # overwrite DQN's own defaults with it and blow up on first use.
         options = {
@@ -48,6 +51,8 @@ class DQNAgent(HeuristicDeclarer, Agent):
             "learn_start": learn_start,
             "buffer_size": buffer_size,
             "gamma": gamma,
+            "seed": seed,
+            "log_dir": os.path.join(log_dir, "optimizer") if log_dir else None,
         }
         if arch is not None:
             if arch not in DQN_ARCHITECTURES:
@@ -63,7 +68,9 @@ class DQNAgent(HeuristicDeclarer, Agent):
         self.initial_state: Optional[torch.Tensor] = None
         self.last_action: Optional[torch.Tensor] = None
         self.last_cumulative_reward: float = 0
-        self.writer = SummaryWriter()
+        self.writer = SummaryWriter(
+            log_dir=os.path.join(log_dir, "agent") if log_dir else None
+        )
         self.epoch = 0
 
     def _current_reward(self) -> float:
@@ -126,3 +133,11 @@ class DQNAgent(HeuristicDeclarer, Agent):
 
         # optimize model
         self.dqn.optimize_model()
+
+    def save(self) -> None:
+        self.dqn.save()
+
+    def close(self) -> None:
+        self.dqn.close()
+        self.writer.flush()
+        self.writer.close()

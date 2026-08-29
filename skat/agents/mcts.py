@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from random import Random
-
 from skat.agents import Agent
 from skat.agents.bidding import BiddingStyle, playable
 from skat.agents.declaring import HeuristicDeclarer
@@ -44,11 +42,10 @@ class MCTSAgent(HeuristicDeclarer, Agent):
         seed=None,
         bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
     ) -> None:
-        super().__init__(bidding=bidding)
+        super().__init__(bidding=bidding, seed=seed)
         self.simulations = simulations
         self.determinizations = determinizations
         self.exploration = exploration
-        self.rng = Random(seed)
 
     # ------------------------------------------------------------------ play
 
@@ -61,7 +58,7 @@ class MCTSAgent(HeuristicDeclarer, Agent):
 
     def search(self, valid_moves: set[Card]) -> Card:
         """Pick a card from `valid_moves` without mutating the hand."""
-        moves = list(valid_moves)
+        moves = sorted(valid_moves, key=lambda card: card.np_index)
         if len(moves) == 1:
             return moves[0]
         return self.best(moves, self.tally(moves))
@@ -181,7 +178,11 @@ class MCTSAgent(HeuristicDeclarer, Agent):
     def max_bid(self) -> int:
         """Pass outright on a hand not worth playing, whatever the style says."""
         assert self.state is not None
-        if not playable(set(self.state.hand)):
+        # NEURAL replaces this hand-written play/pass gate. Keeping both would
+        # censor exactly the weak-looking wins the model was introduced to find.
+        if self.bidding is not BiddingStyle.NEURAL and not playable(
+            set(self.state.hand)
+        ):
             return 0
         return super().max_bid()
 
@@ -213,7 +214,7 @@ class RecordingMCTSAgent(MCTSAgent):
         self.recorder.new_round()
 
     def search(self, valid_moves: set[Card]) -> Card:
-        moves = list(valid_moves)
+        moves = sorted(valid_moves, key=lambda card: card.np_index)
         if len(moves) == 1:
             # Forced, and never searched. A masked softmax over a single legal
             # card has probability 1 and gradient 0, so there is nothing here

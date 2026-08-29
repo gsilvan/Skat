@@ -1,5 +1,5 @@
-import random
 from collections import deque, namedtuple
+from random import Random
 
 # `next_mask` is the legal-move mask that belongs to `next_state`, and it is
 # what keeps the bootstrap honest: without it the target maxes over all 32
@@ -11,9 +11,10 @@ Transition = namedtuple(
 
 
 class ReplayBuffer:
-    def __init__(self, buffer_size: int = 1000) -> None:
+    def __init__(self, buffer_size: int = 1000, seed: int | None = None) -> None:
         """ReplayBuffer stores Transitions in a FIFO buffer."""
         self.buffer: deque[Transition] = deque([], maxlen=buffer_size)
+        self.rng = Random(seed)
 
     def push(self, **kwargs):
         """Add a transition to the buffer."""
@@ -21,7 +22,7 @@ class ReplayBuffer:
 
     def sample(self, batch_size: int):
         """Return a random sample from the buffer."""
-        return random.sample(self.buffer, batch_size)
+        return self.rng.sample(self.buffer, batch_size)
 
     def __len__(self):
         """Buffer size."""

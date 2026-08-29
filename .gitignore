@@ -148,6 +148,7 @@ internationale-skatordnung.md
 # Training artifacts and scraped corpora - regenerated, not source.
 runs/
 trained_models/
+benchmark_runs/
 data/
 skat/trained_models/
 tests/testfiles/skatstube/bulk/

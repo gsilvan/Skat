@@ -49,6 +49,9 @@ class BiddingStyle(Enum):
     OPTIMISTIC = "optimistic"
     #: Ignore the hand entirely and say any rung on the ladder.
     RANDOM = "random"
+    #: A trained win-probability model decides play/pass; a positive hand uses
+    #: the conservative ceiling so the classifier cannot cause an overbid.
+    NEURAL = "neural"
 
 
 def ceiling(

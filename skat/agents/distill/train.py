@@ -25,6 +25,7 @@ from skat.agents.distill.targets import (
 from skat.agents.rl.dqn import describe_device, resolve_device
 from skat.models import ARCHITECTURES
 from skat.models.policy import PolicyNet
+from skat.utils.reproducibility import seed_everything
 
 DEFAULT_OUT = "./trained_models/policy.pt"
 
@@ -185,6 +186,7 @@ def evaluate(
 
 def train(args) -> None:
     resolve(args)
+    seed_everything(args.seed)
     device = resolve_device(args.device)
     print(f"distill device: {describe_device(device)}")
 
@@ -276,6 +278,7 @@ def train(args) -> None:
         )
 
     writer.flush()
+    writer.close()
     print(f"best validation loss {best:.4f}, checkpoint at {args.out}")
 
 

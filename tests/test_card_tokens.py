@@ -13,7 +13,6 @@ restates them: importing `CardTransformer.STATUS_BLOCKS` would make this file
 agree with the tokeniser by construction and pin nothing at all.
 """
 
-import random
 import unittest
 
 import numpy as np
@@ -47,7 +46,7 @@ def make_round(hands, soloist=0, game=None, steps=0, dealer=0) -> Round:
         solo_player_id=soloist,
         hand_game=True,
         declare_game=game if game is not None else SuitGame(3),
-        agents=[RandomAgent() for _ in range(3)],
+        agents=[RandomAgent(seed=11) for _ in range(3)],
         start=False,
         initial_cards=[list(h) for h in hands],
     )
@@ -230,10 +229,8 @@ class SeatInvarianceTest(unittest.TestCase):
     one-checkpoint-for-three-seats premise stops at the network boundary."""
 
     def rotated(self, hands, soloist, dealer) -> Round:
-        # `RandomAgent` draws from the global RNG, so without re-seeding the
-        # three rotated rounds play different cards and the comparison would be
-        # between different positions rather than between different chairs.
-        random.seed(11)
+        # Each RandomAgent owns the same explicit stream, so the three rotated
+        # rounds compare relabelled chairs rather than unrelated random plays.
         return make_round(hands, soloist=soloist, dealer=dealer, steps=7)
 
     def test_a_relabelled_deal_gives_the_same_token_table(self) -> None:

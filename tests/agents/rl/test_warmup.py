@@ -25,6 +25,18 @@ class Zeros(torch.nn.Module):
         return torch.zeros((1, 32))
 
 
+class AlwaysExplore:
+    """Private-RNG stub that always takes the epsilon branch."""
+
+    @staticmethod
+    def random():
+        return 0.0
+
+    @staticmethod
+    def choice(values):
+        return values[0]
+
+
 def bare_dqn(learn_start: int = 10, batch_size: int = 4, **kwargs):
     """A DQN with no nets, no writer and no io - just the schedule fields."""
     dqn = dqn_module.DQN.__new__(dqn_module.DQN)
@@ -37,6 +49,7 @@ def bare_dqn(learn_start: int = 10, batch_size: int = 4, **kwargs):
     dqn.episode = 0
     dqn.learning = False
     dqn.device = torch.device("cpu")
+    dqn.rng = AlwaysExplore()
     for name, value in kwargs.items():
         setattr(dqn, name, value)
     return dqn
@@ -93,13 +106,6 @@ class WarmUpGateTest(unittest.TestCase):
 
 
 class ExplorationRateTest(unittest.TestCase):
-    def setUp(self) -> None:
-        # keep every explore=True call on the random branch, so these tests
-        # never need a network behind them
-        always_explore = patch.object(dqn_module.random, "random", return_value=0.0)
-        always_explore.start()
-        self.addCleanup(always_explore.stop)
-
     def test_it_is_flat_one_during_warm_up(self) -> None:
         dqn = bare_dqn(learn_start=10)
         fill(dqn, 9)

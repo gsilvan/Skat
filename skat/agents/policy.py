@@ -46,7 +46,7 @@ class PolicyAgent(HeuristicDeclarer, Agent):
         dropout: float = 0.1,
         bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
     ) -> None:
-        super().__init__(bidding=bidding)
+        super().__init__(bidding=bidding, seed=seed)
         self.device = resolve_device(device)
         if not os.path.exists(path):
             # `DQN` starts from a random init when its checkpoint is missing,
@@ -75,7 +75,7 @@ class PolicyAgent(HeuristicDeclarer, Agent):
 
     def select(self, valid_moves: set[Card]) -> Card:
         """Pick a card from `valid_moves` without mutating the hand."""
-        moves = list(valid_moves)
+        moves = sorted(valid_moves, key=lambda card: card.np_index)
         if len(moves) == 1:
             # Forced. The teacher never searched these and the corpus holds
             # none of them, so there is nothing to ask the network about.

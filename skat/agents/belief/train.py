@@ -28,6 +28,7 @@ from skat.agents.belief.samples import BeliefSamples, load_belief_shards
 from skat.agents.distill.train import _generator, batches, split_by_group, warmup_cosine
 from skat.agents.rl.dqn import describe_device, resolve_device
 from skat.models.belief import BeliefNet
+from skat.utils.reproducibility import seed_everything
 
 DEFAULT_OUT = "./trained_models/belief.pt"
 
@@ -64,6 +65,7 @@ def evaluate(
 
 
 def train(args) -> None:
+    seed_everything(args.seed)
     device = resolve_device(args.device)
     print(f"belief device: {describe_device(device)}")
 
@@ -135,6 +137,7 @@ def train(args) -> None:
         )
 
     writer.flush()
+    writer.close()
     print(f"best validation loss {best:.4f}, checkpoint at {args.out}")
 
 

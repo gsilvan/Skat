@@ -1,5 +1,3 @@
-import random
-
 import skat.models
 from skat.agents import Agent
 from skat.agents.bidding import BiddingStyle
@@ -13,8 +11,9 @@ class DeepAgent(Agent):
         bidding_model=None,
         play_model=None,
         bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
+        seed: int | None = None,
     ):
-        super().__init__(bidding=bidding)
+        super().__init__(bidding=bidding, seed=seed)
         self.model = play_model
 
     def choose_card(self, valid_moves: set[Card]) -> Card:
@@ -22,7 +21,8 @@ class DeepAgent(Agent):
             self.model = self.__create_model(
                 phase=None, declared_game=None, solo_player=True
             )
-        return random.choice(list(valid_moves))  # TODO: select card from model
+        moves = sorted(valid_moves, key=lambda card: card.np_index)
+        return self.rng.choice(moves)  # TODO: select card from model
 
     def pickup_skat(self, state) -> bool:
         pass

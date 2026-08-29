@@ -1,7 +1,7 @@
 import os
-import random
 import sys
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
+from random import Random
 
 import torch
 import torch.nn.functional as F
@@ -126,6 +126,8 @@ class DQN:
         model=skat.models.QNet,
         model_kwargs: dict | None = None,
         model_path: str = DEFAULT_MODEL_PATH,
+        seed: int | None = None,
+        log_dir: str | None = None,
     ) -> None:
         # "auto", "cpu", "cuda", "cuda:1", ... - see resolve_device
         self.device = resolve_device(device)
@@ -160,10 +162,20 @@ class DQN:
         self.target_update = target_update
         self.learning_rate = learning_rate
 
-        # Networks
+        self.seed = seed
+        self.rng = Random(seed)
+
+        # Networks.  fork_rng makes construction reproducible without changing
+        # the torch stream owned by another agent in the same tournament.
         model_kwargs = dict(model_kwargs or {})
-        self.policy_net = model(**model_kwargs).to(self.device)
-        self.target_net = model(**model_kwargs).to(self.device)
+        init_context = (
+            torch.random.fork_rng(devices=[]) if seed is not None else nullcontext()
+        )
+        with init_context:
+            if seed is not None:
+                torch.manual_seed(seed)
+            self.policy_net = model(**model_kwargs).to(self.device)
+            self.target_net = model(**model_kwargs).to(self.device)
         print(
             f"DQN model: {model.__name__} "
             f"({sum(p.numel() for p in self.policy_net.parameters())} parameters)"
@@ -174,7 +186,9 @@ class DQN:
         if os.path.exists(self.model_path):
             # the resolved device, not the raw spec: map_location has no idea
             # what "auto" means and refuses to restore the storages
-            existing_model = torch.load(self.model_path, map_location=self.device)
+            existing_model = torch.load(
+                self.model_path, map_location=self.device, weights_only=True
+            )
             try:
                 self.policy_net.load_state_dict(existing_model)
             except RuntimeError as mismatch:
@@ -198,15 +212,16 @@ class DQN:
         )
 
         # buffer
-        self.replay_buffer = ReplayBuffer(buffer_size=self.buffer_size)
+        self.replay_buffer = ReplayBuffer(buffer_size=self.buffer_size, seed=seed)
 
         # step counter
         self.episode = 0
+        self.gradient_steps = 0
         # latched by the first gradient step, so the announcement happens once
         self.learning = False
 
         # tensorboard
-        self.writer = SummaryWriter()
+        self.writer = SummaryWriter(log_dir=log_dir)
 
     @property
     def warming_up(self) -> bool:
@@ -245,9 +260,9 @@ class DQN:
         valid_actions = valid_actions.to(self.device)
 
         action = torch.zeros((1, 32), dtype=torch.long)
-        if explore and random.random() <= rate:
+        if explore and self.rng.random() <= rate:
             # select with epsilon probability a random action
-            action[0][random.choice(valid_indices)] = 1
+            action[0][self.rng.choice(valid_indices)] = 1
             return action
         else:
             # select with (1-epsilon) probability a greedy argmax action
@@ -340,6 +355,7 @@ class DQN:
         for param in self.policy_net.parameters():
             param.grad.data.clamp_(-1, 1)
         self.optimizer.step()
+        self.gradient_steps += 1
 
         # Update the target net
         if self.episode % self.target_update == 0:
@@ -349,7 +365,18 @@ class DQN:
             self.target_net.load_state_dict(self.policy_net.state_dict())
             # if not os.path.exists(self.model_path):
             #     os.mkdir(self.model_path)
-            torch.save(self.policy_net.state_dict(), self.model_path)
+            self.save()
 
         if self.episode % 2222 == 0:
             pass
+
+    def save(self) -> None:
+        """Persist the current policy, including the tail after the last update."""
+        directory = os.path.dirname(self.model_path)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
+        torch.save(self.policy_net.state_dict(), self.model_path)
+
+    def close(self) -> None:
+        self.writer.flush()
+        self.writer.close()

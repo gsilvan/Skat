@@ -149,7 +149,10 @@ class ShardWriter:
         }
         # Which search settings produced this - the difference between a corpus
         # worth keeping and a mystery directory six months from now.
-        arrays.update({k: np.int32(v) for k, v in self.provenance.items()})
+        # Seeds are derived from SHA-256 and intentionally span uint32.  A
+        # signed int32 overflows for roughly half of that range (e.g. seed
+        # 2522612516), aborting an otherwise completed collection run.
+        arrays.update({k: np.int64(v) for k, v in self.provenance.items()})
         np.savez_compressed(path, **arrays)
         self.written += len(self._states)
         self.shards += 1
