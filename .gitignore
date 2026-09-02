@@ -152,3 +152,10 @@ benchmark_runs/
 data/
 skat/trained_models/
 tests/testfiles/skatstube/bulk/
+
+# Local web UI artifacts. The Skatstube sprite is intentionally not tracked:
+# its redistribution rights are unclear, and the UI has a CSS fallback.
+web/node_modules/
+web/dist/
+web/public/cards/*.png
+!web/public/cards/.gitkeep

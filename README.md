@@ -20,6 +20,32 @@ repository and install it locally:
     cd Skat
     uv sync
 
+## Local web GUI
+
+The Flask/React interface supports a human against two selectable agents and a
+spectator table with three automated agents. Bidding, skat pickup, pressing,
+declaration and card play all stay inside the existing Python game engine.
+
+```bash
+# One-time frontend setup and production build.
+cd web
+npm install
+npm run build
+cd ..
+
+# Flask serves the built UI locally at http://127.0.0.1:5000.
+uv run python -m skat.web
+```
+
+For frontend development, run `uv run python -m skat.web` and `npm run dev`
+from `web/` in separate terminals, then open `http://127.0.0.1:5173`.
+
+The UI includes a self-rendered fallback deck. The optional Skatstube sprite
+requested for local use can be downloaded with `./web/scripts/fetch-cards.sh`.
+Its redistribution rights are unclear, so the PNG is deliberately ignored by
+Git and must not be committed. The card renderer is isolated so it can later be
+replaced by an original or clearly licensed deck.
+
 ## Reproducible agent benchmark
 
 The benchmark trains every supported trainable agent family, evaluates all
