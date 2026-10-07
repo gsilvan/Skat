@@ -34,6 +34,12 @@ function HandView({
         <strong>{player.label}</strong>
         {player.soloist && <span className="role-pill">Solist</span>}
         <span>{player.points} Augen</span>
+        {player.biddingProbability !== null && (
+          <span title={player.biddingScores ? JSON.stringify(player.biddingScores) : undefined}>
+            Reiztest {(player.biddingProbability * 100).toFixed(0)}%
+            {player.biddingGame ? ` · ${player.biddingGame}` : ""}
+          </span>
+        )}
       </div>
       <div className="hand">
         {player.hand.length

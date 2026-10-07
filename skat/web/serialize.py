@@ -76,6 +76,8 @@ def snapshot(session) -> dict[str, Any]:
                 "biddingProbability": getattr(
                     delegate, "last_bidding_probability", None
                 ),
+                "biddingGame": getattr(delegate, "last_bidding_game", None),
+                "biddingScores": getattr(delegate, "last_bidding_scores", None),
             }
         )
 

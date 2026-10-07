@@ -168,6 +168,37 @@ def get_args():
         default=0.5,
         help="Bid when the neural model predicts at least this win probability.",
     )
+    parser.add_argument(
+        "--mcts-bidding-simulations",
+        type=int,
+        default=None,
+        help="UCT playouts per candidate game for -b{i} mcts (default: 600).",
+    )
+    parser.add_argument(
+        "--mcts-bidding-determinizations",
+        type=int,
+        default=None,
+        help="Unknown worlds shared by the five candidate games (default: 20).",
+    )
+    parser.add_argument(
+        "--mcts-bidding-confirmation-simulations",
+        type=int,
+        default=None,
+        help="UCT playouts for the independent best-game check (default: 1200).",
+    )
+    parser.add_argument(
+        "--mcts-bidding-confirmation-determinizations",
+        type=int,
+        default=None,
+        help="Fresh worlds in the independent best-game check (default: 40).",
+    )
+    parser.add_argument(
+        "--mcts-bidding-threshold",
+        type=float,
+        default=None,
+        help="Bid when the confirmed MCTS win probability reaches this value "
+        "(default: 0.65).",
+    )
     return parser.parse_args()
 
 
@@ -193,6 +224,12 @@ def get_player(
     policy_temperature: float = 0.0,
     belief_path: str = "./trained_models/belief.pt",
     neural_bidder=None,
+    mcts_bidder=None,
+    mcts_bidding_simulations: int | None = None,
+    mcts_bidding_determinizations: int | None = None,
+    mcts_bidding_confirmation_simulations: int | None = None,
+    mcts_bidding_confirmation_determinizations: int | None = None,
+    mcts_bidding_threshold: float | None = None,
 ):
     from skat.agents.command_line import CommandLineAgent
     from skat.agents.dqn import DQNAgent
@@ -206,6 +243,33 @@ def get_player(
                     "neural bidding needs --bidding-model or a NeuralBidder"
                 )
             agent.set_neural_bidder(neural_bidder)
+        if bidding is BiddingStyle.MCTS:
+            bidder = mcts_bidder
+            if bidder is None:
+                from skat.agents.mcts_bidding import MCTSBidder
+
+                # Keep bidding search reproducible without coupling it to the
+                # card-playing agent's private RNG stream.
+                bidder_seed = None if seed is None else seed ^ 0x4D435453
+                options = {"seed": bidder_seed}
+                configured = {
+                    "simulations": mcts_bidding_simulations,
+                    "determinizations": mcts_bidding_determinizations,
+                    "confirmation_simulations": (mcts_bidding_confirmation_simulations),
+                    "confirmation_determinizations": (
+                        mcts_bidding_confirmation_determinizations
+                    ),
+                    "threshold": mcts_bidding_threshold,
+                }
+                options.update(
+                    {
+                        name: value
+                        for name, value in configured.items()
+                        if value is not None
+                    }
+                )
+                bidder = MCTSBidder(**options)
+            agent.set_mcts_bidder(bidder)
         return agent
 
     def build(agent_class, **kwargs):
@@ -375,6 +439,15 @@ if __name__ == "__main__":
                 policy_temperature=args.policy_temperature,
                 belief_path=args.belief,
                 neural_bidder=neural_bidder,
+                mcts_bidding_simulations=args.mcts_bidding_simulations,
+                mcts_bidding_determinizations=args.mcts_bidding_determinizations,
+                mcts_bidding_confirmation_simulations=(
+                    args.mcts_bidding_confirmation_simulations
+                ),
+                mcts_bidding_confirmation_determinizations=(
+                    args.mcts_bidding_confirmation_determinizations
+                ),
+                mcts_bidding_threshold=args.mcts_bidding_threshold,
             )
         )
 

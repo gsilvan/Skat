@@ -142,9 +142,9 @@ export default function Setup(props: Props) {
                   </label>
                 )}
 
-                {seat.bidding === "neural" && seat.kind !== "human" && (
+                {(seat.bidding === "neural" || seat.bidding === "mcts") && seat.kind !== "human" && (
                   <label>
-                    Schwelle
+                    {seat.bidding === "mcts" ? "MCTS-Schwelle" : "Schwelle"}
                     <input
                       type="number"
                       min="0"

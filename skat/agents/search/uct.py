@@ -76,11 +76,14 @@ def uct_search(
     iterations: int,
     rng: Random,
     exploration: float = DEFAULT_EXPLORATION,
+    outcome_only: bool = False,
 ) -> dict[Card, tuple[int, float]]:
     """
     Run `iterations` UCT playouts on the perfect-information `state` and report
     `{move: (visits, value_sum)}` for the root's moves, valued from the
-    perspective of the seat to move at the root.
+    perspective of the seat to move at the root. `outcome_only` replaces the
+    normal point-shaped reward with a strict party win/loss; bidding uses it to
+    estimate a probability rather than a card-point utility.
     """
     root = Node(to_move=state.to_move, untried=state.legal_moves())
     for _ in range(iterations):
@@ -105,7 +108,7 @@ def uct_search(
             sim.apply(moves[rng.randrange(len(moves))])
 
         # backpropagation
-        rewards = sim.rewards()
+        rewards = sim.outcome_rewards() if outcome_only else sim.rewards()
         current: Optional[Node] = node
         while current is not None:
             current.visits += 1

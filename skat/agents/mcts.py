@@ -180,7 +180,8 @@ class MCTSAgent(HeuristicDeclarer, Agent):
         assert self.state is not None
         # NEURAL replaces this hand-written play/pass gate. Keeping both would
         # censor exactly the weak-looking wins the model was introduced to find.
-        if self.bidding is not BiddingStyle.NEURAL and not playable(
+        learned_or_searched = {BiddingStyle.NEURAL, BiddingStyle.MCTS}
+        if self.bidding not in learned_or_searched and not playable(
             set(self.state.hand)
         ):
             return 0

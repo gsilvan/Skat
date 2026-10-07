@@ -16,6 +16,7 @@ from skat.games import Game
 from skat.player import Player
 
 if TYPE_CHECKING:
+    from skat.agents.mcts_bidding import MCTSBidder
     from skat.agents.neural_bidding import NeuralBidder
 
 
@@ -35,8 +36,12 @@ class Agent(ABC):
         self.bidding = bidding
         self.rng = Random(seed)
         self._ceiling: Optional[int] = None
+        self._bidding_game: Game | None = None
         self.neural_bidder: Optional[NeuralBidder] = None
+        self.mcts_bidder: MCTSBidder | None = None
         self.last_bidding_probability: Optional[float] = None
+        self.last_bidding_game: str | None = None
+        self.last_bidding_scores: dict[str, float] | None = None
 
     @abstractmethod
     def choose_card(self, valid_moves: set[Card]) -> Card:
@@ -65,6 +70,8 @@ class Agent(ABC):
         """
         if self.state is None:
             raise Exception("Can't value a hand without having a state.")
+        if self._bidding_game is not None:
+            return self._bidding_game
         return best_game(set(self.state.hand))
 
     def max_bid(self) -> int:
@@ -94,6 +101,29 @@ class Agent(ABC):
                     self._ceiling = ceiling(
                         BiddingStyle.CONSERVATIVE, self.intended_game(), cards
                     )
+            elif self.bidding is BiddingStyle.MCTS:
+                if self.mcts_bidder is None:
+                    raise RuntimeError(
+                        "BiddingStyle.MCTS requires an attached MCTSBidder."
+                    )
+                round_ = self.state.public_state
+                if round_ is None:
+                    raise RuntimeError("MCTS bidding requires a seated round")
+                result = self.mcts_bidder.evaluate(
+                    cards, self.state.seat_id, round_.dealer
+                )
+                from skat.agents.mcts_bidding import game_key
+
+                self._bidding_game = result.game
+                self.last_bidding_probability = result.confirmation_probability
+                self.last_bidding_game = game_key(result.game)
+                self.last_bidding_scores = result.candidate_probabilities
+                if result.confirmation_probability < self.mcts_bidder.threshold:
+                    self._ceiling = 0
+                else:
+                    self._ceiling = ceiling(
+                        BiddingStyle.CONSERVATIVE, result.game, cards
+                    )
             else:
                 self._ceiling = ceiling(
                     self.bidding,
@@ -106,6 +136,10 @@ class Agent(ABC):
     def set_neural_bidder(self, bidder: NeuralBidder) -> None:
         """Attach one immutable bidding model; it may be shared by all seats."""
         self.neural_bidder = bidder
+
+    def set_mcts_bidder(self, bidder: MCTSBidder) -> None:
+        """Attach the stateful, privately seeded search bidder for this seat."""
+        self.mcts_bidder = bidder
 
     def bid(self, current_bid, offer: Optional[int] = None) -> int:
         """
@@ -131,7 +165,10 @@ class Agent(ABC):
     def new_round_event(self) -> None:
         """Called before dealing, for agents holding per-round state."""
         self._ceiling = None  # a new hand needs a new valuation
+        self._bidding_game = None
         self.last_bidding_probability = None
+        self.last_bidding_game = None
+        self.last_bidding_scores = None
 
     def trick_done_event(self, is_terminal) -> None:
         return

@@ -15,6 +15,13 @@ def wait_for(client, session_id, predicate, timeout=3.0):
     raise AssertionError(f"session did not reach expected state: {state}")
 
 
+def test_config_lists_every_bidding_style():
+    response = create_app().test_client().get("/api/config")
+
+    assert response.status_code == 200
+    assert "mcts" in response.get_json()["biddingStyles"]
+
+
 def test_random_observer_round_completes_and_serializes_the_table():
     client = create_app().test_client()
     response = client.post(

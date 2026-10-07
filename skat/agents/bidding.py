@@ -52,6 +52,9 @@ class BiddingStyle(Enum):
     #: A trained win-probability model decides play/pass; a positive hand uses
     #: the conservative ceiling so the classifier cannot cause an overbid.
     NEURAL = "neural"
+    #: Counterfactual UCT evaluates all four suit games and grand, confirms the
+    #: best one on fresh worlds, and bids only above a win-rate threshold.
+    MCTS = "mcts"
 
 
 def ceiling(

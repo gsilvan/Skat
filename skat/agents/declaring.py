@@ -13,6 +13,7 @@ trainable unattended.
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Optional
 
 from skat.agents.bidding import aces, best_game, covering_game, trump_count
@@ -38,10 +39,18 @@ class HeuristicDeclarer:
     def intended_game(self) -> Game:
         """The game we expect to declare, used to value the hand while bidding."""
         assert self.state is not None
+        bidding_game = getattr(self, "_bidding_game", None)
+        if bidding_game is not None:
+            return bidding_game
         return best_game(set(self.state.hand))
 
     def pickup_skat(self, state) -> bool:
         assert self.state is not None
+        if getattr(self, "_bidding_game", None) is not None:
+            # The MCTS bidder evaluated the game after taking the skat and
+            # pressing two cards. Serving a hand game here would invalidate
+            # exactly the counterfactual it used to decide whether to bid.
+            return True
         cards = set(self.state.hand)
         game = best_game(cards)
         # Two extra cards beat the hand-game multiplier unless the hand already
@@ -60,20 +69,16 @@ class HeuristicDeclarer:
         cheaper suit and turn a bid we could afford into an overbid.
         """
         round_ = self.state.public_state if self.state else None
+        bidding_game = getattr(self, "_bidding_game", None)
+        if bidding_game is not None:
+            return bidding_game
         return covering_game(cards, round_.highest_bid if round_ else 0)
 
     def press_skat(self) -> list[Card]:
         assert self.state is not None
         hand = self.state.hand
         game = self.declaration(set(hand))
-        trumps = set(game.trump_cards(game.suit))
-        candidates = [card for card in hand if card not in trumps] or list(hand)
-        lengths = Counter(card.suit for card in candidates)
-        # Never an ace if avoidable; then prefer the shortest suit (a void lets
-        # us trump in), and inside it the fattest card — its points are safe in
-        # the skat rather than at risk on the table.
-        candidates.sort(key=lambda c: (c.rank == "A", lengths[c.suit], -c.value))
-        pressed = candidates[:2]
+        pressed = press_for_game(hand, game)
         for card in pressed:
             hand.remove(card)
         return pressed
@@ -87,3 +92,22 @@ class HeuristicDeclarer:
             return self.intended_game()
         # Same twelve cards `press_skat` weighed up, so the two agree.
         return self.declaration(set(self.state.hand) | set(round_.skat))
+
+
+def press_for_game(cards: Iterable[Card], game: Game) -> list[Card]:
+    """Choose two cards to press for one already fixed suit/grand game."""
+    trumps = set(game.trump_cards(game.suit))
+    candidates = [card for card in cards if card not in trumps] or list(cards)
+    lengths = Counter(card.suit for card in candidates)
+    # Never an ace if avoidable; then prefer the shortest suit (a void lets us
+    # trump in), and inside it the fattest card. The final card index makes
+    # ties deterministic even when `cards` came from a set.
+    candidates.sort(
+        key=lambda card: (
+            card.rank == "A",
+            lengths[card.suit],
+            -card.value,
+            card.np_index,
+        )
+    )
+    return candidates[:2]

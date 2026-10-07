@@ -134,6 +134,19 @@ class Tournament:
             if players is not None
             else [None, None, None]
         )
+        bidding_games = (
+            [getattr(player.strategy, "last_bidding_game", None) for player in players]
+            if players is not None
+            else [None, None, None]
+        )
+        bidding_scores = (
+            [
+                getattr(player.strategy, "last_bidding_scores", None)
+                for player in players
+            ]
+            if players is not None
+            else [None, None, None]
+        )
         self.round_records.append(
             {
                 "round": round_index,
@@ -151,6 +164,8 @@ class Tournament:
                 "points_soloist": round_.points_soloist,
                 "points_defenders": round_.points_defenders,
                 "bidding_probabilities": bidding_probabilities,
+                "bidding_games": bidding_games,
+                "bidding_scores": bidding_scores,
             }
         )
         if soloist_won is None:

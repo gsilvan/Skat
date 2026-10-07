@@ -47,6 +47,15 @@ class UctSearchTest(unittest.TestCase):
         self.assertGreater(trumped[1] / trumped[0], 0.9)
         self.assertLess(discarded[1] / discarded[0], 0.1)
 
+    def test_can_report_strict_win_probabilities_for_bidding(self) -> None:
+        stats = uct_search(
+            self.endgame(), iterations=60, rng=Random(0), outcome_only=True
+        )
+        trumped = stats[card("♣", "7")]
+        discarded = stats[card("♥", "7")]
+        self.assertEqual(1.0, trumped[1] / trumped[0])
+        self.assertEqual(0.0, discarded[1] / discarded[0])
+
     def test_spends_more_visits_on_the_better_move(self) -> None:
         stats = uct_search(self.endgame(), iterations=200, rng=Random(0))
         self.assertGreater(stats[card("♣", "7")][0], stats[card("♥", "7")][0])

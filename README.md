@@ -141,3 +141,36 @@ the bid ladder. An accepted hand therefore keeps the conservative ceiling and
 cannot overbid because of the classifier. Different risk modes are thresholds
 on the same probability model, so they can be compared without confounding the
 result with separately initialized networks.
+
+## MCTS bidding
+
+`-b{i} mcts` evaluates Karo, Herz, Pik, Kreuz and Grand before entering the
+auction. It samples possible defender hands and skat cards, takes and presses
+the skat for each fixed candidate, and uses binary win/loss UCT searches to
+estimate its solo win rate. All five candidates share the first set of worlds;
+the best game is then tested again on fresh worlds. The default confirmation
+threshold is 65%.
+
+```bash
+uv run python -m skat --rounds 1000 --seed 42 \
+  -p0 policy -p1 policy -p2 policy -b0 mcts \
+  --policy trained_models/policy.pt \
+  --mcts-bidding-threshold 0.65
+```
+
+The defaults spend 600 playouts over 20 worlds on each candidate, followed by
+1,200 playouts over 40 fresh confirmation worlds. The cost and confidence can
+be controlled independently:
+
+```bash
+--mcts-bidding-simulations 600 \
+--mcts-bidding-determinizations 20 \
+--mcts-bidding-confirmation-simulations 1200 \
+--mcts-bidding-confirmation-determinizations 40
+```
+
+Once accepted, the selected game is kept through pickup, pressing and
+declaration. Its conservative Spielwert ceiling is used, so the search changes
+which games are attempted without introducing overbids. Null is deliberately
+not considered: its objective and declaration values need a separate
+loss-of-trick model rather than the point-game comparison requested here.

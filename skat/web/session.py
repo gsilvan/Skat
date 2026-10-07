@@ -123,6 +123,7 @@ class GameSession:
             policy_temperature=float(config.get("temperature", 0.0)),
             belief_path=path or "./trained_models/belief.pt",
             neural_bidder=neural_bidder,
+            mcts_bidding_threshold=float(config.get("biddingThreshold", 0.65)),
         )
         if agent is None:
             raise ValueError(f"could not construct agent {kind!r}")

@@ -40,6 +40,8 @@ export type PlayerState = {
   points: number;
   soloist: boolean;
   biddingProbability: number | null;
+  biddingGame: string | null;
+  biddingScores: Record<string, number> | null;
 };
 
 export type TrickCard = { seat: number; card: CardData };

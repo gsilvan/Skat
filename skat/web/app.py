@@ -7,6 +7,8 @@ from typing import Any
 from flask import Flask, jsonify, request, send_from_directory
 from flask_sock import Sock
 
+from skat.agents.bidding import BiddingStyle
+
 from .session import AGENT_KINDS, SessionRegistry, discover_checkpoints
 
 
@@ -40,13 +42,7 @@ def create_app(*, registry: SessionRegistry | None = None) -> Flask:
         return jsonify(
             {
                 "agents": list(AGENT_KINDS),
-                "biddingStyles": [
-                    "conservative",
-                    "nominal",
-                    "optimistic",
-                    "random",
-                    "neural",
-                ],
+                "biddingStyles": [style.value for style in BiddingStyle],
                 "checkpoints": checkpoints,
                 "spriteAvailable": (
                     root / "web" / "public" / "cards" / "skatstube-g1@2x.png"

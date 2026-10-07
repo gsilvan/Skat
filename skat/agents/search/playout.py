@@ -113,6 +113,18 @@ class PlayoutState:
             for seat in range(3)
         )
 
+    def outcome_rewards(self) -> tuple[float, float, float]:
+        """Binary party win used when search estimates a win probability."""
+        if self.is_null:
+            soloist_won = not self.soloist_took_trick
+        else:
+            soloist_won = self.points[self.soloist] > 60
+        soloist_value = float(soloist_won)
+        return tuple(  # type: ignore[return-value]
+            soloist_value if seat == self.soloist else 1.0 - soloist_value
+            for seat in range(3)
+        )
+
     def _forced(self) -> frozenset:
         """
         `Trick.forced_cards` is a (slow) pure function of the trick's lead card

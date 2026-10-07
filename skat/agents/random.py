@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from skat.agents import Agent
 from skat.agents.bidding import BiddingStyle
+from skat.agents.declaring import press_for_game
 from skat.card import Card
 from skat.games.suit import SuitGame
 
@@ -38,19 +39,28 @@ class RandomAgent(Agent):
         self.game = SuitGame(self.rng.randint(0, 3))
 
     def intended_game(self) -> Game:
+        if self._bidding_game is not None:
+            return self._bidding_game
         return self.game
 
     def declare_game(self, state) -> Game:
         """Random Agent declares games equal distributed"""
-        return self.game
+        return self._bidding_game or self.game
 
     def pickup_skat(self, state) -> bool:
         """Random Agent selects skats equal distributed"""
+        if self._bidding_game is not None:
+            return True
         return bool(self.rng.getrandbits(1))
 
     def press_skat(self) -> list[Card]:
         if self.state is None:
             raise Exception("Can't choose a card without having a state.")
+        if self._bidding_game is not None:
+            pressed = press_for_game(self.state.hand, self._bidding_game)
+            for card in pressed:
+                self.state.hand.remove(card)
+            return pressed
         skat = list()
         for i in range(2):
             skat.append(self.state.hand.pop(self.rng.randint(0, 11 - i)))
