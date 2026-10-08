@@ -9,6 +9,7 @@ import torch.optim
 from torch.utils.tensorboard import SummaryWriter
 
 import skat.models
+from skat.models.observation import OBSERVATION_SCHEMA, validate_observation_schema
 from skat.rewards import REWARD_OBJECTIVE
 
 from .buffer import ReplayBuffer, Transition
@@ -211,6 +212,9 @@ class DQN:
                         f"{self.model_path} uses the old reward objective. "
                         "Keep it as a baseline and train win-first DQN at a fresh -m path."
                     )
+                validate_observation_schema(
+                    existing_model.get("observation_schema"), self.model_path
+                )
                 existing_model = existing_model["state_dict"]
             try:
                 self.policy_net.load_state_dict(existing_model)
@@ -444,7 +448,11 @@ class DQN:
             os.makedirs(directory, exist_ok=True)
         payload = self.policy_net.state_dict()
         if self.result_priority:
-            payload = {"objective": REWARD_OBJECTIVE, "state_dict": payload}
+            payload = {
+                "objective": REWARD_OBJECTIVE,
+                "observation_schema": OBSERVATION_SCHEMA,
+                "state_dict": payload,
+            }
         torch.save(payload, self.model_path)
 
     def close(self) -> None:

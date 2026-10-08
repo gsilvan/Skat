@@ -1,5 +1,9 @@
 # Win-first card-play objective
 
+> These historical measurements predate the hidden-skat observation fix and
+> must not be treated as fair baselines for `skat-observer-points-v2` agents.
+> Old policy/belief corpora require recollection; legacy model loading warns.
+
 MCTS now scores win/loss alone until either party has secured victory at the
 search root. This decision is frozen through every cloned rollout: a simulated
 future bonus cannot compensate for a reduced current win probability. After

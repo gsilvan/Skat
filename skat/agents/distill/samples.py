@@ -8,6 +8,7 @@ import numpy as np
 import torch
 
 from skat.card import Card
+from skat.models.observation import OBSERVATION_SCHEMA, validate_observation_schema
 from skat.rewards import MCTS_TIEBREAK_OBJECTIVE
 
 #: Bumped whenever the array layout below changes in a way a reader cannot
@@ -166,6 +167,7 @@ class ShardWriter:
                 for k, v in self.provenance.items()
             }
         )
+        arrays["observation_schema"] = np.asarray(OBSERVATION_SCHEMA)
         np.savez_compressed(path, **arrays)
         self.written += len(self._states)
         self.shards += 1
@@ -222,7 +224,9 @@ def load_shards(
             )
             objectives.add(objective)
             if objective == MCTS_TIEBREAK_OBJECTIVE and "bonuses" not in shard:
-                raise RuntimeError(f"{path} declares tie-breaking but has no bonus sums")
+                raise RuntimeError(
+                    f"{path} declares tie-breaking but has no bonus sums"
+                )
             if len(objectives) > 1:
                 raise RuntimeError(
                     "Mixed reward objectives in corpus; keep old and win-first shards in separate directories."
@@ -240,6 +244,12 @@ def load_shards(
                     f"expects {input_size}. `Round.get_state` changed shape "
                     "since this was collected, which retires it - recollect."
                 )
+            validate_observation_schema(
+                str(shard["observation_schema"])
+                if "observation_schema" in shard
+                else None,
+                path,
+            )
             states.append(shard["states"])
             visits.append(shard["visits"])
             values.append(shard["values"])

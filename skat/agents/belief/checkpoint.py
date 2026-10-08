@@ -6,6 +6,7 @@ from typing import Any
 import torch
 
 from skat.models.belief import BeliefNet
+from skat.models.observation import OBSERVATION_SCHEMA, validate_observation_schema
 
 #: Distinct from `skat-policy-v1` on purpose. A `BeliefNet` is a subclass of
 #: `CardTransformer` and its checkpoint is the same shape everywhere except the
@@ -23,6 +24,7 @@ def save_belief(path: str, net: BeliefNet, meta: dict | None = None) -> None:
     torch.save(
         {
             "format": BELIEF_FORMAT,
+            "observation_schema": OBSERVATION_SCHEMA,
             "input_size": net.INPUT_SIZE,
             "locations": net.LOCATIONS,
             "state_dict": net.state_dict(),
@@ -51,6 +53,7 @@ def load_belief(
             f"`Round.get_state` is now {BeliefNet.INPUT_SIZE} wide. The "
             "checkpoint is retired - retrain."
         )
+    validate_observation_schema(blob.get("observation_schema"), path, allow_legacy=True)
     net = BeliefNet(dropout=dropout).to(device)
     net.load_state_dict(blob["state_dict"])
     return net, blob.get("meta", {})

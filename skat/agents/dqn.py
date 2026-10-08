@@ -89,12 +89,20 @@ class DQNAgent(HeuristicDeclarer, Agent):
 
         valid_actions = Hand(tuple(valid_actions)).as_tensor_mask
 
+        known_overbid = self.state.public_state.observer_overbid(self.state.seat_id)
+        # An uncertain overbid cannot invalidate a defender's 60 public points,
+        # but it can still invalidate a soloist's apparent point victory.
+        allow_bonus = known_overbid is False or (
+            known_overbid is None
+            and self.state.seat_id != self.state.public_state.solo_player_id
+        )
+
         # get a prediction
         prediction = self.dqn.select_action(
             self.initial_state,
             valid_actions,
             explore=self.train,
-            allow_bonus=not self.state.public_state.overbid,
+            allow_bonus=allow_bonus,
         )
         self.last_action = prediction
         choice = FULL_HAND[int(prediction.argmax())]

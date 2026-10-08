@@ -68,31 +68,21 @@ def test_bonus_cannot_buy_a_lower_win_prediction(tmp_path, points, solo, expecte
 
 
 def test_bonus_gate_reads_real_egocentric_observations():
-    from unittest.mock import PropertyMock, patch
+    from unittest.mock import patch
 
     from skat.game import Round
     from skat.games.suit import SuitGame
 
     round_ = Round(start=False, solo_player_id=0, declare_game=SuitGame(3))
-    with (
-        patch.object(
-            Round, "points_soloist", new_callable=PropertyMock, return_value=61
-        ),
-        patch.object(
-            Round, "points_defenders", new_callable=PropertyMock, return_value=59
-        ),
+    with patch.object(
+        Round,
+        "observer_points",
+        side_effect=lambda seat: (61, 59) if seat == 0 else (59, 61),
     ):
         assert [
             secured_victory(round_.get_state_t(seat)).item() for seat in range(3)
         ] == [True, False, False]
-    with (
-        patch.object(
-            Round, "points_soloist", new_callable=PropertyMock, return_value=60
-        ),
-        patch.object(
-            Round, "points_defenders", new_callable=PropertyMock, return_value=60
-        ),
-    ):
+    with patch.object(Round, "observer_points", return_value=(60, 60)):
         assert [
             secured_victory(round_.get_state_t(seat)).item() for seat in range(3)
         ] == [False, True, True]

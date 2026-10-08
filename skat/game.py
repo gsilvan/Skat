@@ -503,11 +503,7 @@ class Round:
             __soloist_seat[seats.index(soloist)] = 1
         # Points of our own party first, so the pair means the same thing to
         # every observer.
-        mine, theirs = (
-            (self.points_soloist, self.points_defenders)
-            if is_soloist
-            else (self.points_defenders, self.points_soloist)
-        )
+        mine, theirs = self.observer_points(player_id)
         __points = np.array([mine / 120.0, theirs / 120.0])  # 2
         __played_cards = np.concatenate(  # 96
             [self.trick_history.to_numpy(player_id=seat) for seat in seats]
@@ -537,6 +533,61 @@ class Round:
             ),
             dtype=np.float32,
         )
+
+    def observer_points(self, player_id: int) -> tuple[int, int]:
+        """Known party points, not the engine's omniscient scoring totals.
+
+        Unknown skat contributes zero: these are lower bounds, not estimates.
+        Scoring and training rewards continue to use the actual full totals.
+        """
+        soloist = self.solo_player_id
+        if soloist == -42:
+            return 0, 0
+        solo, defence = 0, 0
+        for trick in self.trick_history.buffer:
+            if trick.winner == soloist:
+                solo += trick.value
+            else:
+                defence += trick.value
+        if player_id == soloist and self.hand_game is False:
+            solo += sum(card.value for card in self.skat)
+        return (solo, defence) if player_id == soloist else (defence, solo)
+
+    def observer_overbid(self, player_id: int) -> Optional[bool]:
+        """Whether overbidding is known; None means hidden cards still matter."""
+        from skat.games.null import Null
+
+        if not self.highest_bid or self.game is None:
+            return False
+        if isinstance(self.game, Null):
+            return self.highest_bid > self.game.value
+        if player_id == self.solo_player_id:
+            cards = list(self.player[player_id].hand)
+            for trick in [*self.trick_history.buffer, self.game.trick]:
+                cards.extend(card for seat, card in trick.buffer if seat == player_id)
+            if self.hand_game is False:
+                value = self.game.spielwert([*cards, *self.skat])
+                return self.highest_bid > value
+            low, high = self.game.spielwert_range(cards)
+        else:
+            low = 2 * self.game.value
+            high = (len(self.game.trump_cards(self.game.suit)) + 1) * self.game.value
+        if self.highest_bid <= low:
+            return False
+        if self.highest_bid > high:
+            return True
+        return None
+
+    def observer_victory_status(self, player_id: int) -> int:
+        """A secured party result using only this observer's information."""
+        mine, theirs = self.observer_points(player_id)
+        solo, defence = (
+            (mine, theirs) if player_id == self.solo_player_id else (theirs, mine)
+        )
+        overbid = self.observer_overbid(player_id)
+        result = victory_status(solo, defence, overbid is True)
+        # Enough points do not establish a soloist win if overbidding is unknown.
+        return 0 if result == 1 and overbid is None else result
 
     def get_state_t(self, player_id) -> torch.Tensor:
         state = self.get_state(player_id)

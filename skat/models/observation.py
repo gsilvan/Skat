@@ -18,6 +18,26 @@ what catch a change to one of them. Sharing a single constant would make them
 agree by construction and pin nothing.
 """
 
+import warnings
+
+# Width is unchanged, but old point features included hidden skat points.
+OBSERVATION_SCHEMA = "skat-observer-points-v2"
+
+
+def validate_observation_schema(schema, source, *, allow_legacy=False):
+    if schema == OBSERVATION_SCHEMA:
+        return
+    message = (
+        f"{source} uses an obsolete observation schema with possible hidden skat "
+        "point leakage. Recollect training data and retrain for "
+        f"{OBSERVATION_SCHEMA}; historical benchmark scores are not a fair baseline."
+    )
+    if schema is None and allow_legacy:
+        warnings.warn(message, RuntimeWarning, stacklevel=2)
+        return
+    raise RuntimeError(message)
+
+
 #: Own cards, 32-hot.
 HAND = 32
 #: Trump suit one-hot, then is_grand, is_null.
@@ -26,7 +46,7 @@ GAME = 6
 ROLE = 1
 #: Where the soloist sits, relative to me.
 SOLOIST_SEAT = 3
-#: My party's card points, then theirs.
+#: Known lower bounds of my party's card points, then theirs.
 POINTS = 2
 #: 3 x 32, completed tricks, egocentric - slot 0 is me.
 PLAYED_CARDS = 96

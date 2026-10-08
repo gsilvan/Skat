@@ -7,6 +7,7 @@ import torch
 from torch import nn
 
 from skat.models import ARCHITECTURES, DEFAULT_ARCH
+from skat.models.observation import OBSERVATION_SCHEMA, validate_observation_schema
 
 #: Written into every policy checkpoint. Its only job is to be absent from a
 #: DQN checkpoint, which is a bare state dict.
@@ -55,6 +56,7 @@ def save_policy(
     torch.save(
         {
             "format": POLICY_FORMAT,
+            "observation_schema": OBSERVATION_SCHEMA,
             "arch": arch or name_of(net),
             "arch_kwargs": dict(arch_kwargs or {}),
             "input_size": net.INPUT_SIZE,
@@ -109,6 +111,7 @@ def load_policy(
             f"`Round.get_state` is now {architecture.INPUT_SIZE} wide. The "
             "checkpoint is retired - retrain."
         )
+    validate_observation_schema(blob.get("observation_schema"), path, allow_legacy=True)
     net = architecture(**{**blob.get("arch_kwargs", {}), "dropout": dropout}).to(device)
     net.load_state_dict(blob["state_dict"])
     return net, blob.get("meta", {})

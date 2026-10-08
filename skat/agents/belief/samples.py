@@ -6,6 +6,8 @@ from typing import Any, NamedTuple
 import numpy as np
 import torch
 
+from skat.models.observation import OBSERVATION_SCHEMA, validate_observation_schema
+
 #: Bumped when the array layout changes in a way a reader cannot absorb.
 SHARD_VERSION = 1
 
@@ -114,6 +116,7 @@ class BeliefShardWriter:
             "groups": np.asarray(self._groups, dtype=np.int32),
             "input_size": np.int32(self.input_size),
             "shard_version": np.int32(SHARD_VERSION),
+            "observation_schema": np.asarray(OBSERVATION_SCHEMA),
         }
         np.savez_compressed(path, **arrays)
         self.written += len(self._states)
@@ -162,6 +165,12 @@ def load_belief_shards(
                     f"expects {input_size}. `Round.get_state` changed shape "
                     "since this was collected, which retires it - recollect."
                 )
+            validate_observation_schema(
+                str(shard["observation_schema"])
+                if "observation_schema" in shard
+                else None,
+                path,
+            )
             states.append(shard["states"])
             locations.append(shard["locations"])
             # Group ids restart at 0 in every shard and every process.

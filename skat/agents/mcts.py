@@ -15,7 +15,7 @@ from skat.agents.search.playout import copy_trick
 from skat.card import Card
 from skat.games.null import Null
 from skat.hand import FULL_HAND
-from skat.rewards import MCTS_TIEBREAK_OBJECTIVE, REWARD_OBJECTIVE, victory_status
+from skat.rewards import MCTS_TIEBREAK_OBJECTIVE, REWARD_OBJECTIVE
 
 
 class MoveTotals(dict[Card, list[float]]):
@@ -152,7 +152,9 @@ class MCTSAgent(HeuristicDeclarer, Agent):
 
         my_hand = list(self.state.hand)
         # We only know the skat if we are the soloist and actually picked it up.
-        known_skat = list(round_.skat) if me == soloist and not round_.hand_game else []
+        known_skat = (
+            list(round_.skat) if me == soloist and round_.hand_game is False else []
+        )
 
         seen = played | set(my_hand) | set(known_skat)
         unseen = [card for card in FULL_HAND if card not in seen]
@@ -182,6 +184,13 @@ class MCTSAgent(HeuristicDeclarer, Agent):
         skat = known_skat or deal.get(SKAT_SLOT, [])
         points[soloist] += sum(card.value for card in skat)
 
+        # Overbidding may depend on hidden matadors. Evaluate it in this sampled
+        # world, never from the engine's real (hidden) game_value.
+        solo_cards = list(hands[soloist])
+        for trick in [*round_.trick_history.buffer, game.trick]:
+            solo_cards.extend(card for seat, card in trick.buffer if seat == soloist)
+        sampled_value = game.spielwert([*solo_cards, *skat])
+
         return PlayoutState(
             trick=copy_trick(game.trick),
             hands=hands,
@@ -190,13 +199,9 @@ class MCTSAgent(HeuristicDeclarer, Agent):
             soloist=soloist,
             is_null=isinstance(game, Null),
             soloist_took_trick=soloist_took_trick,
-            overbid=round_.overbid,
+            overbid=round_.highest_bid > sampled_value,
             secured_winner=(
-                0
-                if isinstance(game, Null)
-                else victory_status(
-                    round_.points_soloist, round_.points_defenders, round_.overbid
-                )
+                0 if isinstance(game, Null) else round_.observer_victory_status(me)
             ),
         )
 

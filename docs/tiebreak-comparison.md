@@ -1,5 +1,11 @@
 # Exact bonus tie-breaking in MCTS
 
+> Historical results below predate the hidden-skat information-leak fix.
+> Observations exposed actual skat-inclusive soloist points, and secured-win
+> search also read those engine totals. These scores are not fair baselines for
+> the fixed agent. New data must use `skat-observer-points-v2`; the old corpora
+> are rejected, and legacy policy/belief checkpoint loading emits a warning.
+
 The initial win-first implementation is committed as `19fb644`. This variant
 keeps its primary search value, and adds an independently accumulated bonus.
 Root moves are ordered by `(mean_primary_value, mean_bonus)`, without rounding

@@ -52,7 +52,9 @@ def observer_view(round_, seat: int) -> np.ndarray:
 
     hand = set(round_.player[seat].hand)
     soloist = round_.solo_player_id
-    known_skat = set(round_.skat) if seat == soloist and not round_.hand_game else set()
+    known_skat = (
+        set(round_.skat) if seat == soloist and round_.hand_game is False else set()
+    )
 
     next_seat, previous_seat = (seat + 1) % 3, (seat + 2) % 3
     where: dict[Card, int] = {}

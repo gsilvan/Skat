@@ -65,10 +65,23 @@ the other learns bonus increments on decisions made after secured victory.
 Only the win network chooses cards before victory, and only the bonus network
 afterwards. Old bare DQN checkpoints must be kept as baselines and newly trained
 agents written to fresh paths; the new checkpoints identify their objective.
-Policy architectures and observations stay unchanged, but their teacher data
-must be recollected. Recorded shards and policy checkpoints retain the reward
-objective, and loading mixed old/new shards is rejected. Existing policy files
-remain playable with their original learned behaviour.
+Policy architectures and observation widths stay unchanged, but their teacher
+data must be recollected. Recorded shards and policy checkpoints retain the
+reward objective, and loading mixed old/new shards is rejected.
+
+Observations now contain **known party-point lower bounds**, not hidden skat
+points. Only a soloist who picked up the skat may include its points; in a hand
+game everyone excludes the unknown skat. MCTS freezes secured victory using
+this observer-visible information, and evaluates overbidding from sampled
+hands rather than the engine's hidden real Spielwert. Actual game scoring and
+training outcome rewards still include the skat normally.
+
+The semantic schema is `skat-observer-points-v2` despite the unchanged 240/304
+input widths. Old policy/belief corpora are refused and must be recollected;
+new win-first DQN checkpoints also require this schema. Legacy policy/belief
+models remain loadable with an explicit warning, but their learned point
+features have shifted and should be retrained. Historical pre-fix benchmark
+scores used privileged information and are **not fair strength baselines**.
 
 MCTS records independent bonus sums alongside its primary values. Value-target
 distillation uses them only to distinguish exactly tied primary maxima, so its
