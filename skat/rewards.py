@@ -2,11 +2,12 @@
 
 The existing engine thresholds are deliberately retained: soloist 61/91,
 defenders 60/90, and the engine's 120-point definition of Schwarz. Primary
-win/loss features never depend on bonuses. Points become useful only in the
-separate bonus objective after secured victory.
+win/loss features never depend on bonuses. Points are a separate bonus used
+after secured victory, or by MCTS to break exact primary-value ties.
 """
 
 REWARD_OBJECTIVE = "win-first-secured-bonus-v1"
+MCTS_TIEBREAK_OBJECTIVE = "win-first-exact-tie-bonus-v1"
 
 
 def victory_status(
@@ -19,7 +20,7 @@ def victory_status(
 
 
 def victory_bonus(points: int, is_soloist: bool) -> float:
-    """Nonnegative bonus used only after this party has secured victory.
+    """Nonnegative bonus for a won outcome, separate from win/loss utility.
 
     Missing an upgrade never incurs a penalty. Stage bonuses favour crossing
     the next threshold; points also give a useful goal when it is unreachable.

@@ -142,6 +142,19 @@ class PlayoutState:
             for seat in range(3)
         )
 
+    def bonus_rewards(self) -> tuple[float, float, float]:
+        """Winning-party bonuses, separately from the primary search value."""
+        if self.is_null:
+            return (0.0, 0.0, 0.0)
+        won = not self.overbid and self.points[self.soloist] > 60
+        solo = victory_bonus(self.points[self.soloist], True) if won else 0.0
+        defence = (
+            victory_bonus(sum(self.points) - self.points[self.soloist], False)
+            if not won
+            else 0.0
+        )
+        return tuple(solo if seat == self.soloist else defence for seat in range(3))
+
     def _forced(self) -> frozenset:
         """
         `Trick.forced_cards` is a (slow) pure function of the trick's lead card

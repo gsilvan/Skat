@@ -15,7 +15,15 @@ from skat.agents.search.playout import copy_trick
 from skat.card import Card
 from skat.games.null import Null
 from skat.hand import FULL_HAND
-from skat.rewards import REWARD_OBJECTIVE, victory_status
+from skat.rewards import MCTS_TIEBREAK_OBJECTIVE, REWARD_OBJECTIVE, victory_status
+
+
+class MoveTotals(dict[Card, list[float]]):
+    """Primary totals plus independent bonus sums over all sampled worlds."""
+
+    def __init__(self, moves):
+        super().__init__((move, [0, 0.0]) for move in moves)
+        self.bonus_sums = dict.fromkeys(moves, 0.0)
 
 
 class MCTSAgent(HeuristicDeclarer, Agent):
@@ -42,11 +50,13 @@ class MCTSAgent(HeuristicDeclarer, Agent):
         exploration: float = DEFAULT_EXPLORATION,
         seed=None,
         bidding: BiddingStyle = BiddingStyle.CONSERVATIVE,
+        bonus_tiebreak: bool = True,
     ) -> None:
         super().__init__(bidding=bidding, seed=seed)
         self.simulations = simulations
         self.determinizations = determinizations
         self.exploration = exploration
+        self.bonus_tiebreak = bonus_tiebreak
 
     # ------------------------------------------------------------------ play
 
@@ -74,24 +84,32 @@ class MCTSAgent(HeuristicDeclarer, Agent):
         the base agent throws them away as soon as it has picked a card.
         """
         per_world = max(1, self.simulations // max(1, self.determinizations))
-        totals: dict[Card, list[float]] = {move: [0, 0.0] for move in moves}
+        totals = MoveTotals(moves)
         for _ in range(self.determinizations):
             root = self.determinize()
-            for move, (visits, value_sum) in uct_search(
-                root, per_world, self.rng, self.exploration
-            ).items():
+            result = uct_search(
+                root,
+                per_world,
+                self.rng,
+                self.exploration,
+                bonus_tiebreak=self.bonus_tiebreak,
+            )
+            for move, (visits, value_sum) in result.items():
                 stats = totals.setdefault(move, [0, 0.0])
                 stats[0] += visits
                 stats[1] += value_sum
+                if self.bonus_tiebreak:
+                    totals.bonus_sums[move] += result.bonus_sums[move]
         return totals
 
     @staticmethod
     def best(moves: list[Card], totals: dict[Card, list[float]]) -> Card:
         """The move with the best average value. An unvisited move scores -1."""
 
-        def score(move: Card) -> float:
+        def score(move: Card) -> tuple[float, float]:
             visits, value_sum = totals[move]
-            return value_sum / visits if visits else -1.0
+            bonus_sum = getattr(totals, "bonus_sums", {}).get(move, 0.0)
+            return (value_sum / visits, bonus_sum / visits) if visits else (-1.0, -1.0)
 
         return max(moves, key=score)
 
@@ -216,7 +234,9 @@ class RecordingMCTSAgent(MCTSAgent):
         super().__init__(**kwargs)
         self.recorder = recorder
         if hasattr(self.recorder, "provenance"):
-            self.recorder.provenance["reward_objective"] = REWARD_OBJECTIVE
+            self.recorder.provenance["reward_objective"] = (
+                MCTS_TIEBREAK_OBJECTIVE if self.bonus_tiebreak else REWARD_OBJECTIVE
+            )
 
     def new_round_event(self) -> None:
         super().new_round_event()

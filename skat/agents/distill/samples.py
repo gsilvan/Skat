@@ -8,10 +8,11 @@ import numpy as np
 import torch
 
 from skat.card import Card
+from skat.rewards import MCTS_TIEBREAK_OBJECTIVE
 
 #: Bumped whenever the array layout below changes in a way a reader cannot
 #: absorb. `load_shards` refuses anything else.
-SHARD_VERSION = 1
+SHARD_VERSION = 2
 
 #: ~50k samples is roughly 20 MB compressed - small enough that a crash costs
 #: minutes of collection, large enough that the file count stays sane.
@@ -34,6 +35,7 @@ class Samples(NamedTuple):
     groups: torch.Tensor  # (N,) int64 - round id, for a leak-free split
     choices: torch.Tensor  # (N,) int64 - the card the teacher played
     reward_objective: str = "legacy-point-shaped"
+    bonuses: torch.Tensor | None = None  # (N, 32), independent summed bonuses
 
     def __len__(self) -> int:
         return int(self.states.shape[0])
@@ -75,6 +77,7 @@ class ShardWriter:
         self._states: list[np.ndarray] = []
         self._visits: list[np.ndarray] = []
         self._values: list[np.ndarray] = []
+        self._bonuses: list[np.ndarray] = []
         self._masks: list[np.ndarray] = []
         self._groups: list[int] = []
         self._choices: list[int] = []
@@ -111,12 +114,14 @@ class ShardWriter:
             )
         visits = np.zeros(CARDS, dtype=np.int32)
         values = np.zeros(CARDS, dtype=np.float32)
+        bonuses = np.zeros(CARDS, dtype=np.float32)
         mask = np.zeros(CARDS, dtype=bool)
         for move in moves:
             visited, value_sum = totals[move]
             mask[move.np_index] = True
             visits[move.np_index] = visited
             values[move.np_index] = value_sum
+            bonuses[move.np_index] = getattr(totals, "bonus_sums", {}).get(move, 0.0)
         if not visits.sum():
             # A search that expanded nothing has no opinion to learn from. It
             # takes `iterations < 1` to get here, but a row of zeros would
@@ -125,6 +130,7 @@ class ShardWriter:
         self._states.append(np.asarray(state, dtype=np.float32))
         self._visits.append(visits)
         self._values.append(values)
+        self._bonuses.append(bonuses)
         self._masks.append(mask)
         self._groups.append(self.group)
         self._choices.append(choice.np_index)
@@ -142,6 +148,7 @@ class ShardWriter:
             "states": np.stack(self._states),
             "visits": np.stack(self._visits),
             "values": np.stack(self._values),
+            "bonuses": np.stack(self._bonuses),
             "masks": np.stack(self._masks),
             "groups": np.asarray(self._groups, dtype=np.int32),
             "choices": np.asarray(self._choices, dtype=np.int8),
@@ -165,6 +172,7 @@ class ShardWriter:
         self._states.clear()
         self._visits.clear()
         self._values.clear()
+        self._bonuses.clear()
         self._masks.clear()
         self._groups.clear()
         self._choices.clear()
@@ -202,24 +210,28 @@ def load_shards(
         raise FileNotFoundError(f"no shards under {directory}")
 
     states, visits, values, masks, groups, choices = [], [], [], [], [], []
+    bonuses = []
     offset = 0
     objectives = set()
     for path in paths:
         with np.load(path) as shard:
-            objectives.add(
+            objective = (
                 str(shard["reward_objective"])
                 if "reward_objective" in shard
                 else "legacy-point-shaped"
             )
+            objectives.add(objective)
+            if objective == MCTS_TIEBREAK_OBJECTIVE and "bonuses" not in shard:
+                raise RuntimeError(f"{path} declares tie-breaking but has no bonus sums")
             if len(objectives) > 1:
                 raise RuntimeError(
                     "Mixed reward objectives in corpus; keep old and win-first shards in separate directories."
                 )
             version = int(shard["shard_version"])
-            if version != SHARD_VERSION:
+            if version not in (1, SHARD_VERSION):
                 raise RuntimeError(
                     f"{path} is a v{version} shard, this reader speaks "
-                    f"v{SHARD_VERSION}."
+                    f"v1 and v{SHARD_VERSION}."
                 )
             width = int(shard["input_size"])
             if width != input_size:
@@ -231,6 +243,11 @@ def load_shards(
             states.append(shard["states"])
             visits.append(shard["visits"])
             values.append(shard["values"])
+            bonuses.append(
+                shard["bonuses"]
+                if "bonuses" in shard
+                else np.zeros_like(shard["values"])
+            )
             masks.append(shard["masks"])
             # Group ids restart at 0 in every shard and every process. Offset
             # them so a split on group boundaries stays a split.
@@ -247,4 +264,5 @@ def load_shards(
         groups=torch.from_numpy(np.concatenate(groups)).to(torch.int64),
         choices=torch.from_numpy(np.concatenate(choices)).to(torch.int64),
         reward_objective=next(iter(objectives)),
+        bonuses=torch.from_numpy(np.concatenate(bonuses)).to(torch.float32),
     )

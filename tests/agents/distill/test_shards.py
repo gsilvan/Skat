@@ -88,6 +88,27 @@ class RoundTripTest(unittest.TestCase):
             load_shards(self.directory.name, input_size=WIDTH).reward_objective,
         )
 
+    def test_independent_bonus_sums_round_trip(self):
+        from skat.agents.mcts import MoveTotals
+        from skat.rewards import MCTS_TIEBREAK_OBJECTIVE
+
+        w = writer(
+            self.directory.name,
+            provenance={"reward_objective": MCTS_TIEBREAK_OBJECTIVE},
+        )
+        w.new_round()
+        moves = list(FULL_HAND[:2])
+        totals = MoveTotals(moves)
+        totals[moves[0]], totals[moves[1]] = [10, 5.0], [10, 5.0]
+        totals.bonus_sums[moves[0]], totals.bonus_sums[moves[1]] = 1.0, 8.0
+        w.add(np.zeros(WIDTH), totals, moves, moves[1])
+        w.close()
+        samples = load_shards(self.directory.name, input_size=WIDTH)
+        self.assertEqual([1.0, 8.0], samples.bonuses[0, :2].tolist())
+        from skat.agents.distill.train import build_targets
+
+        self.assertEqual(1, int(build_targets(samples, "value", 0.05).argmax()))
+
     def test_nothing_lands_on_a_card_that_was_not_a_move(self) -> None:
         w = writer(self.directory.name)
         w.new_round()

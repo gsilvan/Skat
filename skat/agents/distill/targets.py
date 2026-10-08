@@ -36,6 +36,7 @@ def value_targets(
     visits: torch.Tensor,
     masks: torch.Tensor,
     temperature: float = DEFAULT_VALUE_TEMPERATURE,
+    bonuses: torch.Tensor | None = None,
 ) -> torch.Tensor:
     """
     A softmax over each move's *mean* value - the quantity `MCTSAgent.best`
@@ -60,5 +61,17 @@ def value_targets(
     """
     visited = masks & (visits > 0)
     mean = torch.where(visited, values / visits.clamp(min=1), values.new_zeros(()))
+    if bonuses is not None:
+        # Teacher ties refer to exact primary means, without an epsilon. Use
+        # float64 for the comparison so float32 division cannot merge two
+        # distinct empirical win rates. Bonuses only raise tied maxima; a
+        # lower primary mean can never become the target's preferred move.
+        precise = values.double() / visits.double().clamp(min=1)
+        precise = precise.masked_fill(~visited, -torch.inf)
+        top = precise == precise.max(-1, keepdim=True).values
+        tied = top & (top.sum(-1, keepdim=True) > 1)
+        bonus_mean = bonuses.double() / visits.double().clamp(min=1)
+        low = bonus_mean.masked_fill(~top, torch.inf).min(-1, keepdim=True).values
+        mean = precise + temperature * torch.where(tied, bonus_mean - low, 0.0)
     logits = (mean / temperature).masked_fill(~visited, torch.finfo(mean.dtype).min)
-    return torch.softmax(logits, dim=-1)
+    return torch.softmax(logits, dim=-1).to(values.dtype)

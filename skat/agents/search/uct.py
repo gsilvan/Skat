@@ -11,6 +11,14 @@ from skat.card import Card
 DEFAULT_EXPLORATION = 1.4
 
 
+class SearchResult(dict[Card, tuple[int, float]]):
+    """Preserve the two-column search API and expose independent bonus sums."""
+
+    def __init__(self, values, bonus_sums):
+        super().__init__(values)
+        self.bonus_sums = bonus_sums
+
+
 class Node:
     """
     One node of the UCT tree. `value_sum` is accumulated from the point of view
@@ -27,6 +35,7 @@ class Node:
         "untried",
         "visits",
         "value_sum",
+        "bonus_sum",
     )
 
     def __init__(
@@ -45,6 +54,7 @@ class Node:
         self.untried = untried
         self.visits = 0
         self.value_sum = 0.0
+        self.bonus_sum = 0.0
 
     @property
     def value(self) -> float:
@@ -61,12 +71,13 @@ class Node:
         self.children.append(child)
         return child
 
-    def select_child(self, exploration: float) -> Node:
+    def select_child(self, exploration: float, bonus_tiebreak: bool = False) -> Node:
         log_visits = math.log(self.visits)
         return max(
             self.children,
             key=lambda child: (
-                child.value + exploration * math.sqrt(log_visits / child.visits)
+                child.value + exploration * math.sqrt(log_visits / child.visits),
+                child.bonus_sum / child.visits if bonus_tiebreak else 0.0,
             ),
         )
 
@@ -77,6 +88,7 @@ def uct_search(
     rng: Random,
     exploration: float = DEFAULT_EXPLORATION,
     outcome_only: bool = False,
+    bonus_tiebreak: bool = False,
 ) -> dict[Card, tuple[int, float]]:
     """
     Run `iterations` UCT playouts on the perfect-information `state` and report
@@ -92,7 +104,7 @@ def uct_search(
 
         # selection: descend fully expanded nodes by UCB1
         while not node.untried and node.children:
-            node = node.select_child(exploration)
+            node = node.select_child(exploration, bonus_tiebreak and not outcome_only)
             assert node.move is not None
             sim.apply(node.move)
 
@@ -109,11 +121,20 @@ def uct_search(
 
         # backpropagation
         rewards = sim.outcome_rewards() if outcome_only else sim.rewards()
+        bonuses = (
+            sim.bonus_rewards()
+            if bonus_tiebreak and not outcome_only
+            else (0.0, 0.0, 0.0)
+        )
         current: Optional[Node] = node
         while current is not None:
             current.visits += 1
             if current.moved_by is not None:
                 current.value_sum += rewards[current.moved_by]
+                current.bonus_sum += bonuses[current.moved_by]
             current = current.parent
 
-    return {child.move: (child.visits, child.value_sum) for child in root.children}  # type: ignore[misc]
+    return SearchResult(
+        {child.move: (child.visits, child.value_sum) for child in root.children},
+        {child.move: child.bonus_sum for child in root.children},
+    )

@@ -149,7 +149,14 @@ def batches(
 def build_targets(samples: Samples, kind: str, temperature: float) -> torch.Tensor:
     if kind == "visits":
         return visit_targets(samples.visits, samples.masks, temperature)
-    return value_targets(samples.values, samples.visits, samples.masks, temperature)
+    from skat.rewards import MCTS_TIEBREAK_OBJECTIVE
+
+    bonuses = (
+        samples.bonuses if samples.reward_objective == MCTS_TIEBREAK_OBJECTIVE else None
+    )
+    return value_targets(
+        samples.values, samples.visits, samples.masks, temperature, bonuses=bonuses
+    )
 
 
 def agreement(

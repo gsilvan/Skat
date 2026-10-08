@@ -49,7 +49,9 @@ replaced by an original or clearly licensed deck.
 ## Reproducible agent benchmark
 
 Card play uses a **win-first objective**. Before victory is secured, MCTS
-optimises party win probability only. Its rollout objective is frozen at the
+optimises party win probability first. Exact ties in estimated win probability
+are broken by independently estimated winning-party bonuses; no tolerance or
+weighted sum can compensate for a lower win rate. Its primary rollout objective is frozen at the
 search root: collecting more points in a simulated future win cannot compensate
 for a lower chance of winning now. Once the party has secured victory with the
 engine's 61/60 thresholds, search maximises a nonnegative bonus:
@@ -67,6 +69,12 @@ Policy architectures and observations stay unchanged, but their teacher data
 must be recollected. Recorded shards and policy checkpoints retain the reward
 objective, and loading mixed old/new shards is rejected. Existing policy files
 remain playable with their original learned behaviour.
+
+MCTS records independent bonus sums alongside its primary values. Value-target
+distillation uses them only to distinguish exactly tied primary maxima, so its
+preferred target still matches the teacher's win-first choice. To disable
+the experimental tie-breaker for comparisons, construct
+`MCTSAgent(bonus_tiebreak=False)`. DQN still uses the secured-victory bonus gate.
 
 The benchmark trains every supported trainable agent family, evaluates all
 playable families on the same deals and writes a resumable, self-describing run:
