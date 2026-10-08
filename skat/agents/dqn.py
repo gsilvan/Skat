@@ -43,6 +43,7 @@ class DQNAgent(HeuristicDeclarer, Agent):
         # Only forward what was actually given - passing None through would
         # overwrite DQN's own defaults with it and blow up on first use.
         options = {
+            "result_priority": True,
             "model_path": path,
             "epsilon": epsilon,
             "epsilon_decay": epsilon_decay,
@@ -68,6 +69,7 @@ class DQNAgent(HeuristicDeclarer, Agent):
         self.initial_state: Optional[torch.Tensor] = None
         self.last_action: Optional[torch.Tensor] = None
         self.last_cumulative_reward: float = 0
+        self.last_cumulative_bonus: float = 0
         self.writer = SummaryWriter(
             log_dir=os.path.join(log_dir, "agent") if log_dir else None
         )
@@ -81,12 +83,18 @@ class DQNAgent(HeuristicDeclarer, Agent):
             player_id=self.state.seat_id
         )
         self.last_cumulative_reward = self._current_reward()
+        self.last_cumulative_bonus = self.state.public_state.cumulative_bonus(
+            self.state.seat_id
+        )
 
         valid_actions = Hand(tuple(valid_actions)).as_tensor_mask
 
         # get a prediction
         prediction = self.dqn.select_action(
-            self.initial_state, valid_actions, explore=self.train
+            self.initial_state,
+            valid_actions,
+            explore=self.train,
+            allow_bonus=not self.state.public_state.overbid,
         )
         self.last_action = prediction
         choice = FULL_HAND[int(prediction.argmax())]
@@ -98,8 +106,12 @@ class DQNAgent(HeuristicDeclarer, Agent):
             # do not optimize if it's not in trainig
             return
 
-        reward = torch.empty((1, 1), dtype=torch.float64)
+        reward = torch.empty((1, 2), dtype=torch.float64)
         reward[0][0] = self._current_reward() - self.last_cumulative_reward
+        reward[0][1] = (
+            self.state.public_state.cumulative_bonus(self.state.seat_id)
+            - self.last_cumulative_bonus
+        )
 
         if is_terminal:
             next_state = None

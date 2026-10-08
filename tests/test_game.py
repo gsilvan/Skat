@@ -100,7 +100,7 @@ class GameTest(unittest.TestCase):
             return_value=102,
         ):
             self.assertAlmostEqual(
-                0.8699, self.round.cumulative_reward(soloist_id), places=3
+                1.0, self.round.cumulative_reward(soloist_id), places=3
             )
 
         with patch(
@@ -109,5 +109,5 @@ class GameTest(unittest.TestCase):
             return_value=20,
         ):
             self.assertAlmostEqual(
-                0.0333332, self.round.cumulative_reward((soloist_id + 1) % 3), places=3
+                0.0, self.round.cumulative_reward((soloist_id + 1) % 3), places=3
             )

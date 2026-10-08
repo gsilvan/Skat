@@ -48,6 +48,26 @@ replaced by an original or clearly licensed deck.
 
 ## Reproducible agent benchmark
 
+Card play uses a **win-first objective**. Before victory is secured, MCTS
+optimises party win probability only. Its rollout objective is frozen at the
+search root: collecting more points in a simulated future win cannot compensate
+for a lower chance of winning now. Once the party has secured victory with the
+engine's 61/60 thresholds, search maximises a nonnegative bonus:
+`0.6 * party_points / 120 + 0.2 * Schneider + 0.2 * Schwarz`.
+Missing Schneider incurs no penalty, and points remain useful even when the
+next stage is unreachable. The existing 91/90 Schneider thresholds and the
+engine's 120-point Schwarz definition are retained. Null remains a no-trick goal.
+
+DQN uses two independent Q-networks. One learns undiscounted win/loss returns;
+the other learns bonus increments on decisions made after secured victory.
+Only the win network chooses cards before victory, and only the bonus network
+afterwards. Old bare DQN checkpoints must be kept as baselines and newly trained
+agents written to fresh paths; the new checkpoints identify their objective.
+Policy architectures and observations stay unchanged, but their teacher data
+must be recollected. Recorded shards and policy checkpoints retain the reward
+objective, and loading mixed old/new shards is rejected. Existing policy files
+remain playable with their original learned behaviour.
+
 The benchmark trains every supported trainable agent family, evaluates all
 playable families on the same deals and writes a resumable, self-describing run:
 

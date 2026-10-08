@@ -60,6 +60,34 @@ class RoundTripTest(unittest.TestCase):
         self.assertEqual(4, samples.choices[0].item())
         self.assertEqual(0, samples.groups[0].item())
 
+    def test_different_reward_objectives_cannot_be_mixed(self):
+        from skat.rewards import REWARD_OBJECTIVE
+
+        for tag, provenance in (
+            ("old", {}),
+            ("new", {"reward_objective": REWARD_OBJECTIVE}),
+        ):
+            w = writer(self.directory.name, tag=tag, provenance=provenance)
+            w.new_round()
+            add_one(w)
+            w.close()
+        with self.assertRaisesRegex(RuntimeError, "Mixed reward objectives"):
+            load_shards(self.directory.name, input_size=WIDTH)
+
+    def test_reward_objective_round_trips(self):
+        from skat.rewards import REWARD_OBJECTIVE
+
+        w = writer(
+            self.directory.name, provenance={"reward_objective": REWARD_OBJECTIVE}
+        )
+        w.new_round()
+        add_one(w)
+        w.close()
+        self.assertEqual(
+            REWARD_OBJECTIVE,
+            load_shards(self.directory.name, input_size=WIDTH).reward_objective,
+        )
+
     def test_nothing_lands_on_a_card_that_was_not_a_move(self) -> None:
         w = writer(self.directory.name)
         w.new_round()

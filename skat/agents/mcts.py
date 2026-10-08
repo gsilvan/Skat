@@ -15,6 +15,7 @@ from skat.agents.search.playout import copy_trick
 from skat.card import Card
 from skat.games.null import Null
 from skat.hand import FULL_HAND
+from skat.rewards import REWARD_OBJECTIVE, victory_status
 
 
 class MCTSAgent(HeuristicDeclarer, Agent):
@@ -171,6 +172,14 @@ class MCTSAgent(HeuristicDeclarer, Agent):
             soloist=soloist,
             is_null=isinstance(game, Null),
             soloist_took_trick=soloist_took_trick,
+            overbid=round_.overbid,
+            secured_winner=(
+                0
+                if isinstance(game, Null)
+                else victory_status(
+                    round_.points_soloist, round_.points_defenders, round_.overbid
+                )
+            ),
         )
 
     # -------------------------------------------------------------- bidding
@@ -206,6 +215,8 @@ class RecordingMCTSAgent(MCTSAgent):
     def __init__(self, recorder, **kwargs) -> None:
         super().__init__(**kwargs)
         self.recorder = recorder
+        if hasattr(self.recorder, "provenance"):
+            self.recorder.provenance["reward_objective"] = REWARD_OBJECTIVE
 
     def new_round_event(self) -> None:
         super().new_round_event()

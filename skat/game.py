@@ -14,6 +14,7 @@ from skat.deck import Deck
 from skat.games import Game
 from skat.hand import Hand, HandOrder
 from skat.player import Player
+from skat.rewards import outcome_features, victory_bonus, victory_status
 from skat.trick import TrickHistory
 from skat.utils.game_converter import get_game
 from skat.utils.misc import disjoint
@@ -163,6 +164,24 @@ class Tournament:
                 "overbid": round_.overbid,
                 "points_soloist": round_.points_soloist,
                 "points_defenders": round_.points_defenders,
+                "result_features": (
+                    list(
+                        outcome_features(
+                            round_.points_soloist,
+                            round_.points_defenders,
+                            overbid=round_.overbid,
+                            is_null=type(game).__name__ == "Null",
+                            soloist_took_trick=any(
+                                trick.winner == round_.solo_player_id
+                                for trick in getattr(
+                                    getattr(round_, "trick_history", None), "buffer", []
+                                )
+                            ),
+                        )
+                    )
+                    if soloist_won is not None
+                    else None
+                ),
                 "bidding_probabilities": bidding_probabilities,
                 "bidding_games": bidding_games,
                 "bidding_scores": bidding_scores,
@@ -526,48 +545,29 @@ class Round:
         return torch.tensor(state, device="cpu").unsqueeze(0)
 
     def cumulative_reward(self, player_id) -> float:
-        is_solo = player_id == self.solo_player_id
+        """Primary DQN return: win/loss alone, independent of every bonus."""
+        from skat.games.null import Null
 
-        reward_goals = {
-            "points": 2.0 / 120.0,
-            "win": 5.0,
-            "schneider": 2.0,
-            "schwarz": 2.0,
-        }
-
-        reward = 0.0
-
-        if is_solo:
-            reward += self.points_soloist * reward_goals["points"]
-            reward -= self.points_defenders * reward_goals["points"]
-            if self.soloist_won:
-                reward += reward_goals["win"]
-            if self.soloist_won_schneider:
-                reward += reward_goals["schneider"]
-            if self.soloist_won_schwarz:
-                reward += reward_goals["schwarz"]
-            if self.defenders_won:
-                reward -= reward_goals["win"]
-            if self.defenders_won_schneider:
-                reward -= reward_goals["schneider"]
-            if self.defenders_won_schwarz:
-                reward -= reward_goals["schwarz"]
+        if isinstance(self.game, Null):
+            took_trick = any(
+                t.winner == self.solo_player_id for t in self.trick_history.buffer
+            )
+            result = -1 if took_trick or self.overbid else int(self.is_finished)
         else:
-            reward -= self.points_soloist * reward_goals["points"]
-            reward += self.points_defenders * reward_goals["points"]
-            if self.soloist_won:
-                reward -= reward_goals["win"]
-            if self.soloist_won_schneider:
-                reward -= reward_goals["schneider"]
-            if self.soloist_won_schwarz:
-                reward -= reward_goals["schwarz"]
-            if self.defenders_won:
-                reward += reward_goals["win"]
-            if self.defenders_won_schneider:
-                reward += reward_goals["schneider"]
-            if self.defenders_won_schwarz:
-                reward += reward_goals["schwarz"]
-        return reward / 10.0
+            result = victory_status(
+                self.points_soloist, self.points_defenders, self.overbid
+            )
+        return float(result if player_id == self.solo_player_id else -result)
+
+    def cumulative_bonus(self, player_id) -> float:
+        """Separate DQN return, consulted only when this party has won."""
+        from skat.games.null import Null
+
+        if isinstance(self.game, Null) or self.cumulative_reward(player_id) != 1:
+            return 0.0
+        solo = player_id == self.solo_player_id
+        points = self.points_soloist if solo else self.points_defenders
+        return victory_bonus(points, solo)
 
     def step(self) -> bool:
         """Do a step. A step is one single action of one player."""

@@ -4,6 +4,7 @@ import copy
 from typing import Optional
 
 from skat.card import Card
+from skat.rewards import victory_bonus, victory_status
 from skat.trick import Trick
 
 
@@ -30,6 +31,8 @@ class PlayoutState:
         "is_null",
         "soloist_took_trick",
         "_forced_cache",
+        "secured_winner",
+        "overbid",
     )
 
     def __init__(
@@ -42,6 +45,8 @@ class PlayoutState:
         is_null: bool = False,
         soloist_took_trick: bool = False,
         forced_cache: Optional[dict] = None,
+        secured_winner: Optional[int] = None,
+        overbid: bool = False,
     ) -> None:
         self.trick = trick
         self.hands = hands
@@ -50,9 +55,17 @@ class PlayoutState:
         self.soloist = soloist
         self.is_null = is_null
         self.soloist_took_trick = soloist_took_trick
+        self.overbid = overbid
         # Shared on purpose: a pure memo of `Trick.forced_cards`, valid for the
         # whole search because every clone plays the same declared game.
         self._forced_cache: dict = {} if forced_cache is None else forced_cache
+        # Frozen at the search root, never switched on by a rollout. Otherwise
+        # future bonuses would already affect choices before victory is secure.
+        self.secured_winner = (
+            victory_status(points[soloist], sum(points) - points[soloist], overbid)
+            if secured_winner is None and not is_null
+            else (secured_winner or 0)
+        )
 
     def clone(self) -> PlayoutState:
         return PlayoutState(
@@ -64,6 +77,8 @@ class PlayoutState:
             is_null=self.is_null,
             soloist_took_trick=self.soloist_took_trick,
             forced_cache=self._forced_cache,
+            secured_winner=self.secured_winner,
+            overbid=self.overbid,
         )
 
     @property
@@ -101,13 +116,15 @@ class PlayoutState:
         """
         if self.is_null:
             # The null soloist wins by taking no trick at all (ISkO 4.2.3).
-            soloist_value = 0.0 if self.soloist_took_trick else 1.0
+            soloist_value = 0.0 if self.overbid or self.soloist_took_trick else 1.0
         else:
             points = self.points[self.soloist]
-            # 61 of the 120 card points decide the game (ISkO 4.1.1). The point
-            # term is only a tie-breaker between moves that agree on win/loss,
-            # but it keeps the signal from being all-or-nothing.
-            soloist_value = (1.0 if points > 60 else 0.0) * 0.9 + points / 1200.0
+            if self.secured_winner == 1:
+                soloist_value = victory_bonus(points, True)
+            elif self.secured_winner == -1:
+                soloist_value = 1.0 - victory_bonus(sum(self.points) - points, False)
+            else:
+                soloist_value = float(not self.overbid and points > 60)
         return tuple(  # type: ignore[return-value]
             soloist_value if seat == self.soloist else 1.0 - soloist_value
             for seat in range(3)
@@ -116,9 +133,9 @@ class PlayoutState:
     def outcome_rewards(self) -> tuple[float, float, float]:
         """Binary party win used when search estimates a win probability."""
         if self.is_null:
-            soloist_won = not self.soloist_took_trick
+            soloist_won = not self.overbid and not self.soloist_took_trick
         else:
-            soloist_won = self.points[self.soloist] > 60
+            soloist_won = not self.overbid and self.points[self.soloist] > 60
         soloist_value = float(soloist_won)
         return tuple(  # type: ignore[return-value]
             soloist_value if seat == self.soloist else 1.0 - soloist_value

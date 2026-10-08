@@ -106,10 +106,10 @@ class ApplyTest(unittest.TestCase):
 
 class RewardTest(unittest.TestCase):
     def test_soloist_needs_61(self) -> None:
-        won = state([[], [], []], points=[61, 59, 0]).rewards()
-        lost = state([[], [], []], points=[60, 60, 0]).rewards()
+        won = state([[], [], []], points=[61, 59, 0], secured_winner=0).rewards()
+        lost = state([[], [], []], points=[60, 60, 0], secured_winner=0).rewards()
         self.assertGreater(won[0], lost[0])
-        self.assertGreater(won[0], 0.9)
+        self.assertEqual(won[0], 1.0)
         self.assertLess(lost[0], 0.1)
 
     def test_defenders_get_the_complement(self) -> None:
@@ -117,11 +117,23 @@ class RewardTest(unittest.TestCase):
         self.assertAlmostEqual(1.0, rewards[0] + rewards[1])
         self.assertEqual(rewards[1], rewards[2])
 
-    def test_more_points_is_better_within_a_win(self) -> None:
+    def test_more_points_is_better_after_a_secured_win(self) -> None:
         self.assertGreater(
             state([[], [], []], points=[100, 20, 0]).rewards()[0],
             state([[], [], []], points=[70, 50, 0]).rewards()[0],
         )
+
+    def test_rollout_bonuses_cannot_change_a_search_started_before_victory(self):
+        root = state([[], [], []], points=[45, 50, 0])
+        a, b = root.clone(), root.clone()
+        a.points, b.points = [61, 59, 0], [120, 0, 0]
+        self.assertEqual(a.rewards()[0], b.rewards()[0])
+
+    def test_post_victory_bonus_still_rewards_points_without_schneider(self):
+        root = state([[], [], []], points=[61, 30, 0])
+        a, b = root.clone(), root.clone()
+        a.points, b.points = [65, 55, 0], [80, 40, 0]
+        self.assertGreater(b.rewards()[0], a.rewards()[0])
 
     def test_null_soloist_wins_by_taking_nothing(self) -> None:
         clean = state([[], [], []], trick=NullTrick(), is_null=True).rewards()

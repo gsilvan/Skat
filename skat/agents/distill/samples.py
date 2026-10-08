@@ -33,6 +33,7 @@ class Samples(NamedTuple):
     masks: torch.Tensor  # (N, 32) bool
     groups: torch.Tensor  # (N,) int64 - round id, for a leak-free split
     choices: torch.Tensor  # (N,) int64 - the card the teacher played
+    reward_objective: str = "legacy-point-shaped"
 
     def __len__(self) -> int:
         return int(self.states.shape[0])
@@ -60,7 +61,7 @@ class ShardWriter:
         shard_size: int = DEFAULT_SHARD_SIZE,
         input_size: int = DEFAULT_INPUT_SIZE,
         tag: str = "",
-        provenance: dict[str, int] | None = None,
+        provenance: dict[str, int | str] | None = None,
     ) -> None:
         self.directory = directory
         self.shard_size = shard_size
@@ -152,7 +153,12 @@ class ShardWriter:
         # Seeds are derived from SHA-256 and intentionally span uint32.  A
         # signed int32 overflows for roughly half of that range (e.g. seed
         # 2522612516), aborting an otherwise completed collection run.
-        arrays.update({k: np.int64(v) for k, v in self.provenance.items()})
+        arrays.update(
+            {
+                k: np.asarray(v) if isinstance(v, str) else np.int64(v)
+                for k, v in self.provenance.items()
+            }
+        )
         np.savez_compressed(path, **arrays)
         self.written += len(self._states)
         self.shards += 1
@@ -197,8 +203,18 @@ def load_shards(
 
     states, visits, values, masks, groups, choices = [], [], [], [], [], []
     offset = 0
+    objectives = set()
     for path in paths:
         with np.load(path) as shard:
+            objectives.add(
+                str(shard["reward_objective"])
+                if "reward_objective" in shard
+                else "legacy-point-shaped"
+            )
+            if len(objectives) > 1:
+                raise RuntimeError(
+                    "Mixed reward objectives in corpus; keep old and win-first shards in separate directories."
+                )
             version = int(shard["shard_version"])
             if version != SHARD_VERSION:
                 raise RuntimeError(
@@ -230,4 +246,5 @@ def load_shards(
         masks=torch.from_numpy(np.concatenate(masks)).to(torch.bool),
         groups=torch.from_numpy(np.concatenate(groups)).to(torch.int64),
         choices=torch.from_numpy(np.concatenate(choices)).to(torch.int64),
+        reward_objective=next(iter(objectives)),
     )

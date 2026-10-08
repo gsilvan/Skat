@@ -82,7 +82,7 @@ def uct_search(
     Run `iterations` UCT playouts on the perfect-information `state` and report
     `{move: (visits, value_sum)}` for the root's moves, valued from the
     perspective of the seat to move at the root. `outcome_only` replaces the
-    normal point-shaped reward with a strict party win/loss; bidding uses it to
+    normal win-first/secured-bonus reward with strict party win/loss; bidding uses it to
     estimate a probability rather than a card-point utility.
     """
     root = Node(to_move=state.to_move, untried=state.legal_moves())

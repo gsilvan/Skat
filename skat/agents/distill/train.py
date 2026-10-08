@@ -192,6 +192,7 @@ def train(args) -> None:
 
     architecture = ARCHITECTURES[args.arch]
     samples = load_shards(args.data, input_size=architecture.INPUT_SIZE)
+    print(f"teacher reward objective: {samples.reward_objective}")
     targets = build_targets(samples, args.target, args.target_temperature)
     train_idx, val_idx = split_by_group(samples.groups, args.val_fraction, args.seed)
     print(
@@ -269,6 +270,7 @@ def train(args) -> None:
                     "target_temperature": args.target_temperature,
                     "val_loss": val_loss,
                     "val_agreement": val_top1,
+                    "reward_objective": samples.reward_objective,
                 },
             )
             marker = " *"

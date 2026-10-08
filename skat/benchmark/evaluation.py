@@ -77,6 +77,12 @@ def evaluate_candidate(
     by_seat = []
     by_opponent = []
     passed = 0
+    tiers = {
+        "schneider_wins": 0,
+        "schneider_losses": 0,
+        "schwarz_wins": 0,
+        "schwarz_losses": 0,
+    }
     for opponent_name, opponent_factory in opponents.items():
         opponent_totals = {key: 0 for key in totals}
         opponent_passed = 0
@@ -94,6 +100,15 @@ def evaluate_candidate(
                 opponent_totals[key] += score[key]
             passed += tournament.passed
             opponent_passed += tournament.passed
+            for record in tournament.round_records:
+                features = record.get("result_features")
+                if features is None:
+                    continue
+                direction = 1 if record["soloist"] == candidate_seat else -1
+                for index, tier in ((1, "schneider"), (2, "schwarz")):
+                    value = direction * features[index]
+                    tiers[f"{tier}_wins"] += int(value > 0)
+                    tiers[f"{tier}_losses"] += int(value < 0)
             by_seat.append(
                 {
                     "opponent": opponent_name,
@@ -150,6 +165,7 @@ def evaluate_candidate(
             ),
             "by_seat": by_seat,
             "by_opponent": by_opponent,
+            **tiers,
         }
     )
     return totals
