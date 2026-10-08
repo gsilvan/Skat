@@ -60,3 +60,63 @@ OMP_NUM_THREADS=1 python -m skat.benchmark.reward_tiebreak \
 ```
 
 Raw results: `benchmark_runs/reward-comparison-tiebreak.json`.
+
+## Larger policy corpus and independent confirmation
+
+With teacher commit `5a3efba`, eight collectors played 650 rounds each at
+600 simulations / 20 determinizations, with seeds `20261018` through
+`20261025`. The resulting eight shards contain 110,156 decisions from
+4,936 played, recorded rounds. Group-aware splitting gives 104,623 training
+and 5,533 validation examples. Each worker produced one shard, keeping a
+round's decisions together across the split.
+
+The full-feature value-target transformer was trained for 40 epochs on the
+RX 5600 XT / ROCm 7.2 with seed `394376469`. The best validation checkpoint
+is epoch 29: loss 1.2299468 and teacher agreement 57.4914%. Collection took
+10 minutes; training took 20.5 minutes. The checkpoint is
+`trained_models/policy-transformer-value-win-first-tiebreak.pt`.
+
+```bash
+python -m skat.agents.distill.train \
+  --data benchmark_runs/win-first-tiebreak-training/data \
+  --arch transformer --features full --target value \
+  --epochs 40 --seed 394376469 --device cuda \
+  --out trained_models/policy-transformer-value-win-first-repeat.pt \
+  --log-dir runs/policy-transformer-value-win-first-repeat
+```
+
+On the original 200 evaluation deals (seed `3030215365`), the new model wins
+74.25% of 1,200 seat/panel games versus 72.58% for the old 120-epoch policy.
+The paired deal-cluster bootstrap interval for the advantage is -0.75 to
++4.08 percentage points: promising, but not conclusive on that sample.
+
+A single independent confirmation used 1,000 fresh deals, seed `291503412`
+(`stage_seed(20261008, "policy-win-first-independent-confirmation")`). Both
+policies were reevaluated on the same deals, three seats and the two original
+opponent panels, with CUDA inference, Torch 2.14.0 and one Torch thread.
+Neither model was retrained or selected using these confirmation outcomes.
+
+| Metric | Old value policy, 120 epochs | New value policy, larger corpus |
+| --- | ---: | ---: |
+| Party wins | 4,338 / 6,000 (72.30%) | 4,556 / 6,000 (75.93%) |
+| Against random | 82.93% | 86.00% |
+| Against original transformer policy | 61.67% | 65.87% |
+| As soloist | 80.72% | 84.12% |
+| On defence | 67.41% | 71.15% |
+| Party Schneider wins | 1,281 | 1,329 |
+| Party Schwarz wins (engine definition) | 25 | 62 |
+| Party card points per round | 72.13 | 73.72 |
+
+The paired advantage is **+3.63 percentage points**, with a 95% deal-cluster
+bootstrap interval of **+2.65 to +4.67** points (10,000 resamples, seed 42).
+There are 593 improved and 375 regressed seat/panel outcomes. The new
+checkpoint is preferred for these opponent populations. This compares the
+whole training recipe: more data and a changed teacher objective, not an
+isolated causal test of the reward change. A distilled policy approximates
+the teacher; its neural predictions do not guarantee exact win-first choices.
+No new DQN checkpoint was trained in this experiment.
+
+Raw outcomes, checkpoint hashes and training provenance are in
+`benchmark_runs/win-first-tiebreak-training/{manifest,policy-evaluation,policy-confirmation}.json`.
+The two-panel evaluation uses `skat.benchmark.evaluation.evaluate_candidate`;
+the bootstrap uses `skat.benchmark.reward_tiebreak.paired_comparison`.
