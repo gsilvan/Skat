@@ -86,10 +86,9 @@ available CPUs by default (`--workers N` limits them). A global progress bar
 counts completed rounds. Each worker owns its agents and recorder; global
 round and seat seeds preserve the games and search tallies across worker counts.
 Worker shards are published atomically and remain available after interruption.
-`collection.json` records completion state and provenance. Single-game `play`
-searches remain serial.
+`collection.json` records completion state and provenance.
 
-A standalone 32-round check at 600 simulations / 20 determinizations, seed 123,
+A standalone 32-round check on commit `237dcf0`, at 600 simulations / 20 determinizations, seed 123,
 on the Ryzen 7 5800X measured 33.9 seconds with one worker, 5.6 with eight and
 5.4 with sixteen logical-CPU workers: about 6.3× faster than serial. All runs
 recorded identical arrays for all 679 decisions. Shards load in global round
@@ -98,3 +97,28 @@ count. Short regressions compare the full recorded
 search arrays across worker counts; a separate real Ctrl-C check verifies that
 worker processes exit and valid decisions are retained. These timing runs are
 not part of the automated tests.
+
+## Parallel search within a game
+
+`play` and `evaluate` now share a persistent CPU process pool across all MCTS
+seats. Independent determinized worlds run concurrently, each with its own RNG
+stream; results are aggregated in world order. Worker count changes neither
+the simulation budget nor the tally, selected move or following RNG state.
+The world RNG scheme differs from older commits and is recorded as
+`independent-world-v1` in new collection/evaluation manifests. Existing corpus
+and checkpoint schemas remain valid because observations and targets are unchanged.
+
+The default uses available CPUs up to the number of determinizations. `--workers`
+also limits play/evaluation, with `1` running inline. Forced moves start no workers.
+Collection continues to parallelize full rounds with serial searches inside,
+avoiding nested pools. Short tests cover exact tallies for suit, Grand, Null and
+ouvert, uneven simulation budgets, pool reuse and cleanup after worker failure.
+
+A standalone 24-round game with MCTS against two Random agents, seed 123 and
+the default 600 simulations / 20 worlds, took 7.16 seconds with one worker,
+2.88 with eight and 2.80 with sixteen on the Ryzen 7 5800X. These timings
+include startup and shutdown: about 2.6× faster with sixteen workers. Tournament
+scores matched across all three runs. Small trees and IPC overhead limit scaling;
+the pool is amortized over successive decisions. A separate real Ctrl-C check
+also verified that both active search workers were reaped. Benchmarks remain
+outside the test suite.

@@ -43,11 +43,12 @@ def get_args(argv=None):
             p.add_argument(
                 "--iss-file", help="Replay a pre-parsed .pkl or optional .sgf corpus"
             )
-        if name == "collect":
-            p.add_argument("--out", required=True, help="New corpus directory")
+        if name in ("play", "collect", "evaluate"):
             p.add_argument(
                 "--workers", type=int, help="CPU workers (default: all available CPUs)"
             )
+        if name == "collect":
+            p.add_argument("--out", required=True, help="New corpus directory")
         if name == "train":
             p.add_argument("--data", required=True)
             p.add_argument("--out", required=True)
@@ -60,7 +61,16 @@ def get_args(argv=None):
     return parser.parse_args(argv)
 
 
-def get_player(name, *, seed=None, policy=None, device="cpu", mcts=None, recorder=None):
+def get_player(
+    name,
+    *,
+    seed=None,
+    policy=None,
+    device="cpu",
+    mcts=None,
+    recorder=None,
+    search_pool=None,
+):
     if name == "random":
         from skat.agents.random import RandomAgent
 
@@ -74,9 +84,9 @@ def get_player(name, *, seed=None, policy=None, device="cpu", mcts=None, recorde
 
         kwargs = asdict(mcts) if mcts is not None else {}
         return (
-            RecordingMCTSAgent(recorder, seed=seed, **kwargs)
+            RecordingMCTSAgent(recorder, seed=seed, search_pool=search_pool, **kwargs)
             if recorder is not None
-            else MCTSAgent(seed=seed, **kwargs)
+            else MCTSAgent(seed=seed, search_pool=search_pool, **kwargs)
         )
     if name == "policy":
         from skat.agents.policy import PolicyAgent
@@ -92,28 +102,33 @@ def main(argv=None):
     try:
         mcts, training = load_config(args.config)
         if args.command == "play":
+            from skat.agents.search.parallel import SearchPool
             from skat.game import Tournament
 
-            agents = [
-                get_player(
-                    name,
-                    seed=args.seed + i,
-                    policy=args.policy,
-                    device=args.device,
-                    mcts=mcts,
+            with SearchPool(
+                args.workers, capacity=mcts.determinizations
+            ) as search_pool:
+                agents = [
+                    get_player(
+                        name,
+                        seed=args.seed + i,
+                        policy=args.policy,
+                        device=args.device,
+                        mcts=mcts,
+                        search_pool=search_pool,
+                    )
+                    for i, name in enumerate(args.agents)
+                ]
+                tournament = Tournament(
+                    args.rounds,
+                    agents,
+                    seed=args.seed,
+                    verbose=args.verbose,
+                    iss_file=args.iss_file,
+                    progress=True,
                 )
-                for i, name in enumerate(args.agents)
-            ]
-            tournament = Tournament(
-                args.rounds,
-                agents,
-                seed=args.seed,
-                verbose=args.verbose,
-                iss_file=args.iss_file,
-                progress=True,
-            )
-            tournament.start()
-            print(tournament.summary())
+                tournament.start()
+                print(tournament.summary())
         elif args.command == "collect":
             from skat.collection import collect
 
@@ -138,17 +153,22 @@ def main(argv=None):
                 )
             )
         else:
+            from skat.agents.search.parallel import SearchPool
             from skat.evaluation import evaluate
 
-            evaluate(
-                args.agents,
-                args.policy,
-                args.out,
-                deals=args.deals,
-                seed=args.seed,
-                device=args.device,
-                mcts=mcts,
-            )
+            with SearchPool(
+                args.workers, capacity=mcts.determinizations
+            ) as search_pool:
+                evaluate(
+                    args.agents,
+                    args.policy,
+                    args.out,
+                    deals=args.deals,
+                    seed=args.seed,
+                    device=args.device,
+                    mcts=mcts,
+                    search_pool=search_pool,
+                )
     except (ValueError, RuntimeError, FileNotFoundError, ImportError) as exc:
         raise SystemExit(str(exc)) from exc
 
