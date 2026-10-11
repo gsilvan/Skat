@@ -215,3 +215,17 @@ declaration. Its conservative Spielwert ceiling is used, so the search changes
 which games are attempted without introducing overbids. Null is deliberately
 not considered: its objective and declaration values need a separate
 loss-of-trick model rather than the point-game comparison requested here.
+
+## Archived perfect-information experiment
+
+The experimental teacher and its collection/training pipeline were removed
+after the paired evaluation found no significant playing-strength advantage:
+66.33% versus 66.28% for the public-teacher student (+0.05 percentage points;
+deal-clustered 95% interval: −0.83 to +0.97).
+
+Data, both trained models, logs, results and a source-code snapshot remain
+locally under `benchmark_runs/perfect-information-teacher/`; see `REPORT.md`.
+The leak fix, win-first rewards and corrected public-information training
+pipeline remain unchanged. The public corpus and public-policy checkpoint
+can still be used normally. Repeating the oracle experiment requires restoring
+the archived source and support patch; it is no longer an active CLI command.
