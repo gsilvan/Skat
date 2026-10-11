@@ -1,6 +1,7 @@
 """Single-architecture, visit-target policy training with a round-aware split."""
 
 import hashlib
+import json
 from dataclasses import asdict
 from pathlib import Path
 
@@ -28,6 +29,22 @@ def split_by_group(groups, seed=1):
     return np.flatnonzero(~is_val), np.flatnonzero(is_val)
 
 
+def target_baselines(targets, masks):
+    probabilities = targets.double()
+    entropy = -(probabilities * probabilities.clamp_min(1e-300).log()).sum(1)
+    return dict(
+        target_entropy=float(entropy.mean()),
+        uniform_loss=float(masks.sum(1).double().log().mean()),
+    )
+
+
+def save_training_report(path, report):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(json.dumps(report, indent=2) + "\n")
+    temporary.replace(path)
+
+
 def train(directory, output, *, config=None, seed=1, device="cpu"):
     config = config or TrainConfig()
     seed_everything(seed)
@@ -39,6 +56,10 @@ def train(directory, output, *, config=None, seed=1, device="cpu"):
     masks = torch.from_numpy(samples.masks).bool()
     targets = visit_targets(torch.from_numpy(samples.visits), masks)
     choices = torch.from_numpy(samples.choices).long()
+    baselines = {
+        phase: target_baselines(targets[rows], masks[rows])
+        for phase, rows in (("train", train_rows), ("val", val_rows))
+    }
 
     def dataset(rows):
         return TensorDataset(states[rows], masks[rows], targets[rows], choices[rows])
@@ -58,6 +79,7 @@ def train(directory, output, *, config=None, seed=1, device="cpu"):
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate)
     history = []
     best = float("inf")
+    best_epoch = None
     corpus_hash = hashlib.sha256()
     for file in sorted(Path(directory).glob("*.npz")):
         with file.open("rb") as stream:
@@ -71,7 +93,13 @@ def train(directory, output, *, config=None, seed=1, device="cpu"):
         val_rows=len(val_rows),
         device=str(device),
         torch_version=str(torch.__version__),
+        target_baselines=baselines,
     )
+    collection_path = Path(directory) / "collection.json"
+    if collection_path.exists():
+        metadata["collection"] = json.loads(collection_path.read_text())
+    report_path = Path(output).with_suffix(".training.json")
+    print(f"Target baselines: {baselines}", flush=True)
     for epoch in range(config.epochs):
         stats = {}
         for phase, loader in (("train", train_loader), ("val", val_loader)):
@@ -96,11 +124,24 @@ def train(directory, output, *, config=None, seed=1, device="cpu"):
                     count += n
             stats[f"loss_{phase}"] = total / count
             stats[f"agreement_{phase}"] = correct / count
+            stats[f"kl_{phase}"] = (
+                stats[f"loss_{phase}"] - baselines[phase]["target_entropy"]
+            )
         history.append(stats)
         if stats["loss_val"] < best:
             best = stats["loss_val"]
+            best_epoch = epoch + 1
             save_policy(
                 output, model, {**metadata, "best_epoch": epoch + 1, "metrics": stats}
             )
         print(f"epoch {epoch + 1}/{config.epochs}: {stats}", flush=True)
-    return {**metadata, "best_val_loss": best, "history": history}
+        report = {
+            **metadata,
+            "best_val_loss": best,
+            "best_epoch": best_epoch,
+            "completed_epochs": epoch + 1,
+            "history": history,
+            "report_path": str(report_path),
+        }
+        save_training_report(report_path, report)
+    return report

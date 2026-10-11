@@ -23,6 +23,10 @@ Die normale Installation braucht keine KI-Checkpoints. MCTS läuft ebenfalls ohn
 Torch. Auf Linux/Windows installiert das AI-Extra standardmäßig CPU-Torch;
 GPU-Training benötigt einen passenden CUDA/ROCm-Build im verwendeten Interpreter.
 
+Der nächste Trainingslauf mit **2.000 MCTS-Simulationen, 10.000 Runden und
+100 Epochen** ist in [docs/teacher-training.md](docs/teacher-training.md)
+mit Lehrerprüfung und Befehlen für alle vier Arbeitsabläufe beschrieben.
+
 ## Vier Arbeitsabläufe
 
 ```bash
@@ -172,6 +176,9 @@ Die [abgeschlossene Validierung](docs/validation.md) enthält die gemessenen
 Ergebnisse dieses Standes einschließlich des verbleibenden Policy-/MCTS-Abstands.
 Der Split trennt vollständige Runden, auch wenn eine Runde mehrere Shards berührt.
 Shards und Checkpoints werden atomar geschrieben; Ctrl-C sichert gepufferte Daten.
+Training speichert die vollständige Lernkurve nach jeder Epoche neben dem
+Checkpoint als `.training.json`. Die KL-Metrik zeigt den Abstand zu den
+Besuchsverteilungen nach Abzug ihrer Entropie; die Spielstärke prüft die Evaluation.
 
 Evaluation speichert einzelne Ergebnisse, Seeds, Rollen, offizielle Punkte,
 Laufzeiten und Modellhashes in JSON. Unterschiede werden auf gemeinsamen

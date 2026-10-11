@@ -25,6 +25,9 @@ The stable core implements official digital Skat (ISkO November 2022). The
 
 Tests must stay short: only tiny training smoke checks are allowed. Real corpus
 collection, long training and playing-strength benchmarks run separately.
+`configs/teacher-2000.toml` is the opt-in 2,000-simulation / 100-epoch profile;
+baseline defaults stay unchanged. Training writes an atomic `.training.json`
+after each epoch; cross-entropy and KL metrics use the same visit targets.
 
 ## Boundaries
 

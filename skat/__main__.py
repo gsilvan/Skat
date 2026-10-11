@@ -154,15 +154,14 @@ def main(argv=None):
         elif args.command == "train":
             from skat.agents.distill.train import train
 
-            print(
-                train(
-                    args.data,
-                    args.out,
-                    config=training,
-                    seed=args.seed,
-                    device=args.device,
-                )
+            report = train(
+                args.data,
+                args.out,
+                config=training,
+                seed=args.seed,
+                device=args.device,
             )
+            print({key: value for key, value in report.items() if key != "history"})
         else:
             from skat.agents.search.parallel import SearchPool
             from skat.evaluation import evaluate
