@@ -1,11 +1,12 @@
 import unittest
-from unittest.mock import PropertyMock, patch
 
-import torch
+import pytest
 
-from skat.card import Card
+from skat.deck import Deck
 from skat.game import GamePhase, Round
 from skat.games.suit import SuitGame
+from skat.models.observation import INPUT_SIZE
+from skat.rules import RoundResult
 
 
 class GameTest(unittest.TestCase):
@@ -49,12 +50,7 @@ class GameTest(unittest.TestCase):
             self.assertEqual(10, len(player.hand))
 
     def test_deal_from_provided_cards(self) -> None:
-        cards = (
-            (Card(0, 0), Card(0, 1), Card(0, 2)),
-            (Card(1, 0), Card(1, 1), Card(1, 2)),
-            (Card(2, 0), Card(2, 1), Card(2, 2)),
-            (Card(3, 0), Card(3, 1)),
-        )
+        cards = Deck.factory(seed=8).to_list()
         custom_round = Round(
             dealer=0,
             skip_bidding=True,
@@ -68,7 +64,7 @@ class GameTest(unittest.TestCase):
         self.assertEqual(0, len(custom_round.skat))
         custom_round.deal()
         for player in custom_round.player:
-            self.assertEqual(3, len(player.hand))
+            self.assertEqual(10, len(player.hand))
         self.assertEqual(2, len(custom_round.skat))
 
     def test_next_player(self) -> None:
@@ -84,27 +80,12 @@ class GameTest(unittest.TestCase):
 
     def test_get_state_t(self) -> None:
         self.round.deal()
-        st: torch.Tensor = self.round.get_state_t(0)
-        self.assertEqual(torch.Size([1, 171]), st.size())
+        torch = pytest.importorskip("torch")
+        st = self.round.get_state_t(0)
+        self.assertEqual(torch.Size([1, INPUT_SIZE]), st.size())
 
-    def test_reward(self) -> None:
-        soloist_id = 0
-        self.round.solo_player_id = soloist_id
-
-        with patch(
-            "skat.game.Round.points_soloist",
-            new_callable=PropertyMock,
-            return_value=102,
-        ):
-            self.assertAlmostEqual(
-                0.8699, self.round.cumulative_reward(soloist_id), places=3
-            )
-
-        with patch(
-            "skat.game.Round.points_defenders",
-            new_callable=PropertyMock,
-            return_value=20,
-        ):
-            self.assertAlmostEqual(
-                0.0333332, self.round.cumulative_reward((soloist_id + 1) % 3), places=3
-            )
+    def test_reward(self):
+        self.assertEqual(0, self.round.cumulative_reward(0))
+        self.round.result = RoundResult(0, True, "won")
+        self.assertEqual(1, self.round.cumulative_reward(0))
+        self.assertEqual(-1, self.round.cumulative_reward(1))

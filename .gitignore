@@ -139,3 +139,23 @@ cython_debug/
 
 # pycharm
 .idea/
+
+# Copyrighted rules-document transcription — the source PDF is marked
+# "Nachdruck, auch auszugsweise, nur mit Genehmigung beider Verbände gestattet"
+# (DSkV/ISPA-World). Keep local-only, don't push to the public GitHub remote.
+Internationale-Skatordnung-2018.pdf
+internationale-skatordnung.md
+# Training artifacts and scraped corpora - regenerated, not source.
+runs/
+trained_models/
+benchmark_runs/
+data/
+skat/trained_models/
+tests/testfiles/skatstube/bulk/
+
+# Local web UI artifacts. The Skatstube sprite is intentionally not tracked:
+# its redistribution rights are unclear, and the UI has a CSS fallback.
+web/node_modules/
+web/dist/
+web/public/cards/*.png
+!web/public/cards/.gitkeep

@@ -1,7 +1,5 @@
 from typing import Optional
 
-import numpy as np
-
 import skat.games
 from skat.card import RANKS, SUITS, Card
 from skat.hand import HandOrder
@@ -9,9 +7,41 @@ from skat.trick import Trick
 
 MULTIPLIERS = (9, 10, 11, 12)
 
+JACK = RANKS.index("J")
+
+#: Trumps per suit, ascending: the suit's own cards without its jack, then all
+#: four jacks. Built once at import rather than per call — `Trick.winner` asks
+#: for these on every card comparison, and rebuilding the tuple there was the
+#: single hottest thing in the MCTS search (a majority of its runtime).
+TRUMP_CARDS: tuple[tuple[Card, ...], ...] = tuple(
+    tuple(
+        [Card(suit, rank) for rank in range(len(RANKS)) if rank != JACK]
+        + [Card(jack_suit, JACK) for jack_suit in range(len(SUITS))]
+    )
+    for suit in range(len(SUITS))
+)
+
+#: The same eight cards per suit that are *not* trump in that suit's own game.
+SUIT_CARDS: tuple[tuple[Card, ...], ...] = tuple(
+    tuple(Card(suit, rank) for rank in range(len(RANKS)) if rank != JACK)
+    for suit in range(len(SUITS))
+)
+
+#: Membership sets for the above. `card in TRUMPS[suit]` on the tuple is a
+#: linear scan of Card.__eq__; on the frozenset it is a hash lookup.
+_TRUMP_SET: tuple[frozenset[Card], ...] = tuple(
+    frozenset(trumps) for trumps in TRUMP_CARDS
+)
+
 
 class SuitGame(skat.games.Game):
     """Implements rules for a Suit-Game"""
+
+    #: Always set, unlike the base class default - a suit game has a trump suit.
+    suit: int
+    #: Narrower than the base class `Trick`: a suit game always deals in
+    #: SuitGameTricks, which know about trumps.
+    trick: "SuitGameTrick"
 
     def __init__(self, suit):
         self.suit = suit
@@ -27,40 +57,17 @@ class SuitGame(skat.games.Game):
         """
         Returns an ascending ordered tuple of trumps for the selected game
         """
-        trumps = list()
-        for i, rank in enumerate(RANKS):
-            if i == 3:
-                continue  # skip J, we add him later.
-            trumps.append(Card(suit, i))
-        for j in range(len(SUITS)):
-            trumps.append(Card(j, 3))  # add Js {♦J, ♥J, ♠J, ♣J}
-        return tuple(trumps)
+        return TRUMP_CARDS[suit]
 
     @staticmethod
     def suit_cards(suit) -> tuple[Card, ...]:
         # TODO: option for ascending, descending
-        suits = list()
-        for i, _ in enumerate(RANKS):
-            if i == 3:
-                continue  # skip J
-            suits.append(Card(suit, i))
-        return tuple(suits)
+        return SUIT_CARDS[suit]
 
     @property
     def value(self) -> int:
         """Returns the base multiplier for the selected game"""
         return MULTIPLIERS[self.suit]
-
-    def to_numpy(self) -> np.ndarray:
-        arr_size = 5
-        arr = np.zeros(arr_size, dtype=int)
-        for i in range(arr_size - 1):
-            # encode color
-            if i == self.suit:
-                arr[i] = 1
-        # encode current trick value TODO: check if current or interpolated works better
-        arr[4] = self.trick.value
-        return arr
 
     @staticmethod
     def __suit_order(suit: int) -> str:
@@ -84,11 +91,11 @@ class SuitGameTrick(Trick):
 
     def is_trump_card(self, card: Card) -> bool:
         """Check if given card is a trump card"""
-        card_set: set = {card}  # put the card in a set and compare it
-        return card_set < set(SuitGame.trump_cards(self.trump_suit))
+        return card in _TRUMP_SET[self.trump_suit]
 
     def is_trump_in_trick(self) -> bool:
-        return any(x in SuitGame.trump_cards(self.trump_suit) for _, x in self.buffer)
+        trumps = _TRUMP_SET[self.trump_suit]
+        return any(card in trumps for _, card in self.buffer)
 
     @property
     def forced_cards(self) -> set[Card]:
@@ -96,9 +103,9 @@ class SuitGameTrick(Trick):
             return set()
         else:
             if self.is_trump:
-                return set(SuitGame.trump_cards(self.trump_suit))
+                return set(TRUMP_CARDS[self.trump_suit])
             else:
-                return set(SuitGame.suit_cards(SUITS.index(self.buffer[0].card.suit)))
+                return set(SUIT_CARDS[SUITS.index(self.buffer[0].card.suit)])
 
     @property
     def is_trump(self) -> bool:

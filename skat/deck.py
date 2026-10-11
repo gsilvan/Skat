@@ -50,11 +50,12 @@ class Deck:
 
     def shuffle(self, seed=None) -> None:
         """
-        Shuffle the deck randomly.
+        Shuffle the deck randomly. A `seed` makes the deal reproducible using a
+        private generator: seeding the global `random` module here would also
+        pin every agent that draws from it, and resetting it afterwards would
+        throw away the caller's own seeding.
         """
-        random.seed(a=seed)
-        random.shuffle(self.deck)
-        random.seed(None)
+        random.Random(seed).shuffle(self.deck)
 
     def deal_cards(self, quantity=10) -> list[Card]:
         """
@@ -98,13 +99,12 @@ class Deck:
                 deck_cards[i + 30] = card
                 remaining_cards.remove(card)
 
-        random.seed(seed)
+        rng = random.Random(seed)  # private generator, see shuffle()
         for i in range(len(deck_cards)):
             if deck_cards[i] is None:
-                card = random.choice(remaining_cards)
+                card = rng.choice(remaining_cards)
                 deck_cards[i] = card
                 remaining_cards.remove(card)
-        random.seed(None)
 
         d = Deck()
         d.deck = deck_cards

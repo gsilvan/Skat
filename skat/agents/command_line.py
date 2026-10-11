@@ -1,76 +1,99 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Optional
-
 from skat.agents import Agent
-from skat.card import Card
-from skat.games.grand import Grand
-from skat.games.null import Null
-from skat.games.suit import SuitGame
-from skat.player import Player
+from skat.rules import Claim, Concede, GameDeclaration, OpenHand
 
-if TYPE_CHECKING:
-    from skat.games import Game
+
+def read_choice(prompt, choices):
+    while True:
+        answer = input(prompt).strip().lower()
+        if answer in choices:
+            return answer
+        print("Choose one of: " + ", ".join(choices))
 
 
 class CommandLineAgent(Agent):
-    def __init__(self) -> None:
-        self.state: Optional[Player] = None
+    def choose_card(self, valid_moves):
+        print(f"Seat {self.state.seat_id}: {list(self.state.hand)}")
+        for seat, cards in enumerate(self.state.exposed_hands):
+            if cards:
+                print(f"Open seat {seat}: {list(cards)}")
+        moves = sorted(valid_moves, key=lambda c: c.np_index)
+        choices = {str(i): c for i, c in enumerate(moves)}
+        choices["concede"] = Concede()
+        if self.state.seat_id == self.state.solo_player_id:
+            d = self.state.game.declaration
+            levels = (
+                [0]
+                if d.kind == "null"
+                else range(2 if d.schwarz_announced else int(d.schneider_announced), 3)
+            )
+            choices.update({f"claim{level}": Claim(level) for level in levels})
+        if self.state.seat_id != self.state.solo_player_id:
+            choices["open"] = OpenHand()
+        print("Cards: " + ", ".join(f"{i}={c!r}" for i, c in enumerate(moves)))
+        return choices[read_choice("Card/action: ", choices)]
 
-    def choose_card(self, valid_moves: set[Card]) -> Card:
-        print(f"choose one of {list(valid_moves)}:")
-        index = None
-        while index is None:
-            user_input = input("index: ")
-            try:
-                _in = int(user_input)
-                if _in in range(0, len(valid_moves)):
-                    index = _in
-            except ValueError:
-                print("Error: index out of range!")
-        choice = list(valid_moves)[index]
-        self.state.hand.remove(choice)
-        return choice
+    def pickup_skat(self, state=None):
+        return read_choice("Pick up skat? [y/n]: ", ("y", "n")) == "y"
 
-    def pickup_skat(self, state) -> bool:
-        user_input = input("pick up the skat? [y/n]: ")  # TODO: input sanitation
-        if user_input == "y":
-            return True
-        elif user_input == "n":
-            return False
-        else:
-            return True
+    def bid(self, current_bid, offer=None):
+        print(f"Your hand: {list(self.state.hand)}")
+        if offer is not None:
+            return (
+                offer if read_choice(f"Hold {offer}? [y/n]: ", ("y", "n")) == "y" else 0
+            )
+        legal = [v for v in self.VALID_BIDS if v == 0 or v > current_bid]
+        return int(
+            read_choice(f"Bid above {current_bid} (0=pass): ", [str(v) for v in legal])
+        )
 
-    def bid(self, current_bid, offer=False) -> int:
-        print(f"current bid: {current_bid}")
-        user_input = input("your bid: ")  # TODO: input sanitation
-        return int(user_input)
-
-    def declare_game(self, state) -> Game:
-        available_games = ["Diamonds", "Hearts", "Spades", "Clubs", "Grand", "Null"]
-        user_input = int(input(f"select one of: {available_games}"))
-        # TODO: input sanitation
-        match user_input:
-            case 0:
-                return SuitGame(0)
-            case 1:
-                return SuitGame(1)
-            case 2:
-                return SuitGame(2)
-            case 3:
-                return SuitGame(3)
-            case 4:
-                return Grand()
-            case 5:
-                return Null()
-            case _:
-                raise Exception("choose 0..5. nothing else!")
-
-    def press_skat(self) -> list[Card]:
-        if self.state is None:
-            raise Exception("a state is missing")
-        skat = list()
+    def press_skat(self):
+        remaining = list(self.state.hand)
+        pressed = []
         for _ in range(2):
-            user_input = input(f"select one of {self.state.hand}")  # TODO: input sanit.
-            skat.append(self.state.hand.pop(int(user_input)))
-        return skat
+            print(", ".join(f"{i}={c!r}" for i, c in enumerate(remaining)))
+            index = int(
+                read_choice(
+                    "Press card index: ", [str(i) for i in range(len(remaining))]
+                )
+            )
+            pressed.append(remaining.pop(index))
+        return pressed
+
+    def declare_game(self, state=None):
+        kind = read_choice(
+            "Game [diamonds/hearts/spades/clubs/grand/null]: ",
+            ("diamonds", "hearts", "spades", "clubs", "grand", "null"),
+        )
+        suit = (
+            ("diamonds", "hearts", "spades", "clubs").index(kind)
+            if kind not in ("grand", "null")
+            else None
+        )
+        ouvert = False
+        schneider = schwarz = False
+        if kind == "null" or self.state.hand_game:
+            ouvert = read_choice("Ouvert? [y/n]: ", ("y", "n")) == "y"
+        if kind != "null" and self.state.hand_game and not ouvert:
+            level = read_choice(
+                "Announcement [simple/schneider/schwarz]: ",
+                ("simple", "schneider", "schwarz"),
+            )
+            schneider, schwarz = level != "simple", level == "schwarz"
+        return GameDeclaration(
+            "suit" if suit is not None else kind,
+            suit,
+            bool(self.state.hand_game),
+            ouvert,
+            schneider,
+            schwarz,
+        )
+
+    def confirm_concession(self):
+        return read_choice("Accept soloist concession? [y/n]: ", ("y", "n")) == "y"
+
+    def confirm_claim(self, level):
+        print(f"Soloist cards: {self.state.exposed_hands[self.state.solo_player_id]}")
+        return (
+            read_choice(f"Accept soloist claim (level {level})? [y/n]: ", ("y", "n"))
+            == "y"
+        )

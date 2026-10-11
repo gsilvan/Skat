@@ -7,11 +7,27 @@ from skat.card import RANKS, SUITS, Card
 from skat.hand import HandOrder
 from skat.trick import Trick
 
+#: Null has no trumps, so a "suit" is simply all eight cards of it - jack
+#: included, since it ranks between ten and queen rather than as a trump.
+SUIT_CARDS: tuple[tuple[Card, ...], ...] = tuple(
+    tuple(Card(suit, rank) for rank in range(len(RANKS))) for suit in range(len(SUITS))
+)
+
 
 class Null(skat.games.Game):
-    def __init__(self) -> None:
+    #: Fixed Spielwert per ISkO §2.4.2, keyed by (hand, ouvert).
+    VALUES = {
+        (False, False): 23,  # Null
+        (True, False): 35,  # Null Hand
+        (False, True): 46,  # Null ouvert
+        (True, True): 59,  # Null Hand ouvert
+    }
+
+    def __init__(self, hand: bool = False, ouvert: bool = False) -> None:
         self.trick = NullTrick()
         self.order = HandOrder(ranks="789XJQKA")
+        self.hand = hand
+        self.ouvert = ouvert
 
     def new_trick(self) -> None:
         self.trick = NullTrick()
@@ -23,17 +39,20 @@ class Null(skat.games.Game):
 
     @staticmethod
     def suit_cards(suit) -> tuple[Card, ...]:
-        suits = list()
-        for i, _ in enumerate(RANKS):
-            suits.append(Card(suit, i))
-        return tuple(suits)
+        return SUIT_CARDS[suit]
 
     @property
     def value(self) -> int:
-        return 23
+        return self.declaration.base_value
+
+    def spielwert(self, cards) -> int:
+        """Null has no trumps and so no matadors - the value is flat."""
+        return self.value
 
     def to_numpy(self) -> np.ndarray:
-        return np.array([self.trick.value])
+        arr = super().to_numpy()  # null has no trumps
+        arr[5] = 1  # is_null
+        return arr
 
 
 class NullTrick(Trick):
@@ -42,7 +61,7 @@ class NullTrick(Trick):
         if len(self.buffer) == 0:
             return set()
         else:
-            return set(Null.suit_cards(SUITS.index(self.buffer[0].card.suit)))
+            return set(SUIT_CARDS[SUITS.index(self.buffer[0].card.suit)])
 
     @property
     def is_trump(self) -> bool:

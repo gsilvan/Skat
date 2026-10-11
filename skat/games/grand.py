@@ -7,6 +7,18 @@ from skat.card import RANKS, SUITS, Card
 from skat.hand import HandOrder
 from skat.trick import Trick
 
+#: Grand's only trumps are the four jacks, and the eight plain cards of each
+#: suit. Built once at import for the same reason as in `skat.games.suit` -
+#: `Trick.forced_cards` and `winner` ask for them constantly during search.
+TRUMP_CARDS: tuple[Card, ...] = tuple(
+    Card(suit, RANKS.index("J")) for suit in range(len(SUITS))
+)
+
+SUIT_CARDS: tuple[tuple[Card, ...], ...] = tuple(
+    tuple(Card(suit, rank) for rank in range(len(RANKS)) if rank != RANKS.index("J"))
+    for suit in range(len(SUITS))
+)
+
 
 class Grand(skat.games.Game):
     def __init__(self) -> None:
@@ -18,29 +30,19 @@ class Grand(skat.games.Game):
 
     @staticmethod
     def trump_cards(suit=None) -> tuple[Card, ...]:
-        trumps = list()
-        for i, _ in enumerate(SUITS):
-            trumps.append(Card(i, 3))
-        return tuple(trumps)
+        return TRUMP_CARDS
 
     @staticmethod
     def suit_cards(suit) -> tuple[Card, ...]:
-        suits = list()
-        for i, _ in enumerate(RANKS):
-            if i == 3:
-                continue  # skip J
-            suits.append(Card(suit, i))
-        return tuple(suits)
+        return SUIT_CARDS[suit]
 
     @property
     def value(self) -> int:
         return 24
 
     def to_numpy(self) -> np.ndarray:
-        arr_size = 5
-        arr = np.zeros(arr_size, dtype=int)
-        # encode current trick value TODO: check if current or interpolated works better
-        arr[4] = self.trick.value
+        arr = super().to_numpy()  # no trump suit to mark
+        arr[4] = 1  # is_grand
         return arr
 
 
@@ -51,9 +53,9 @@ class GrandTrick(Trick):
             return set()
         else:
             if self.is_trump:
-                return set(Grand.trump_cards())
+                return set(TRUMP_CARDS)
             else:
-                return set(Grand.suit_cards(SUITS.index(self.buffer[0].card.suit)))
+                return set(SUIT_CARDS[SUITS.index(self.buffer[0].card.suit)])
 
     @property
     def is_trump(self) -> bool:

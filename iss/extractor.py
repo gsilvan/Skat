@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-import sys
 import os.path
+import sys
 
 from iss import GameType, ISSGames
-
 
 if len(sys.argv) < 1:
     print("python extractor.py <path-to-sgf-file>")
