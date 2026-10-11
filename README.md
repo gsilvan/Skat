@@ -51,7 +51,9 @@ uv run --extra ai python -m skat evaluate \
 
 `--help` zeigt nur die Parameter des jeweiligen Befehls. Alte Aufrufe mit
 `-p0`, `-m0`, Reizstilen oder RL-Hyperparametern werden nicht weiter unterstützt.
-Fehlende und inkompatible Modelle führen zu einem Fehler.
+Fehlende und inkompatible Modelle führen zu einem Fehler. Historische ISS-Pickle-
+Dateien ohne vollständige Ansageinformationen müssen vor dem Replay mit dem
+aktuellen Parser erneut aus SGF erzeugt werden.
 
 Erweiterte Einstellungen kommen aus einer TOML-Datei:
 

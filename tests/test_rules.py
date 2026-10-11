@@ -424,3 +424,22 @@ def test_replayed_pressed_hand_preserves_skat_knowledge():
     assert set(r.view(0).skat) == set(r.skat)
     assert not r.view(1).skat
     assert r.get_state(0)[344:376].sum() == 2
+
+
+def test_invalid_agent_claim_does_not_expose_cards():
+    from skat.rules import Claim
+
+    r = Round(
+        solo_player_id=0,
+        dealer=2,
+        skip_bidding=True,
+        declare_game=GameDeclaration("grand", hand=True, schneider_announced=True),
+        seed=7,
+        start=False,
+    )
+    r.prepare()
+    r.player[0].strategy.choose_card = lambda moves: Claim(0)
+    before = tuple(r.player[0].hand)
+    with pytest.raises(ValueError):
+        r.step()
+    assert not r.exposed and tuple(r.player[0].hand) == before

@@ -171,14 +171,9 @@ class Tournament:
             seed = self.next_seed()
             kwargs = {}
             if samples:
-                from skat.utils.game_converter import get_game
-
                 sample = samples[i]
                 # ISS hands have already been pressed; replay them without a second pickup.
-                game = get_game(sample.type)
-                game.declaration = replace(
-                    game.declaration, hand=bool(sample.hand_game)
-                )
+                game = sample.declaration.make_game()
                 kwargs = dict(
                     skip_bidding=True,
                     solo_player_id=sample.soloist,
@@ -778,8 +773,8 @@ class Round:
         elif isinstance(action, Claim):
             if seat != self.solo_player_id:
                 raise ValueError("only the soloist may claim")
-            self.exposed.add(seat)
-            self._refresh()
+            # Validate before exposing the hand or asking opponents.
+            self.claim(seat, action.level)
             consents = [
                 p.seat_id
                 for p in self.player
