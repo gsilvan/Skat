@@ -1,0 +1,8 @@
+# More UCT search per sampled world: 100 instead of the baseline's 30.
+# Use the same profile for collection and teacher evaluation.
+[mcts]
+simulations = 2000
+determinizations = 20
+
+[train]
+epochs = 100

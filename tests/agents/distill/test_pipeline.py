@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import pytest
 
@@ -7,7 +9,7 @@ from skat.agents.distill.checkpoint import load_policy, save_policy
 from skat.agents.distill.loss import policy_loss
 from skat.agents.distill.samples import ShardWriter, load_shards
 from skat.agents.distill.targets import visit_targets
-from skat.agents.distill.train import split_by_group, train
+from skat.agents.distill.train import split_by_group, target_baselines, train
 from skat.agents.mcts import MCTSAgent, RecordingMCTSAgent
 from skat.agents.policy import PolicyAgent
 from skat.agents.random import RandomAgent
@@ -35,6 +37,24 @@ def test_illegal_logits_have_zero_gradient_and_do_not_change_loss():
 def test_visit_targets_reject_empty_rows():
     with pytest.raises(ValueError):
         visit_targets(torch.zeros(1, 32), torch.ones(1, 32, dtype=torch.bool))
+
+
+def test_target_baselines_distinguish_uniform_and_sharp_targets():
+    mask = torch.ones(2, 2, dtype=torch.bool)
+    uniform = torch.full((2, 2), 0.5)
+    sharp = torch.tensor([[1.0, 0.0], [0.0, 1.0]])
+    flat = target_baselines(uniform, mask)
+    peaked = target_baselines(sharp, mask)
+    assert flat["target_entropy"] == pytest.approx(flat["uniform_loss"])
+    assert peaked["target_entropy"] == 0
+    assert peaked["uniform_loss"] == pytest.approx(np.log(2))
+    logits = torch.zeros(2, 2)
+    assert policy_loss(logits, uniform, mask).item() - flat[
+        "target_entropy"
+    ] == pytest.approx(0, abs=1e-7)
+    assert policy_loss(logits, sharp, mask).item() - peaked[
+        "target_entropy"
+    ] == pytest.approx(np.log(2))
 
 
 def rows(writer, count=2):
@@ -153,6 +173,17 @@ def test_collect_train_serve_pipeline(tmp_path):
     config = TrainConfig(epochs=1, batch_size=32, d_model=16, nhead=2, num_layers=1)
     report = train(data_dir, output, config=config)
     assert report["train_rows"] > 0 and report["val_rows"] > 0
+    persisted = json.loads(output.with_suffix(".training.json").read_text())
+    assert persisted == report
+    assert report["completed_epochs"] == report["best_epoch"] == 1
+    for phase in ("train", "val"):
+        metrics = report["history"][0]
+        assert metrics[f"kl_{phase}"] == pytest.approx(
+            metrics[f"loss_{phase}"]
+            - report["target_baselines"][phase]["target_entropy"]
+        )
+    _, metadata = load_policy(output)
+    assert metadata["target_baselines"] == report["target_baselines"]
     agents = [PolicyAgent(output), RandomAgent(1), RandomAgent(2)]
     t = Tournament(3, agents=agents, seed=10)
     t.start()
