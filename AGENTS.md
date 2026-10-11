@@ -26,8 +26,11 @@ The stable core implements official digital Skat (ISkO November 2022). The
 Tests must stay short: only tiny training smoke checks are allowed. Real corpus
 collection, long training and playing-strength benchmarks run separately.
 `configs/teacher-2000.toml` is the opt-in 2,000-simulation / 100-epoch profile;
-baseline defaults stay unchanged. Training writes an atomic `.training.json`
-after each epoch; cross-entropy and KL metrics use the same visit targets.
+baseline defaults stay unchanged. `configs/iss.toml` selects 20 epochs for ISS
+demonstrations. `docs/iss-training.md` documents the streaming import and
+`scripts/run_iss_experiment.py` runs all stages with logs and durable status.
+Training writes an atomic `.training.json`
+after each epoch; cross-entropy and KL metrics use the same source targets.
 
 ## Boundaries
 
@@ -50,7 +53,8 @@ after each epoch; cross-entropy and KL metrics use the same visit targets.
   without one, the agent runs serially and owns no worker processes.
 - Groups remain round groups across shard boundaries; never split samples by row.
 - Checkpoints/shards require exact rules, observation and objective versions.
-- One transformer, one visit target, one win/loss reward. Archive experiments in
+- One transformer and one win/loss reward. MCTS uses visit targets; the separate
+  `iss-action-v1` corpus uses recorded legal cards, never fabricated visit counts. Archive experiments in
   separate branches rather than expanding the common CLI.
 - Randomness belongs to individual agents/deals. Stable derived seeds use SHA-256.
 
