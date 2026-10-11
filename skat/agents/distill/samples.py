@@ -118,8 +118,25 @@ class ShardWriter:
         self.close()
 
 
+def _shard_order(path):
+    with np.load(path, allow_pickle=False) as shard:
+        provenance = (
+            json.loads(shard["provenance"].item()) if "provenance" in shard else {}
+        )
+    if not isinstance(provenance, dict):
+        raise ValueError(f"{path}: invalid provenance")
+    if "round_start" in provenance:
+        start = provenance["round_start"]
+        if type(start) is not int or start < 0:
+            raise ValueError(f"{path}: invalid collection round offset")
+        # Independent workers have random collector tags. Global round order
+        # keeps row order and the seeded train/validation split reproducible.
+        return (0, start, path.name)
+    return (1, 0, path.name)
+
+
 def load_shards(directory):
-    files = sorted(Path(directory).glob("*.npz"))
+    files = sorted(Path(directory).glob("*.npz"), key=_shard_order)
     if not files:
         raise ValueError("no corpus shards found")
     columns = {

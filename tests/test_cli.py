@@ -92,7 +92,6 @@ def test_small_evaluation_retains_six_outcomes_per_deal(tmp_path):
 
 
 def test_collect_cli_writes_samples_for_an_initially_empty_recorder(tmp_path):
-    pytest.importorskip("torch")
     from skat.agents.distill.samples import load_shards
 
     settings = tmp_path / "quick.toml"

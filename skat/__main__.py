@@ -45,6 +45,9 @@ def get_args(argv=None):
             )
         if name == "collect":
             p.add_argument("--out", required=True, help="New corpus directory")
+            p.add_argument(
+                "--workers", type=int, help="CPU workers (default: all available CPUs)"
+            )
         if name == "train":
             p.add_argument("--data", required=True)
             p.add_argument("--out", required=True)
@@ -112,18 +115,16 @@ def main(argv=None):
             tournament.start()
             print(tournament.summary())
         elif args.command == "collect":
-            from skat.agents.distill.samples import ShardWriter
-            from skat.game import Tournament
+            from skat.collection import collect
 
-            with ShardWriter(
-                args.out, provenance={"seed": args.seed, **asdict(mcts)}
-            ) as writer:
-                agents = [
-                    get_player("mcts", seed=args.seed + i, mcts=mcts, recorder=writer)
-                    for i in range(3)
-                ]
-                Tournament(args.rounds, agents, seed=args.seed, progress=True).start()
-                print(f"Recorded {len(writer)} decisions in {args.out}")
+            result = collect(
+                args.out,
+                rounds=args.rounds,
+                seed=args.seed,
+                mcts=mcts,
+                workers=args.workers,
+            )
+            print(f"Recorded {result['decisions']} decisions in {args.out}")
         elif args.command == "train":
             from skat.agents.distill.train import train
 

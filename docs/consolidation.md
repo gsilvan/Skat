@@ -78,3 +78,23 @@ before exposing the soloist's cards.
 See [validation.md](validation.md) for the completed fresh collection, GPU
 training, full paired comparison and the small-test boundary. Raw artifacts
 remain local; the compact benchmark manifest/results are versioned.
+
+## Parallel MCTS collection
+
+`collect` now runs independent games in separate CPU processes, using all
+available CPUs by default (`--workers N` limits them). A global progress bar
+counts completed rounds. Each worker owns its agents and recorder; global
+round and seat seeds preserve the games and search tallies across worker counts.
+Worker shards are published atomically and remain available after interruption.
+`collection.json` records completion state and provenance. Single-game `play`
+searches remain serial.
+
+A standalone 32-round check at 600 simulations / 20 determinizations, seed 123,
+on the Ryzen 7 5800X measured 33.9 seconds with one worker, 5.6 with eight and
+5.4 with sixteen logical-CPU workers: about 6.3× faster than serial. All runs
+recorded identical arrays for all 679 decisions. Shards load in global round
+order to keep the row order and seeded training split independent of worker
+count. Short regressions compare the full recorded
+search arrays across worker counts; a separate real Ctrl-C check verifies that
+worker processes exit and valid decisions are retained. These timing runs are
+not part of the automated tests.
