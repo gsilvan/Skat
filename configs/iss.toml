@@ -1,0 +1,3 @@
+# Standalone imitation of validated ISS card decisions.
+[train]
+epochs = 20

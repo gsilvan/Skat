@@ -1,7 +1,8 @@
 # Skat
 
 Eine Python-Engine für offizielles digitales Skat, mit menschlichem Spieler,
-Random-Agent, MCTS und einer aus MCTS trainierten Transformer-Policy.
+Random-Agent, MCTS und einer aus MCTS oder ISS-Spielzügen trainierten
+Transformer-Policy.
 
 Der Branch `consolidation` beginnt auf `master` und übernimmt ausgewählte
 Korrekturen aus `vibe-coding`. Die Versuche mit DQN, Belief-Netzen, gelerntem
@@ -27,6 +28,10 @@ Der nächste Trainingslauf mit **2.000 MCTS-Simulationen, 10.000 Runden und
 100 Epochen** ist in [docs/teacher-training.md](docs/teacher-training.md)
 mit Lehrerprüfung und Befehlen für alle vier Arbeitsabläufe beschrieben.
 
+Eine eigenständige Policy aus dem ISS-Archiv ist in
+[docs/iss-training.md](docs/iss-training.md) beschrieben, einschließlich
+automatischem Audit, Training, Evaluation und Partien.
+
 ## Vier Arbeitsabläufe
 
 ```bash
@@ -39,7 +44,7 @@ uv run python -m skat play --agents cli mcts random
 # MCTS-Selbstspiel auf allen verfügbaren CPUs; neues Verzeichnis pro Lauf
 uv run python -m skat collect --rounds 1000 --seed 1 --out data/run-1
 
-# Genau eine Architektur und ein Ziel: Transformer auf MCTS-Besuchszahlen
+# Transformer auf MCTS-Besuchszahlen; ISS-Korpora verwenden aufgezeichnete Karten
 uv run --extra ai python -m skat train \
   --data data/run-1 --out trained_models/policy.pt --seed 1
 
