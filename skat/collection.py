@@ -17,15 +17,8 @@ from skat.agents.distill.samples import ShardWriter
 from skat.agents.mcts import RecordingMCTSAgent
 from skat.config import MCTSConfig
 from skat.game import Round
+from skat.utils.processes import available_cpus, worker_environment
 from skat.utils.reproducibility import stage_seed
-
-
-def available_cpus():
-    if hasattr(os, "process_cpu_count"):
-        return os.process_cpu_count() or 1
-    if hasattr(os, "sched_getaffinity"):
-        return len(os.sched_getaffinity(0)) or 1
-    return os.cpu_count() or 1
 
 
 def _publish(directory, output):
@@ -38,7 +31,13 @@ def _publish(directory, output):
 def _worker(output, index, start, rounds, seed, mcts, report):
     output = Path(output)
     directory = output / f".worker-{index}"
-    provenance = dict(seed=seed, round_start=start, rounds=rounds, **mcts)
+    provenance = dict(
+        seed=seed,
+        round_start=start,
+        rounds=rounds,
+        mcts_rng_scheme="independent-world-v1",
+        **mcts,
+    )
     try:
         with ShardWriter(directory, provenance=provenance) as writer:
             writer.group = 3 * start - 1
@@ -91,6 +90,7 @@ def collect(output, *, rounds=1000, seed=1, mcts=None, workers=None, progress=Tr
         mcts=asdict(mcts),
         status="running",
         seed_scheme="sha256-collect-deal-v1",
+        mcts_rng_scheme="independent-world-v1",
     )
     processes, logs = [], []
     readers = None
@@ -121,12 +121,9 @@ def collect(output, *, rounds=1000, seed=1, mcts=None, workers=None, progress=Tr
             if count == 1:
                 _worker(str(output), 0, 0, rounds, seed, asdict(mcts), report)
             elif count:
-                environment = os.environ.copy()
+                environment = worker_environment()
                 # Workers do Python search; NumPy's numerical thread pools would
                 # only oversubscribe the CPU during startup and small operations.
-                environment.update(
-                    OPENBLAS_NUM_THREADS="1", OMP_NUM_THREADS="1", MKL_NUM_THREADS="1"
-                )
                 start = 0
                 for index in range(count):
                     size = rounds // count + int(index < rounds % count)

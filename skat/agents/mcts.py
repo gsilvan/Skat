@@ -1,5 +1,7 @@
 """MCTS card play from a restricted PlayerView; conservative heuristic bidding."""
 
+from random import Random
+
 from skat.agents import Agent
 from skat.agents.declaring import HeuristicDeclarer
 from skat.agents.search import (
@@ -16,9 +18,12 @@ from skat.rules import null_overbid_substitute
 
 
 class MCTSAgent(HeuristicDeclarer, Agent):
-    def __init__(self, simulations=600, determinizations=20, seed=None):
+    def __init__(
+        self, simulations=600, determinizations=20, seed=None, search_pool=None
+    ):
         super().__init__(seed)
         self.config = MCTSConfig(simulations, determinizations)
+        self.search_pool = search_pool
 
     def choose_card(self, valid_moves):
         return self.search(valid_moves)
@@ -39,16 +44,29 @@ class MCTSAgent(HeuristicDeclarer, Agent):
     def tally(self, moves):
         totals = {c: [0, 0.0] for c in moves}
         base, remainder = divmod(self.config.simulations, self.config.determinizations)
+        tasks = []
         for i in range(self.config.determinizations):
-            world = self.determinize()
-            for c, (visits, value) in uct_search(
-                world, base + int(i < remainder), self.rng
-            ).items():
+            # Each world owns its sampling/playout stream; scheduling and worker
+            # count cannot change subsequent worlds or the selected card.
+            rng = Random(self.rng.getrandbits(64))
+            world = self.determinize(rng)
+            tasks.append((world, base + int(i < remainder), rng.getstate()))
+        if self.search_pool is not None:
+            results = self.search_pool.search(tasks)
+        else:
+            results = []
+            for world, iterations, rng_state in tasks:
+                rng = Random()
+                rng.setstate(rng_state)
+                results.append(uct_search(world, iterations, rng))
+        for result in results:
+            for c, (visits, value) in result.items():
                 totals[c][0] += visits
                 totals[c][1] += value
         return totals
 
-    def determinize(self):
+    def determinize(self, rng=None):
+        rng = self.rng if rng is None else rng
         v = self.state
         me, solo = v.seat_id, v.solo_player_id
         seen = set(v.hand) | set(v.skat)
@@ -69,7 +87,7 @@ class MCTSAgent(HeuristicDeclarer, Agent):
             capacities[SKAT_SLOT] = 2
         voids = infer_voids((*v.trick_history, v.game.trick), v.game.trick)
         deal = deal_unseen(
-            [c for c in FULL_HAND if c not in seen], capacities, voids, self.rng
+            [c for c in FULL_HAND if c not in seen], capacities, voids, rng
         )
         for seat in range(3):
             if seat in deal:

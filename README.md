@@ -55,8 +55,20 @@ Prozesszahl; `--workers 1` sammelt seriell. Seeds und Geberrotation sind
 an den globalen Rundenindex gebunden, sodass die Workerzahl die Spiele
 und Suchentscheidungen nicht verändert. Shards werden beim Laden in globaler
 Rundenreihenfolge sortiert, damit auch die Trainingsdatenreihenfolge und der
-Split unabhängig von der Workerzahl bleiben. Ein einzelnes Spiel mit `play`
-führt seine MCTS-Suchen weiterhin seriell aus.
+Split unabhängig von der Workerzahl bleiben.
+
+Auch `play` und `evaluate` nutzen bei MCTS standardmäßig alle verfügbaren CPUs:
+Die unabhängigen Suchwelten eines Kartenentscheids laufen in separaten Prozessen.
+Ein Prozesspool wird über die gesamte Partie und alle MCTS-Sitze wiederverwendet.
+Mit `--workers 8` begrenzt du ihn, mit `--workers 1` suchst du seriell. Höchstens
+ein Worker pro Determinisierung arbeitet gleichzeitig; die Voreinstellung sind
+20 Suchwelten. Bei `collect` bleibt es bei parallelen Runden, ohne zusätzliche
+Prozesspools innerhalb der Worker.
+
+Suchwelten haben eigene Zufallsströme: Derselbe Seed liefert mit einem oder
+mehreren Workern identische Besuchszahlen, Werte und Kartenentscheidungen.
+Diese Aufteilung ändert die konkreten Seed-Ergebnisse gegenüber älteren
+Commits; neue Korpus- und Evaluationsmanifeste halten sie fest.
 
 `collection.json` im neuen Korpusverzeichnis protokolliert Einstellungen,
 abgeschlossene Runden, Entscheidungen und Laufstatus. Bei Abbruch werden

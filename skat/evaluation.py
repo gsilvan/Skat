@@ -104,6 +104,7 @@ def evaluate(
     device="cpu",
     mcts=None,
     deal_offset=0,
+    search_pool=None,
 ):
     from skat.__main__ import get_player
 
@@ -139,6 +140,8 @@ def evaluate(
         deal_offset=deal_offset,
         agents=list(agent_names),
         mcts=asdict(mcts),
+        search_workers=search_pool.workers if search_pool is not None else 1,
+        mcts_rng_scheme="independent-world-v1",
         device=device,
         policy_sha256=hashlib.sha256(Path(policy).read_bytes()).hexdigest(),
         torch_version=str(torch.__version__),
@@ -191,6 +194,7 @@ def evaluate(
                             policy=policy,
                             device=device,
                             mcts=mcts,
+                            search_pool=search_pool,
                         )
                         for s in range(3)
                     ]

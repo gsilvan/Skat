@@ -5,6 +5,7 @@ import pytest
 from skat.agents.mcts import MCTSAgent
 from skat.agents.random import RandomAgent
 from skat.agents.search.determinize import SKAT_SLOT, deal_unseen, infer_voids
+from skat.agents.search.parallel import SearchPool
 from skat.card import Card
 from skat.game import Round
 from skat.rules import GameDeclaration
@@ -134,3 +135,61 @@ def test_void_inference_uses_game_follow_suit_rules():
     voids = infer_voids([trick], trick)
     assert Card(0, 0) in voids[1]
     assert Card(0, 3) not in voids[1]
+
+
+def test_parallel_tallies_match_serial_and_reuse_workers():
+    with SearchPool(2, capacity=3) as pool:
+        for declaration in (
+            GameDeclaration("suit", 3),
+            GameDeclaration("grand", hand=True),
+            GameDeclaration("null", hand=True),
+            GameDeclaration("grand", hand=True, ouvert=True),
+        ):
+            round_, agent = make_round(declaration)
+            # Uneven budgets must still use every simulation exactly once.
+            agent.config = type(agent.config)(31, 3)
+            moves = round_.player[0].valid_moves(round_.game.trick)
+            agent.rng.seed(123)
+            serial = agent.tally(moves)
+            after = agent.rng.getstate()
+            agent.rng.seed(123)
+            agent.search_pool = pool
+            assert agent.tally(moves) == serial
+            assert agent.rng.getstate() == after
+            assert sum(v[0] for v in serial.values()) == 31
+            processes = tuple(pool.processes)
+            agent.tally(moves)
+            assert tuple(pool.processes) == processes
+    assert all(p.poll() == 0 for p in processes)
+
+
+def test_forced_move_does_not_start_workers():
+    with SearchPool(2) as pool:
+        round_, agent = make_round(GameDeclaration("grand"))
+        agent.search_pool = pool
+        move = round_.player[0].hand[0]
+        assert agent.search([move]) == move
+        assert not pool.processes
+
+
+def test_worker_failure_closes_all_children():
+    with SearchPool(2, capacity=3) as pool:
+        round_, agent = make_round(GameDeclaration("grand"))
+        agent.search_pool = pool
+        moves = round_.player[0].valid_moves(round_.game.trick)
+        agent.tally(moves)
+        pool.processes[0].kill()
+        pool.processes[0].wait()
+        with pytest.raises(RuntimeError):
+            agent.tally(moves)
+        assert pool.closed
+        assert all(p.poll() is not None for p in pool.processes)
+
+
+def test_cpu_limit_and_invalid_worker_counts(monkeypatch):
+    monkeypatch.setattr("skat.agents.search.parallel.available_cpus", lambda: 16)
+    assert SearchPool(capacity=3).workers == 3
+    assert SearchPool(2, capacity=3).workers == 2
+    for workers in (0, -1, True, 1.5):
+        with pytest.raises(ValueError):
+            SearchPool(workers)
