@@ -33,12 +33,17 @@ def get_args(argv=None):
             )
             p.add_argument(
                 "--policy",
-                help="Transformer checkpoint (also used for the policy opponent panel)",
+                help="Shared checkpoint for policy seats; evaluation candidate checkpoint",
             )
             p.add_argument("--device", default="cpu")
         if name in ("play", "collect"):
             p.add_argument("--rounds", type=int, default=33 if name == "play" else 1000)
         if name == "play":
+            for seat in range(3):
+                p.add_argument(
+                    f"--policy{seat}",
+                    help=f"Checkpoint for policy agent at seat {seat} (overrides --policy)",
+                )
             p.add_argument("--verbose", action="store_true")
             p.add_argument(
                 "--iss-file", help="Replay a pre-parsed .pkl or optional .sgf corpus"
@@ -54,6 +59,12 @@ def get_args(argv=None):
             p.add_argument("--out", required=True)
             p.add_argument("--device", default="cpu")
         if name == "evaluate":
+            p.add_argument(
+                "--reference-policy",
+                "--opponent-policy",
+                dest="opponent_policy",
+                help="Fixed reference model for the other two policy seats (default: --policy)",
+            )
             p.add_argument("--deals", type=int, default=1000)
             p.add_argument(
                 "--out", required=True, help="JSON results including paired outcomes"
@@ -92,7 +103,7 @@ def get_player(
         from skat.agents.policy import PolicyAgent
 
         if not policy:
-            raise ValueError("policy agent requires --policy PATH")
+            raise ValueError("policy agent requires a checkpoint")
         return PolicyAgent(policy, device=device, seed=seed)
     raise ValueError(f"unknown agent {name}")
 
@@ -112,7 +123,7 @@ def main(argv=None):
                     get_player(
                         name,
                         seed=args.seed + i,
-                        policy=args.policy,
+                        policy=getattr(args, f"policy{i}") or args.policy,
                         device=args.device,
                         mcts=mcts,
                         search_pool=search_pool,
@@ -168,6 +179,7 @@ def main(argv=None):
                     device=args.device,
                     mcts=mcts,
                     search_pool=search_pool,
+                    opponent_policy=args.opponent_policy,
                 )
     except (ValueError, RuntimeError, FileNotFoundError, ImportError) as exc:
         raise SystemExit(str(exc)) from exc

@@ -105,6 +105,7 @@ def evaluate(
     mcts=None,
     deal_offset=0,
     search_pool=None,
+    opponent_policy=None,
 ):
     from skat.__main__ import get_player
 
@@ -116,6 +117,7 @@ def evaluate(
         raise ValueError(
             "evaluation requires --policy for the competent opponent panel"
         )
+    opponent_policy = opponent_policy or policy
     path = Path(output)
     if path.exists():
         raise ValueError("use a new results path; existing comparisons are preserved")
@@ -144,6 +146,9 @@ def evaluate(
         mcts_rng_scheme="independent-world-v1",
         device=device,
         policy_sha256=hashlib.sha256(Path(policy).read_bytes()).hexdigest(),
+        opponent_policy_sha256=hashlib.sha256(
+            Path(opponent_policy).read_bytes()
+        ).hexdigest(),
         torch_version=str(torch.__version__),
         numpy_version=np.__version__,
     )
@@ -191,7 +196,7 @@ def evaluate(
                         get_player(
                             name if s == seat else panel,
                             seed=seed + s,
-                            policy=policy,
+                            policy=policy if s == seat else opponent_policy,
                             device=device,
                             mcts=mcts,
                             search_pool=search_pool,
