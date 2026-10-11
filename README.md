@@ -32,7 +32,7 @@ uv run python -m skat play --rounds 33 --seed 7
 # Mensch an Sitz 0, Suchagent und Random als Gegner
 uv run python -m skat play --agents cli mcts random
 
-# MCTS-Selbstspiel; jedes Experiment erhält ein neues Verzeichnis
+# MCTS-Selbstspiel auf allen verfügbaren CPUs; neues Verzeichnis pro Lauf
 uv run python -m skat collect --rounds 1000 --seed 1 --out data/run-1
 
 # Genau eine Architektur und ein Ziel: Transformer auf MCTS-Besuchszahlen
@@ -48,6 +48,19 @@ uv run --extra ai python -m skat evaluate \
   --policy trained_models/policy.pt --deals 1000 --seed 7 \
   --out benchmark_runs/comparison.json
 ```
+
+`collect` verteilt vollständige Runden auf separate Prozesse und nutzt
+standardmäßig alle verfügbaren CPUs. Mit `--workers 8` begrenzt du die
+Prozesszahl; `--workers 1` sammelt seriell. Seeds und Geberrotation sind
+an den globalen Rundenindex gebunden, sodass die Workerzahl die Spiele
+und Suchentscheidungen nicht verändert. Shards werden beim Laden in globaler
+Rundenreihenfolge sortiert, damit auch die Trainingsdatenreihenfolge und der
+Split unabhängig von der Workerzahl bleiben. Ein einzelnes Spiel mit `play`
+führt seine MCTS-Suchen weiterhin seriell aus.
+
+`collection.json` im neuen Korpusverzeichnis protokolliert Einstellungen,
+abgeschlossene Runden, Entscheidungen und Laufstatus. Bei Abbruch werden
+verwertbare Shards erhalten; ein neuer Lauf benötigt ein neues Verzeichnis.
 
 `play` und `collect` zeigen eine Fortschrittsleiste mit abgeschlossenen und
 verbleibenden Runden sowie geschätzter Restzeit.

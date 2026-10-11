@@ -13,7 +13,8 @@ The stable core implements official digital Skat (ISkO November 2022). The
 - `uv run ruff check --select F,E9,I .`: errors, unused imports and import order.
 - `uv run ruff format --check .`: formatting.
 - `uv run python -m skat play --rounds 33`
-- `uv run python -m skat collect --rounds 1000 --out data/run-1`
+- `uv run python -m skat collect --rounds 1000 --out data/run-1`: all available CPU workers.
+- Add `--workers 1` for serial collection or `--workers N` to limit CPU use.
 - `uv run --extra ai python -m skat train --data data/run-1 --out trained_models/policy.pt`
 - `uv run --extra ai python -m skat evaluate --policy trained_models/policy.pt --out benchmark_runs/run-1.json`
 
@@ -32,6 +33,8 @@ collection, long training and playing-strength benchmarks run separately.
 - Policy observation is egocentric and includes contract, exposed cards, known
   skat and trick counts. Changing its meaning requires a schema bump and new data.
 - Distillation imports arrays, Card and model metadata, never Agent/Player/Round.
+- Collection workers own separate games and recorders; seeds derive from global
+  round indices and seats, so worker count does not change searches.
 - Groups remain round groups across shard boundaries; never split samples by row.
 - Checkpoints/shards require exact rules, observation and objective versions.
 - One transformer, one visit target, one win/loss reward. Archive experiments in
