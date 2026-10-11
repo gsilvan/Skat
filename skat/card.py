@@ -1,7 +1,10 @@
+from dataclasses import dataclass
+
 SUITS = ("♦", "♥", "♠", "♣")
 RANKS = ("7", "8", "9", "J", "Q", "K", "X", "A")
 
 
+@dataclass(frozen=True, init=False, eq=False, repr=False)
 class Card:
     """
     Definition of the 32-card pack for Skat:
@@ -10,10 +13,19 @@ class Card:
     Values = {0, 0, 0, 2, 3, 4, 10, 11}
     """
 
+    suit: str
+    rank: str
+    value: int
+
+    def __deepcopy__(self, memo):
+        return self
+
     def __init__(self, suit, rank) -> None:
-        self.suit = SUITS[suit]
-        self.rank = RANKS[rank]
-        self.value = [0, 0, 0, 2, 3, 4, 10, 11][rank]
+        if suit not in range(4) or rank not in range(8):
+            raise ValueError("invalid card")
+        object.__setattr__(self, "suit", SUITS[suit])
+        object.__setattr__(self, "rank", RANKS[rank])
+        object.__setattr__(self, "value", [0, 0, 0, 2, 3, 4, 10, 11][rank])
 
     def __lt__(self, other) -> bool:
         """
@@ -41,7 +53,11 @@ class Card:
         """
         Two cards are equal if they have same suit and rank.
         """
-        return self.suit == other.suit and self.rank == other.rank
+        return (
+            isinstance(other, Card)
+            and self.suit == other.suit
+            and self.rank == other.rank
+        )
 
     def __hash__(self) -> int:
         return hash((self.suit, self.rank))

@@ -68,3 +68,8 @@ class GrandTest(unittest.TestCase):
         self.grand.new_trick()
         self.grand.trick.append(0, Card(1, 3))
         self.assertTrue(self.grand.trick.is_trump)
+
+    def test_trump_and_suit_tables_are_precomputed(self) -> None:
+        self.assertIs(Grand.trump_cards(), Grand.trump_cards())
+        for suit in range(4):
+            self.assertIs(Grand.suit_cards(suit), Grand.suit_cards(suit))

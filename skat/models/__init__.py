@@ -1,1 +1,1 @@
-from .suit_solo import SuitSoloNet  # noqa: F401
+"""Neural models are optional; importing observation metadata does not load Torch."""

@@ -8,10 +8,50 @@ from random import Random
 from typing import Optional
 
 import tqdm
-from pysgf import SGF
 
 from skat.card import Card
 from skat.deck import Deck
+
+try:
+    from pysgf import SGF
+except ImportError:  # optional dependency, see HAS_SGF_SUPPORT
+    SGF = None  # type: ignore[assignment]
+
+#: True when `.sgf` records can be parsed, i.e. when the optional `pysgf`
+#: dependency is installed.
+#:
+#: Only the parsing of raw `.sgf` text needs it. The `GameType` enum, the card
+#: table, `.pkl` corpora, sampling and the `Deck` reconstruction are plain
+#: Python, so everything except `read_sgf`/`ISSGame` keeps working without it -
+#: including replaying a pre-parsed corpus through `Tournament(iss_file=...)`.
+HAS_SGF_SUPPORT = SGF is not None
+
+
+class MissingSgfSupport(ImportError):
+    """
+    Raised when a `.sgf`-only feature is used and `pysgf` is not installed.
+
+    Subclasses `ImportError` so callers that already guard optional imports
+    catch it without knowing about this class.
+    """
+
+    MESSAGE = (
+        "Reading .sgf game records needs the optional 'pysgf' dependency, "
+        "which is not installed.\n"
+        "  install it:  uv sync --extra sgf\n"
+        "  or skip it:  pre-parsed .pkl corpora need no pysgf - "
+        "ISSGames.save() writes one."
+    )
+
+    def __init__(self, message: str = MESSAGE) -> None:
+        super().__init__(message)
+
+
+def require_sgf_support() -> None:
+    """Guard the entry points that genuinely need `pysgf`."""
+    if SGF is None:
+        raise MissingSgfSupport()
+
 
 card = {
     "D7": Card(0, 0),
@@ -114,6 +154,7 @@ class ISSGame:
         return self._is_won
 
     def _parse_sgf_line(self, sgf_line: str):
+        require_sgf_support()
         root = SGF.parse(sgf_line)
 
         __r = str(root.get_list_property("R"))
@@ -233,6 +274,9 @@ class ISSGames(collections.abc.MutableSequence):
         return sample
 
     def read_sgf(self, filename: str) -> None:
+        # Checked before the file is opened: these archives run to gigabytes,
+        # and failing after the progress bar starts would be needlessly rude.
+        require_sgf_support()
         print("parsing iss games... ")
         with tqdm.tqdm(total=os.path.getsize(filename)) as progress:
             with open(filename, "r") as fp:

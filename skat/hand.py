@@ -3,7 +3,6 @@ import typing
 from typing import NamedTuple
 
 import numpy as np
-import torch
 
 from skat.card import Card
 
@@ -12,9 +11,9 @@ FULL_HAND = [Card(i, j) for i in range(4) for j in range(8)]
 
 class HandOrder(NamedTuple):
     suits: str = "♦♥♠♣"
-    ranks: str = ""
+    ranks: str = "789JQKXA"
     pivot_suits: str = "♦♥♠♣"
-    pivot_ranks: str = ""
+    pivot_ranks: str = "789JQKXA"
 
 
 class Hand(collections.abc.MutableSequence):
@@ -72,9 +71,12 @@ class Hand(collections.abc.MutableSequence):
         return arr
 
     @property
-    def as_tensor_mask(self) -> torch.Tensor:
+    def as_tensor_mask(self):
+        import torch
+
+        # cpu like `Round.get_state_t`; DQN moves the mask to the training
+        # device alongside the observation.
         tensor = torch.zeros(32, dtype=bool, device="cpu")
-        # TODO: device should be derived from a config file
         for card in self.__hand:
             tensor[card.np_index] = True
         return tensor
