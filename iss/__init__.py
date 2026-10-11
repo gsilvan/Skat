@@ -107,6 +107,7 @@ class ISSGame:
     def __init__(self, game_str: str) -> None:
         self._deck = None
         self._hand_game = None
+        self._ouvert = False
         self._is_valid = None
         self._is_won = None
         self._passed = None
@@ -126,7 +127,7 @@ class ISSGame:
 
     @property
     def hand_game(self) -> Optional[bool]:
-        """Declarer picked up the skat."""
+        """Declarer played without picking up the skat."""
         return self._hand_game
 
     @property
@@ -188,37 +189,17 @@ class ISSGame:
         elif not dec_search_result:
             self._is_valid = False
             return  # something is worng, get the hell out
-        match declare_s[0]:
-            case "D":
-                self._type = GameType.DIAMONDS
-            case "H":
-                self._type = GameType.HEARTS
-            case "S":
-                self._type = GameType.SPADES
-            case "C":
-                self._type = GameType.CLUBS
-            case "G":
-                self._type = GameType.GRAND
-            case "N":
-                self._type = GameType.NULL
-            case "DH" | "DO" | "DOH":
-                self._type = GameType.DIAMONDS
-                self._hand_game = True
-            case "HH" | "HO" | "HOH":
-                self._type = GameType.HEARTS
-                self._hand_game = True
-            case "SH" | "SO" | "SOH":
-                self._type = GameType.SPADES
-                self._hand_game = True
-            case "CH" | "CO" | "COH":
-                self._type = GameType.CLUBS
-                self._hand_game = True
-            case "GH" | "GO" | "GOH":
-                self._type = GameType.GRAND
-                self._hand_game = True
-            case "NH" | "NO" | "NOH":
-                self._type = GameType.NULL
-                self._hand_game = True
+        token = declare_s[0]
+        self._type = {
+            "D": GameType.DIAMONDS,
+            "H": GameType.HEARTS,
+            "S": GameType.SPADES,
+            "C": GameType.CLUBS,
+            "G": GameType.GRAND,
+            "N": GameType.NULL,
+        }[token[0]]
+        self._ouvert = "O" in token[1:]
+        self._hand_game = "H" in token[1:] or (token[0] != "N" and self._ouvert)
 
         self._soloist = int(re.search(r"(d:-?[012])", __r)[0].split(":")[1])
         self._points = int(re.search(r"(p:[0-9]{1,3})", __r)[0].split(":")[1])
@@ -239,6 +220,26 @@ class ISSGame:
                 hands[self._soloist].remove(c)
             hands.append(skat_put)
         self._deck = Deck.factory(*hands)
+
+    @property
+    def declaration(self):
+        """Preserve all supported contract flags, including Null ouvert pickup."""
+        from skat.rules import GameDeclaration
+
+        if not hasattr(self, "_ouvert"):
+            raise ValueError(
+                "legacy ISS corpus lacks contract flags; reparse its SGF with the current parser"
+            )
+        kinds = {
+            GameType.DIAMONDS: ("suit", 0),
+            GameType.HEARTS: ("suit", 1),
+            GameType.SPADES: ("suit", 2),
+            GameType.CLUBS: ("suit", 3),
+            GameType.GRAND: ("grand", None),
+            GameType.NULL: ("null", None),
+        }
+        kind, suit = kinds[self.type]
+        return GameDeclaration(kind, suit, bool(self.hand_game), self._ouvert)
 
 
 class ISSGames(collections.abc.MutableSequence):

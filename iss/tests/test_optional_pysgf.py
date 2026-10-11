@@ -113,3 +113,47 @@ class FailsClearlyWithoutPysgfTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@unittest.skipUnless(HAS_SGF_SUPPORT, "needs pysgf")
+class ContractParsingTest(unittest.TestCase):
+    def test_contract_flags_survive_parsing(self):
+        for token, hand, ouvert in [
+            ("N.H7.HQ", False, False),
+            ("NO.H7.HQ", False, True),
+            ("NH", True, False),
+            ("NOH", True, True),
+            ("GOH", True, True),
+        ]:
+            with self.subTest(token=token):
+                game = ISSGame(SGF_LINE.replace("G.H7.HQ", token))
+                self.assertEqual(hand, game.hand_game)
+                self.assertEqual(hand, game.declaration.hand)
+                self.assertEqual(ouvert, game.declaration.ouvert)
+                self.assertEqual([10, 10, 10, 2], [len(h) for h in game.deck.to_list()])
+                self.assertEqual(
+                    32, len(set(c for h in game.deck.to_list() for c in h))
+                )
+
+    def test_tournament_keeps_null_ouvert_and_pressed_skat(self):
+        from skat.agents.random import RandomAgent
+        from skat.game import Tournament
+
+        game = ISSGame(SGF_LINE.replace("G.H7.HQ", "NO.H7.HQ"))
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "null.pkl"
+            path.write_bytes(pickle.dumps([game]))
+            tournament = Tournament(
+                1, [RandomAgent(i) for i in range(3)], iss_file=str(path), seed=7
+            )
+            tournament.start()
+        declaration = tournament.round_records[0]["result"]["declaration"]
+        self.assertEqual("null", declaration["kind"])
+        self.assertTrue(declaration["ouvert"])
+        self.assertFalse(declaration["hand"])
+
+    def test_legacy_corpus_does_not_silently_lose_contract_flags(self):
+        game = ISSGame(SGF_LINE)
+        del game._ouvert
+        with self.assertRaisesRegex(ValueError, "reparse"):
+            _ = game.declaration

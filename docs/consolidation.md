@@ -65,3 +65,10 @@ Collection now checks its presence explicitly. Corpus group identifiers are
 validated and preserved across shards and independent collectors. Evaluation
 chunks retain global deal indices, including dealer rotation, and are checked
 against an unpartitioned evaluation.
+
+ISS parsing preserves Hand and Ouvert separately: Null ouvert picks up the
+skat, while Null Hand ouvert does not. Replays use the recorded pressed hand
+and keep the soloist's rightful skat knowledge. Legacy ISS pickle records that
+lack Ouvert metadata are rejected for replay rather than silently declaring a
+different game; re-extract them from SGF. Invalid agent claims are validated
+before exposing the soloist's cards.
