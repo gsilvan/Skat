@@ -167,6 +167,8 @@ def load_shards(directory):
             choices = shard["choices"]
             if (
                 masks.dtype != np.bool_
+                or not np.issubdtype(shard["groups"].dtype, np.integer)
+                or (shard["groups"] < 0).any()
                 or not np.isfinite(states).all()
                 or not np.isfinite(values).all()
                 or not np.isfinite(visits).all()
