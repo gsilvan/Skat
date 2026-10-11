@@ -129,6 +129,8 @@ und enthält Ansagen, Reizwert, Stichzahlen, offene Hände und bekannte Skatkart
 Datensätze und Modelle verlangen exakt passende Regel-, Beobachtungs- und
 Zielformate. Vor der Konsolidierung erzeugte Artefakte bleiben im alten Branch;
 für diesen Stand müssen Daten neu gesammelt und Modelle neu trainiert werden.
+Die [abgeschlossene Validierung](docs/validation.md) enthält die gemessenen
+Ergebnisse dieses Standes einschließlich des verbleibenden Policy-/MCTS-Abstands.
 Der Split trennt vollständige Runden, auch wenn eine Runde mehrere Shards berührt.
 Shards und Checkpoints werden atomar geschrieben; Ctrl-C sichert gepufferte Daten.
 

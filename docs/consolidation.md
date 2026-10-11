@@ -72,3 +72,9 @@ and keep the soloist's rightful skat knowledge. Legacy ISS pickle records that
 lack Ouvert metadata are rejected for replay rather than silently declaring a
 different game; re-extract them from SGF. Invalid agent claims are validated
 before exposing the soloist's cards.
+
+## Measured validation
+
+See [validation.md](validation.md) for the completed fresh collection, GPU
+training, full paired comparison and the small-test boundary. Raw artifacts
+remain local; the compact benchmark manifest/results are versioned.
