@@ -43,6 +43,12 @@ uv run --extra ai python -m skat train \
 uv run --extra ai python -m skat play \
   --agents policy random random --policy trained_models/policy.pt
 
+# Verschiedene Modelle an Sitz 0 und 1, MCTS an Sitz 2
+uv run --extra ai python -m skat play \
+  --agents policy policy mcts \
+  --policy0 trained_models/transformer-run-2-100epochs.pt \
+  --policy1 trained_models/transformer-run-2.pt
+
 # 1000 gemeinsame Deals, alle drei Sitze, Random- und Policy-Gegnergruppen
 uv run --extra ai python -m skat evaluate \
   --policy trained_models/policy.pt --deals 1000 --seed 7 \
@@ -76,6 +82,11 @@ verwertbare Shards erhalten; ein neuer Lauf benötigt ein neues Verzeichnis.
 
 `play` und `collect` zeigen eine Fortschrittsleiste mit abgeschlossenen und
 verbleibenden Runden sowie geschätzter Restzeit.
+
+Bei `play` setzt `--policy PATH` ein gemeinsames Modell für alle Policy-Sitze.
+`--policy0`, `--policy1` und `--policy2` überschreiben es für den jeweiligen Sitz.
+Alle drei Sitze sind gleichwertig; die Parteien ergeben sich pro Runde aus dem
+Reizen. Ein Modell ist somit weder auf einen Sitz noch auf eine Partei festgelegt.
 
 `--help` zeigt nur die Parameter des jeweiligen Befehls. Alte Aufrufe mit
 `-p0`, `-m0`, Reizstilen oder RL-Hyperparametern werden nicht weiter unterstützt.
@@ -168,6 +179,15 @@ Deal-/Sitz-/Gegnergruppen berechnet. Das Bootstrap-Intervall zieht vollständige
 Deals, weil die sechs Ergebnisse pro Deal zusammenhängen. Der McNemar-Wert und
 die Wilson-Intervalle sind zusätzliche deskriptive Kennzahlen. Kleine Testmodelle
 oder Smoke-Runs sind kein Nachweis besserer Spielstärke.
+
+Für den Vergleich verschiedener Checkpoints hält `evaluate --reference-policy
+PATH` die zwei Policy-Gegner auf einem festen Modell. `--policy` wählt weiterhin
+das Modell des Kandidaten; ohne `--reference-policy` dient es auch als Referenz.
+Beide Modellhashes stehen im Ergebnismanifest. Verwende denselben Gegner,
+Seed und dieselbe Dealzahl für alle Kandidaten.
+Die Evaluation rotiert den Kandidaten durch alle drei Sitze, während die beiden
+anderen Sitze Referenzagenten verwenden. `--opponent-policy` bleibt als Alias
+für bisherige Aufrufe gültig.
 
 ## Prüfung
 
