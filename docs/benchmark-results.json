@@ -1,0 +1,350 @@
+{
+  "manifest": {
+    "rules_schema": "skat-isko-2022-v1",
+    "observation_schema": "skat-public-contract-v3",
+    "source_sha256": "d1ae3b21d3b3d815eb5def89f3f3d61ce946b4c987f43a303676d1094f3d9a7a",
+    "python_version": "3.14.7",
+    "platform": "Linux-7.2.9-arch1-1-x86_64-with-glibc2.44",
+    "seed": 20261012,
+    "deals": 1000,
+    "deal_offset": 0,
+    "agents": [
+      "random",
+      "mcts",
+      "policy"
+    ],
+    "mcts": {
+      "simulations": 600,
+      "determinizations": 20
+    },
+    "device": "cpu",
+    "policy_sha256": "57967c92ac2407e6a3ec8e1422e76e4f385c0eeb04b4c1c35e0811e414cae35e",
+    "torch_version": "2.14.0",
+    "numpy_version": "2.5.3",
+    "workers": 8,
+    "deal_index_ranges": [
+      [
+        0,
+        125
+      ],
+      [
+        125,
+        250
+      ],
+      [
+        250,
+        375
+      ],
+      [
+        375,
+        500
+      ],
+      [
+        500,
+        625
+      ],
+      [
+        625,
+        750
+      ],
+      [
+        750,
+        875
+      ],
+      [
+        875,
+        1000
+      ]
+    ]
+  },
+  "summary": {
+    "random": {
+      "wins": 2474,
+      "played": 5712,
+      "passed": 288,
+      "win_rate": 0.4331232492997199,
+      "wilson_interval": [
+        0.4203221735725804,
+        0.44601422035408134
+      ],
+      "soloist": {
+        "wins": 1115,
+        "played": 1904
+      },
+      "defence": {
+        "wins": 1359,
+        "played": 3808
+      },
+      "official_points": -16969,
+      "seconds": 450.5205296810391,
+      "rounds_per_second": 13.317928051465044
+    },
+    "mcts": {
+      "wins": 3795,
+      "played": 5712,
+      "passed": 288,
+      "win_rate": 0.664390756302521,
+      "wilson_interval": [
+        0.6520379867831609,
+        0.676522552753134
+      ],
+      "soloist": {
+        "wins": 1740,
+        "played": 1904
+      },
+      "defence": {
+        "wins": 2055,
+        "played": 3808
+      },
+      "official_points": 48495,
+      "seconds": 2761.2401446160266,
+      "rounds_per_second": 2.172936682707237
+    },
+    "policy": {
+      "wins": 2755,
+      "played": 5712,
+      "passed": 288,
+      "win_rate": 0.48231792717086835,
+      "wilson_interval": [
+        0.46937549702982023,
+        0.49528412544817163
+      ],
+      "soloist": {
+        "wins": 1261,
+        "played": 1904
+      },
+      "defence": {
+        "wins": 1494,
+        "played": 3808
+      },
+      "official_points": -1483,
+      "seconds": 553.9462206899943,
+      "rounds_per_second": 10.831376360915346
+    }
+  },
+  "panels": {
+    "random": {
+      "random": {
+        "wins": 1315,
+        "played": 2856,
+        "passed": 144,
+        "win_rate": 0.46043417366946776,
+        "wilson_interval": [
+          0.44221924177444766,
+          0.478755402415636
+        ],
+        "soloist": {
+          "wins": 589,
+          "played": 952
+        },
+        "defence": {
+          "wins": 726,
+          "played": 1904
+        },
+        "official_points": -5319,
+        "seconds": 185.96971167202082,
+        "rounds_per_second": 16.131659145070078
+      },
+      "mcts": {
+        "wins": 1938,
+        "played": 2856,
+        "passed": 144,
+        "win_rate": 0.6785714285714286,
+        "wilson_interval": [
+          0.661212974764886,
+          0.6954501355276561
+        ],
+        "soloist": {
+          "wins": 889,
+          "played": 952
+        },
+        "defence": {
+          "wins": 1049,
+          "played": 1904
+        },
+        "official_points": 27191,
+        "seconds": 1350.5475649000218,
+        "rounds_per_second": 2.221321246262129
+      },
+      "policy": {
+        "wins": 1455,
+        "played": 2856,
+        "passed": 144,
+        "win_rate": 0.509453781512605,
+        "wilson_interval": [
+          0.49111888537774023,
+          0.5277632792848062
+        ],
+        "soloist": {
+          "wins": 657,
+          "played": 952
+        },
+        "defence": {
+          "wins": 798,
+          "played": 1904
+        },
+        "official_points": 2585,
+        "seconds": 241.67807233798248,
+        "rounds_per_second": 12.413207251192212
+      }
+    },
+    "policy": {
+      "random": {
+        "wins": 1159,
+        "played": 2856,
+        "passed": 144,
+        "win_rate": 0.405812324929972,
+        "wilson_interval": [
+          0.3879410121032465,
+          0.4239366807032361
+        ],
+        "soloist": {
+          "wins": 526,
+          "played": 952
+        },
+        "defence": {
+          "wins": 633,
+          "played": 1904
+        },
+        "official_points": -11650,
+        "seconds": 264.55081800901826,
+        "rounds_per_second": 11.339976275929462
+      },
+      "mcts": {
+        "wins": 1857,
+        "played": 2856,
+        "passed": 144,
+        "win_rate": 0.6502100840336135,
+        "wilson_interval": [
+          0.6325281841065107,
+          0.6674884321983923
+        ],
+        "soloist": {
+          "wins": 851,
+          "played": 952
+        },
+        "defence": {
+          "wins": 1006,
+          "played": 1904
+        },
+        "official_points": 21304,
+        "seconds": 1410.6925797160047,
+        "rounds_per_second": 2.1266149997074124
+      },
+      "policy": {
+        "wins": 1300,
+        "played": 2856,
+        "passed": 144,
+        "win_rate": 0.45518207282913165,
+        "wilson_interval": [
+          0.43699047582981654,
+          0.4734940768810747
+        ],
+        "soloist": {
+          "wins": 604,
+          "played": 952
+        },
+        "defence": {
+          "wins": 696,
+          "played": 1904
+        },
+        "official_points": -4068,
+        "seconds": 312.26814835201185,
+        "rounds_per_second": 9.60712777089957
+      }
+    }
+  },
+  "comparisons": {
+    "random -> mcts": {
+      "paired": 5712,
+      "deal_groups": 952,
+      "delta": 0.23126750700280113,
+      "deal_bootstrap_interval": [
+        0.21761204481792717,
+        0.24527310924369747
+      ],
+      "improved": 1567,
+      "regressed": 246,
+      "descriptive_mcnemar_p": 4.750218948202608e-235
+    },
+    "random -> policy": {
+      "paired": 5712,
+      "deal_groups": 952,
+      "delta": 0.04919467787114846,
+      "deal_bootstrap_interval": [
+        0.036939775910364146,
+        0.06197916666666665
+      ],
+      "improved": 917,
+      "regressed": 636,
+      "descriptive_mcnemar_p": 1.0466793098427951e-12
+    },
+    "mcts -> policy": {
+      "paired": 5712,
+      "deal_groups": 952,
+      "delta": -0.18207282913165265,
+      "deal_bootstrap_interval": [
+        -0.19520745798319328,
+        -0.16876750700280113
+      ],
+      "improved": 282,
+      "regressed": 1322,
+      "descriptive_mcnemar_p": 7.58745066477093e-161
+    }
+  },
+  "collection": {
+    "rounds": 1000,
+    "parts": [
+      {
+        "seed": 20261011,
+        "rounds": 250
+      },
+      {
+        "seed": 20261012,
+        "rounds": 250
+      },
+      {
+        "seed": 20261013,
+        "rounds": 250
+      },
+      {
+        "seed": 20261014,
+        "rounds": 250
+      }
+    ],
+    "simulations": 600,
+    "determinizations": 20,
+    "decisions": 21241,
+    "round_groups": 949,
+    "python_version": "3.14.7",
+    "numpy_version": "2.5.3",
+    "revision": "0b9ba4731244506168f20c7145fef2314151daf1"
+  },
+  "training": {
+    "seed": 20261011,
+    "training": {
+      "epochs": 12,
+      "batch_size": 256,
+      "learning_rate": 0.0003,
+      "dropout": 0.1,
+      "d_model": 128,
+      "nhead": 4,
+      "num_layers": 4,
+      "threads": 1
+    },
+    "corpus_sha256": "43e14525deb204cebe2f94641a1cccceb37fbb16493dfb4dffcb7580fe58b3ad",
+    "train_rows": 17011,
+    "val_rows": 4230,
+    "device": "cuda",
+    "torch_version": "2.14.0",
+    "best_epoch": 11,
+    "metrics": {
+      "loss_train": 1.3756038890258604,
+      "agreement_train": 0.3274939744870966,
+      "loss_val": 1.3678214909618909,
+      "agreement_val": 0.3486997635933806
+    }
+  },
+  "raw_report_sha256": "007802592ad28ac10ea2988151aac80fb516105d14a4ed1cd2f1497527c36c53",
+  "raw_outcomes": 18000
+}
