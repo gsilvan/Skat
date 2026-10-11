@@ -95,12 +95,22 @@ def paired_comparison(first, second, seed=1):
 
 
 def evaluate(
-    agent_names, policy, output, *, deals=1000, seed=1, device="cpu", mcts=None
+    agent_names,
+    policy,
+    output,
+    *,
+    deals=1000,
+    seed=1,
+    device="cpu",
+    mcts=None,
+    deal_offset=0,
 ):
     from skat.__main__ import get_player
 
     if type(deals) is not int or deals < 1:
         raise ValueError("positive deal count required")
+    if type(deal_offset) is not int or deal_offset < 0:
+        raise ValueError("deal offset must be a nonnegative integer")
     if not policy:
         raise ValueError(
             "evaluation requires --policy for the competent opponent panel"
@@ -126,6 +136,7 @@ def evaluate(
         platform=platform.platform(),
         seed=seed,
         deals=deals,
+        deal_offset=deal_offset,
         agents=list(agent_names),
         mcts=asdict(mcts),
         device=device,
@@ -184,12 +195,15 @@ def evaluate(
                         for s in range(3)
                     ]
                     for i in range(deals):
-                        deal_seed = stage_seed(seed, f"eval-deal-{i}")
+                        deal_seed = stage_seed(seed, f"eval-deal-{i + deal_offset}")
                         for s, agent in enumerate(agents):
                             agent.rng = Random(stage_seed(deal_seed, f"seat-{s}"))
                         started = time.perf_counter()
                         r = Round(
-                            dealer=i % 3, agents=agents, seed=deal_seed, start=False
+                            dealer=(i + deal_offset) % 3,
+                            agents=agents,
+                            seed=deal_seed,
+                            start=False,
                         )
                         won = r.start()
                         elapsed = time.perf_counter() - started

@@ -121,3 +121,38 @@ def test_training_config_rejects_invalid_learning_rate(value):
 
     with pytest.raises(ValueError):
         TrainConfig(learning_rate=value)
+
+
+def test_evaluation_chunks_preserve_common_deals_and_seats(tmp_path):
+    torch = pytest.importorskip("torch")
+    from skat.agents.distill.checkpoint import save_policy
+    from skat.evaluation import evaluate
+    from skat.models.card_transformer import CardTransformer
+
+    torch.set_num_threads(1)
+    checkpoint = tmp_path / "test.pt"
+    save_policy(
+        checkpoint,
+        CardTransformer(d_model=16, nhead=2, num_layers=1, dim_feedforward=32),
+    )
+    whole = evaluate(["random"], checkpoint, tmp_path / "whole.json", deals=2, seed=12)
+    parts = [
+        evaluate(
+            ["random"],
+            checkpoint,
+            tmp_path / f"part-{i}.json",
+            deals=1,
+            seed=12,
+            deal_offset=i,
+        )
+        for i in range(2)
+    ]
+
+    def outcomes(report):
+        return {
+            (r["panel"], r["seat"], r["seed"]): (r["won"], r["result"])
+            for r in report["outcomes"]
+        }
+
+    combined = {key: value for part in parts for key, value in outcomes(part).items()}
+    assert outcomes(whole) == combined

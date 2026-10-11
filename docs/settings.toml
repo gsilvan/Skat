@@ -1,0 +1,13 @@
+[mcts]
+simulations = 600
+determinizations = 20
+
+[train]
+epochs = 12
+batch_size = 256
+learning_rate = 0.0003
+dropout = 0.1
+d_model = 128
+nhead = 4
+num_layers = 4
+threads = 1

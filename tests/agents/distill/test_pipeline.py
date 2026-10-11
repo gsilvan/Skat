@@ -159,3 +159,20 @@ def test_collect_train_serve_pipeline(tmp_path):
     assert len(t.round_records) == 3
     with pytest.raises(FileNotFoundError):
         PolicyAgent(tmp_path / "missing.pt")
+
+
+@pytest.mark.parametrize("groups", [np.array([0.5]), np.array([-1])])
+def test_shards_reject_invalid_round_identifiers(tmp_path, groups):
+    from skat.card import Card
+
+    with ShardWriter(tmp_path) as writer:
+        writer.new_round()
+        card = Card(0, 0)
+        writer.add(np.zeros(INPUT_SIZE), {card: (1, 1.0)}, [card], card)
+    path = next(tmp_path.glob("*.npz"))
+    with np.load(path) as shard:
+        data = {key: shard[key] for key in shard.files}
+    data["groups"] = groups
+    np.savez_compressed(path, **data)
+    with pytest.raises(ValueError):
+        load_shards(tmp_path)
