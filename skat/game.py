@@ -6,6 +6,7 @@ from enum import Enum, auto
 from random import Random
 
 import numpy as np
+from tqdm import tqdm
 
 from skat.agents.bidding import VALID_BIDS
 from skat.agents.random import RandomAgent
@@ -167,41 +168,49 @@ class Tournament:
             if self.iss_games
             else None
         )
-        for i in range(self.rounds):
-            seed = self.next_seed()
-            kwargs = {}
-            if samples:
-                sample = samples[i]
-                # ISS hands have already been pressed; replay them without a second pickup.
-                game = sample.declaration.make_game()
-                kwargs = dict(
-                    skip_bidding=True,
-                    solo_player_id=sample.soloist,
-                    hand_game=True,
-                    replay=True,
-                    declare_game=game,
-                    initial_cards=sample.deck.to_list(),
+        with tqdm(
+            total=self.rounds,
+            desc="Runden",
+            unit="Runde",
+            dynamic_ncols=True,
+            disable=not self.progress,
+            postfix={"offen": self.rounds},
+        ) as progress:
+            for i in range(self.rounds):
+                seed = self.next_seed()
+                kwargs = {}
+                if samples:
+                    sample = samples[i]
+                    # ISS hands have already been pressed; replay them without a second pickup.
+                    game = sample.declaration.make_game()
+                    kwargs = dict(
+                        skip_bidding=True,
+                        solo_player_id=sample.soloist,
+                        hand_game=True,
+                        replay=True,
+                        declare_game=game,
+                        initial_cards=sample.deck.to_list(),
+                    )
+                else:
+                    kwargs = dict(
+                        declare_game=copy.deepcopy(self.declare_game),
+                        initial_cards=self.initial_cards,
+                    )
+                round_ = Round(
+                    dealer=self.dealer,
+                    start=False,
+                    agents=self.agents,
+                    seed=seed,
+                    verbose=self.verbose,
+                    **kwargs,
                 )
-            else:
-                kwargs = dict(
-                    declare_game=copy.deepcopy(self.declare_game),
-                    initial_cards=self.initial_cards,
-                )
-            round_ = Round(
-                dealer=self.dealer,
-                start=False,
-                agents=self.agents,
-                seed=seed,
-                verbose=self.verbose,
-                **kwargs,
-            )
-            self.record(round_, round_.start(), i, seed)
-            if self.verbose:
-                print(f"round {i + 1}: {round_.result}")
-            if self.progress and (i + 1) % 100 == 0:
-                print(f"played {i + 1}/{self.rounds} rounds", flush=True)
-            if not self.hold_position:
-                self.dealer = (self.dealer + 1) % 3
+                self.record(round_, round_.start(), i, seed)
+                if self.verbose:
+                    tqdm.write(f"round {i + 1}: {round_.result}")
+                if not self.hold_position:
+                    self.dealer = (self.dealer + 1) % 3
+                progress.set_postfix(offen=self.rounds - i - 1, refresh=False)
+                progress.update(1)
         return self.round_records
 
 

@@ -49,6 +49,9 @@ uv run --extra ai python -m skat evaluate \
   --out benchmark_runs/comparison.json
 ```
 
+`play` und `collect` zeigen eine Fortschrittsleiste mit abgeschlossenen und
+verbleibenden Runden sowie geschätzter Restzeit.
+
 `--help` zeigt nur die Parameter des jeweiligen Befehls. Alte Aufrufe mit
 `-p0`, `-m0`, Reizstilen oder RL-Hyperparametern werden nicht weiter unterstützt.
 Fehlende und inkompatible Modelle führen zu einem Fehler. Historische ISS-Pickle-

@@ -107,6 +107,7 @@ def main(argv=None):
                 seed=args.seed,
                 verbose=args.verbose,
                 iss_file=args.iss_file,
+                progress=True,
             )
             tournament.start()
             print(tournament.summary())
