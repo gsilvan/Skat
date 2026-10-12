@@ -37,6 +37,9 @@ def metrics(score, total):
         **asdict(score),
         played=played,
         wins=wins,
+        losses=played - wins,
+        solo_losses=score.solo_rounds - score.solo_wins,
+        defence_losses=score.defence_rounds - score.defence_wins,
         passed=total - played,
         win_rate=wins / played if played else None,
         win_interval=wilson(wins, played),
@@ -124,65 +127,50 @@ def plot(report, directory):
     xs = [r["threshold"] for r in runs]
     scores = [r["seats"][seat] for r in runs]
     best = report["best_threshold"]
-    fig, axes = plt.subplots(2, 2, figsize=(13, 9), sharex=True, layout="constrained")
-    ax = axes[0, 0]
-    ax.plot(xs, [s["points_per_round"] for s in scores], "o-", label="Neural")
+    most_wins = max(runs, key=lambda r: (r["seats"][seat]["wins"], -r["threshold"]))
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5), layout="constrained")
+    ax = axes[0]
+    ax.plot(xs, [s["game_points"] for s in scores], "o-", label="Neural-Reizer")
     ax.axhline(
-        baseline["points_per_round"],
+        baseline["game_points"],
         color="black",
         linestyle="--",
-        label="Conservative Baseline",
+        label=f"Conservative: {baseline['game_points']:+d} Punkte",
     )
-    ax.set(ylabel="Offizielle Punkte / Runde", title=f"Sitz {seat}: Spielpunkte")
+    ax.set(ylabel="Gesamtpunkte", title=f"Sitz {seat}: Gesamtpunkte nach dem Lauf")
+    ax.axvline(
+        best, color="grey", linestyle=":", label=f"Höchste Punkte bei {best:.2f}"
+    )
     ax.legend()
-    ax = axes[0, 1]
-    ax.plot(xs, [r["paired_points"]["delta"] for r in runs], "o-")
-    ax.fill_between(
-        xs,
-        [r["paired_points"]["deal_bootstrap_interval"][0] for r in runs],
-        [r["paired_points"]["deal_bootstrap_interval"][1] for r in runs],
-        alpha=0.2,
-        label="95%-Intervall, gepaarter Deal-Bootstrap",
-    )
-    ax.axhline(0, color="black", linestyle="--")
-    ax.set(ylabel="Δ Punkte / Runde", title="Verbesserung gegenüber Baseline")
-    ax.legend(fontsize=8)
-    ax = axes[1, 0]
+    ax = axes[1]
     for key, label, color in (
-        ("win_rate", "Gesamt", "C0"),
-        ("solo_win_rate", "Allein", "C1"),
-        ("defence_win_rate", "Gegenspiel", "C2"),
+        ("wins", "Siege", "C2"),
+        ("losses", "Niederlagen", "C3"),
+        ("passed", "Eingepasst", "C7"),
     ):
-        ax.plot(
-            xs,
-            [100 * s[key] if s[key] is not None else float("nan") for s in scores],
-            "o-",
-            color=color,
-            label=label,
+        values = [
+            s["played"] - s["wins"] if key == "losses" else s[key] for s in scores
+        ]
+        ax.plot(xs, values, "o-", color=color, label=label)
+        base = (
+            baseline["played"] - baseline["wins"] if key == "losses" else baseline[key]
         )
-        if baseline[key] is not None:
-            ax.axhline(100 * baseline[key], color=color, linestyle=":")
+        ax.axhline(
+            base, color=color, linestyle=":", label=f"Conservative: {label} {base}"
+        )
     ax.set(
-        ylabel="Parteisiege (%)",
-        title="Gewinnquoten; gepunktet: Baseline",
-        ylim=(0, 100),
+        ylabel="Anzahl Runden",
+        title=f"Sitz {seat}: Siege und Niederlagen",
+        ylim=(0, report["manifest"]["rounds"]),
     )
-    ax.legend()
-    ax = axes[1, 1]
-    for key, label, color in (
-        ("solo_fraction", "Als Alleinspieler", "C1"),
-        ("passed_fraction", "Eingepasst", "C3"),
-    ):
-        ax.plot(xs, [100 * s[key] for s in scores], "o-", color=color, label=label)
-        ax.axhline(100 * baseline[key], color=color, linestyle=":")
-    ax.set(
-        ylabel="Anteil aller ausgeteilten Runden (%)",
-        title="Spielhäufigkeit; gepunktet: Baseline",
-        ylim=(0, 100),
+    ax.axvline(
+        most_wins["threshold"],
+        color="grey",
+        linestyle=":",
+        label=f"Meiste Siege bei {most_wins['threshold']:.2f}",
     )
-    ax.legend()
-    for ax in axes.flat:
-        ax.axvline(best, color="grey", linestyle=":", alpha=0.7)
+    ax.legend(fontsize=9)
+    for ax in axes:
         ax.set(xlabel="Neural-Threshold", xlim=(0, 1))
         ax.grid(alpha=0.2)
     manifest = report["manifest"]
@@ -192,7 +180,7 @@ def plot(report, directory):
     )
     fig.suptitle(
         f"{lineup}\n{manifest['rounds']} Runden je Wert · Seed {manifest['seed']} · "
-        f"Neural nur Sitz {seat} · bester Messwert: {best:.2f}"
+        f"Neural nur Sitz {seat} · Siege zählen Alleinspiel und Gegenspiel"
     )
     fig.savefig(directory / "threshold-sweep.png", dpi=180)
     fig.savefig(directory / "threshold-sweep.pdf")
@@ -202,7 +190,9 @@ def plot(report, directory):
 def write_csv(report, directory):
     seat = report["manifest"]["bidding_seat"]
     keys = (
-        "points_per_round",
+        "game_points",
+        "wins",
+        "losses",
         "win_rate",
         "solo_win_rate",
         "defence_win_rate",
@@ -215,11 +205,13 @@ def write_csv(report, directory):
         writer = csv.DictWriter(stream, fieldnames=("bidder", "threshold", *keys))
         writer.writeheader()
         for run in [report["baseline"], *report["sweep"]]:
+            score = dict(run["seats"][seat])
+            score.setdefault("losses", score["played"] - score["wins"])
             writer.writerow(
                 dict(
                     bidder="conservative" if run["threshold"] is None else "neural",
                     threshold=run["threshold"],
-                    **{k: run["seats"][seat][k] for k in keys},
+                    **{k: score[k] for k in keys},
                 )
             )
 
@@ -286,7 +278,7 @@ def main(argv=None):
                 bidding_seat=args.bidding_seat,
                 thresholds=THRESHOLDS,
                 dealer_rotation=True,
-                objective="own official points per dealt round including passes",
+                objective="own official total points after a fixed number of dealt rounds",
                 seats=[
                     dict(
                         agent=name,
@@ -336,17 +328,22 @@ def main(argv=None):
             best = max(
                 report["sweep"],
                 key=lambda r: (
-                    r["seats"][args.bidding_seat]["points_per_round"],
+                    r["seats"][args.bidding_seat]["game_points"],
                     -r["threshold"],
                 ),
             )
             report["best_threshold"] = best["threshold"]
+            report["best_points_threshold"] = best["threshold"]
+            report["best_wins_threshold"] = max(
+                report["sweep"],
+                key=lambda r: (r["seats"][args.bidding_seat]["wins"], -r["threshold"]),
+            )["threshold"]
             write_csv(report, args.out)
             plot(report, args.out)
             report["status"] = "complete"
             print(
                 f"Bester gemessener Threshold: {best['threshold']:.2f}; "
-                f"{best['seats'][args.bidding_seat]['points_per_round']:+.3f} Punkte/Runde",
+                f"{best['seats'][args.bidding_seat]['game_points']:+d} Gesamtpunkte",
                 flush=True,
             )
         except BaseException as error:

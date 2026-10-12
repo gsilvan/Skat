@@ -254,6 +254,14 @@ CSV und Matplotlib-Plots gespeichert.
 Der [Vergleich an Sitz 1](docs/bidding-threshold-sweep/analysis.md) enthält
 die gemessenen Kurven für Random, vier Transformer-Modelle und beide MCTS-Budgets.
 
+Der [gemeinsame Random-Sweep](docs/bidding-training.md#gemeinsamer-sweep-aller-drei-random-sitze)
+variiert die Neural-Schwellen aller drei Sitze zusammen. Statische 3D-Plots
+zeigen die Gesamtpunkte jedes Sitzes über den Threshold-Kombinationen;
+zusätzlich werden absolute Siege und Niederlagen sowie beste einseitige
+Threshold-Antworten ausgewertet.
+Die [Random-Auswertung mit 3D-Plots](docs/bidding-threshold-table/analysis.md)
+enthält das gemeinsame Raster, die feinere Suche und den unabhängigen Test.
+
 ## Training und Vergleich
 
 KI-Ziel ist der regelgerechte Parteisieg, ohne zusätzliche Bonusnetze. Offizielle

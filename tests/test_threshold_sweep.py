@@ -18,6 +18,9 @@ def test_points_include_passes_without_crediting_defender_scores():
     result = sweep.metrics(score, 5)
     assert result["points_per_round"] == -3.6
     assert result["win_rate"] == 2 / 3
+    assert result["wins"] == 2 and result["losses"] == 1
+    assert result["wins"] + result["losses"] + result["passed"] == 5
+    assert result["game_points"] == -18
     assert result["solo_fraction"] == 2 / 5
     assert result["passed"] == 2
     run = {

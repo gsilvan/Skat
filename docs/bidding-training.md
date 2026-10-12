@@ -138,16 +138,19 @@ auch im konservativen Baseline-Lauf derselbe. Weitere Optionen sind `--rounds`
 Nach der Baseline und jeder Schwelle wird eine JSON-Datei mit allen
 Rundenergebnissen und Kennzahlen der drei Sitze gespeichert. `summary.json`
 enthält Fortschritt, Einstellungen, Modellhashes und den besten gemessenen
-Threshold nach **offiziellen Punkten pro ausgeteilter Runde am untersuchten
-Sitz**, einschließlich eingepasster Blätter. Bei gleichen Punkten gewinnt die
-niedrigere Schwelle. Abbrüche erhalten die bereits abgeschlossenen Runden.
+Threshold nach **offiziellen Gesamtpunkten nach allen Runden am untersuchten
+Sitz** sowie die Schwelle mit den meisten Parteisiegen. Bei gleichen Werten
+gewinnt die niedrigere Schwelle. Abbrüche erhalten die bereits abgeschlossenen Runden.
 
-`threshold-sweep.csv` enthält die kompakte Auswertung. Die Matplotlib-Plots
-`threshold-sweep.png` und `threshold-sweep.pdf` zeigen Punkte, gepaarte
-Punktdifferenzen zur Baseline mit 95%-Bootstrap-Intervallen, Parteisiegquoten
-sowie Solo- und Eingepasst-Anteile. Die vertikale Linie markiert den besten
-Messwert dieses Laufs. Fehlende Solo-Quoten, etwa wenn bei Threshold 1.0 nie
-gereizt wird, bleiben Lücken im Plot.
+`threshold-sweep.csv` enthält Gesamtpunkte, Siege, Niederlagen und eingepasste
+Runden. Die Matplotlib-Plots `threshold-sweep.png` und `threshold-sweep.pdf`
+zeigen links die Gesamtpunkte und rechts die absoluten Anzahlen der Siege,
+Niederlagen und eingepassten Runden. Siege zählen Parteisiege als Alleinspieler
+oder Gegenspieler; eingepasste Runden sind keine Niederlagen. Für jeden Sitz
+gilt: Siege + Niederlagen + eingepasste Runden = ausgeteilte Runden.
+Die konservative Baseline ist jeweils mit eingezeichnet. Eine senkrechte Linie
+markiert links die höchsten Gesamtpunkte und rechts die meisten Siege.
+Diese beiden Schwellen können verschieden sein.
 
 Für den Einfluss der eigenen Spielstärke bleiben Sitz 0 und 2 unverändert,
 während nur Agent/Kartenmodell an Sitz 1 gewechselt werden. Eine Änderung
@@ -161,6 +164,45 @@ Die [Auswertung der Sweeps an Sitz 1](bidding-threshold-sweep/analysis.md)
 enthält den Gesamtvergleich und Einzelplots für Random, vier Transformer-
 Checkpoints sowie MCTS mit 600 und 2.000 Simulationen. Die zugehörigen
 Kennzahlen, Modellhashes und PDF-Plots sind dort ebenfalls gespeichert.
+
+### Gemeinsamer Sweep aller drei Random-Sitze
+
+```bash
+python -m scripts.sweep_bidding_table \
+  --bidding-model benchmark_runs/bidding-run-1/bidding.pt \
+  --rounds 300 --seed 42 --workers 16 \
+  --out benchmark_runs/threshold-table-random-seed42
+```
+
+Dieser Versuch verwendet ausschließlich Random / Random / Random. Die Baseline
+reizt überall konservativ; danach erhält jeder Sitz seinen eigenen Neural-
+Threshold. Auf denselben Deals werden zunächst alle 125 Kombinationen von
+0.00, 0.25, 0.50, 0.75 und 1.00 gespielt. Anschließend werden einseitige beste
+Antworten in 0.05-Schritten untersucht, während die beiden Gegner festbleiben.
+Bis zu acht Änderungen suchen eine stabile Kombination; mögliche Zyklen und
+verbleibende Verbesserungen werden ausgewiesen. `--step 0.05` untersucht
+stattdessen alle 9.261 gemeinsamen Kombinationen und braucht deutlich länger.
+
+Die statischen Matplotlib-Dateien `surface-seat2-*.png` und `.pdf` zeigen je
+eine Ansicht: x = Threshold Sitz 0, y = Threshold Sitz 1, z = Gesamtpunkte nach
+300 Runden. Jede der drei Farben ist ein Sitz. Der Threshold von Sitz 2 steht
+im Titel. Die Flächen verbinden gemessene Rasterwerte, ohne zusätzliche
+Zwischenwerte zu simulieren. `selected-surface.png` zeigt den Schnitt durch die
+ausgewählte Kombination. `outcomes.png` stellt deren Gesamtpunkte und absolute
+Siege/Niederlagen der konservativen Baseline gegenüber.
+
+Zielgröße sind eigene Gesamtpunkte (`--objective wins` wählt stattdessen
+Parteisiege). Gleich hohe Punkte am Schnittpunkt zweier Flächen beweisen kein
+Gleichgewicht: Entscheidend ist, ob ein Sitz allein durch einen anderen
+Threshold besser abschneidet. Ein empirisch stabiles Rasterprofil ist kein
+Beweis für ein Nash-Gleichgewicht im vollständigen Spiel. Die ausgewählte
+Kombination wird unverändert auf Seed 43 geprüft, einschließlich aller feinen
+einseitigen Alternativen. `analysis.md` enthält die Plots und Auswertung,
+`summary.json` den Fortschritt und `search.csv` / `validation.csv` die Rohwerte.
+
+Die [Random-Auswertung mit statischen 3D-Plots](bidding-threshold-table/analysis.md)
+enthält die gemessenen Gesamtpunkte, Siege/Niederlagen und besten Antworten
+auf Suchdeals und neuen Deals.
 
 ### Auswahl und unabhängiger Test gegen Referenzgruppen
 
