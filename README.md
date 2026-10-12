@@ -251,6 +251,8 @@ vergleicht den konservativen Reizer mit Neural-Schwellen von 0.00 bis 1.00 in
 0.05-Schritten: 300 Runden mit Seed 42 pro Wert, Neural nur an Sitz 1.
 Agenten und Kartenmodelle sind pro Sitz wählbar; Ergebnisse werden als JSON,
 CSV und Matplotlib-Plots gespeichert.
+Der [Vergleich an Sitz 1](docs/bidding-threshold-sweep/analysis.md) enthält
+die gemessenen Kurven für Random, vier Transformer-Modelle und beide MCTS-Budgets.
 
 ## Training und Vergleich
 

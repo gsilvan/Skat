@@ -1,0 +1,2593 @@
+{
+  "status": "complete",
+  "profiles": [
+    {
+      "id": "random",
+      "label": "Random",
+      "best_threshold": 0.75,
+      "baseline_points_per_round": -3.296666666666667,
+      "best_points_per_round": 5.073333333333333,
+      "delta": 8.37,
+      "interval": [
+        3.17,
+        13.756666666666666
+      ],
+      "best_metrics": {
+        "solo_rounds": 55,
+        "solo_wins": 45,
+        "defence_rounds": 225,
+        "defence_wins": 94,
+        "overbids": 0,
+        "card_points": 16524,
+        "game_points": 1522,
+        "played": 280,
+        "wins": 139,
+        "passed": 20,
+        "win_rate": 0.49642857142857144,
+        "win_interval": [
+          0.43830984691427904,
+          0.5546439695805547
+        ],
+        "solo_win_rate": 0.8181818181818182,
+        "defence_win_rate": 0.4177777777777778,
+        "points_per_round": 5.073333333333333,
+        "solo_fraction": 0.18333333333333332,
+        "passed_fraction": 0.06666666666666667
+      },
+      "manifest": {
+        "measured_at": "2026-10-12T17:08:18.813333+00:00",
+        "rounds": 300,
+        "seed": 42,
+        "bidding_seat": 1,
+        "thresholds": [
+          0.0,
+          0.05,
+          0.1,
+          0.15,
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.5,
+          0.55,
+          0.6,
+          0.65,
+          0.7,
+          0.75,
+          0.8,
+          0.85,
+          0.9,
+          0.95,
+          1.0
+        ],
+        "dealer_rotation": true,
+        "objective": "own official points per dealt round including passes",
+        "seats": [
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          },
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          },
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          }
+        ],
+        "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+        "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+        "mcts": {
+          "simulations": 600,
+          "determinizations": 20
+        },
+        "workers": 16,
+        "device": "cpu",
+        "torch_version": "2.14.0",
+        "source_sha256": "8a4b475a4ffa64405e20c82a8cb00b480aab9cb2d49d9576213c1de7f3cefad6",
+        "source_commit": "442fa84d5588206c856d57908d2b4d5a39a1736f"
+      },
+      "curve": [
+        {
+          "threshold": 0.0,
+          "points_per_round": -3.3466666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -0.05,
+            "deal_bootstrap_interval": [
+              -6.097166666666666,
+              5.826666666666667
+            ]
+          }
+        },
+        {
+          "threshold": 0.05,
+          "points_per_round": -3.3466666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -0.05,
+            "deal_bootstrap_interval": [
+              -6.097166666666666,
+              5.826666666666667
+            ]
+          }
+        },
+        {
+          "threshold": 0.1,
+          "points_per_round": -3.3466666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -0.05,
+            "deal_bootstrap_interval": [
+              -6.097166666666666,
+              5.826666666666667
+            ]
+          }
+        },
+        {
+          "threshold": 0.15,
+          "points_per_round": -2.26,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 1.0366666666666666,
+            "deal_bootstrap_interval": [
+              -4.771416666666666,
+              6.800833333333329
+            ]
+          }
+        },
+        {
+          "threshold": 0.2,
+          "points_per_round": -2.26,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 1.0366666666666666,
+            "deal_bootstrap_interval": [
+              -4.771416666666666,
+              6.800833333333329
+            ]
+          }
+        },
+        {
+          "threshold": 0.25,
+          "points_per_round": -2.3633333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 0.9333333333333333,
+            "deal_bootstrap_interval": [
+              -4.84375,
+              6.404749999999992
+            ]
+          }
+        },
+        {
+          "threshold": 0.3,
+          "points_per_round": -1.1466666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 2.15,
+            "deal_bootstrap_interval": [
+              -3.2703333333333333,
+              7.591666666666657
+            ]
+          }
+        },
+        {
+          "threshold": 0.35,
+          "points_per_round": 3.24,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.536666666666667,
+            "deal_bootstrap_interval": [
+              0.7677500000000002,
+              11.896749999999999
+            ]
+          }
+        },
+        {
+          "threshold": 0.4,
+          "points_per_round": 1.6866666666666668,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.983333333333333,
+            "deal_bootstrap_interval": [
+              -0.187,
+              10.077583333333328
+            ]
+          }
+        },
+        {
+          "threshold": 0.45,
+          "points_per_round": -0.22,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.0766666666666667,
+            "deal_bootstrap_interval": [
+              -2.4948333333333332,
+              8.283499999999998
+            ]
+          }
+        },
+        {
+          "threshold": 0.5,
+          "points_per_round": 2.8833333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.18,
+            "deal_bootstrap_interval": [
+              0.8330833333333334,
+              11.75025
+            ]
+          }
+        },
+        {
+          "threshold": 0.55,
+          "points_per_round": 1.5933333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.89,
+            "deal_bootstrap_interval": [
+              -1.1733333333333333,
+              10.67733333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.6,
+          "points_per_round": 3.95,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.246666666666667,
+            "deal_bootstrap_interval": [
+              1.8094166666666667,
+              12.686083333333318
+            ]
+          }
+        },
+        {
+          "threshold": 0.65,
+          "points_per_round": 3.223333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.52,
+            "deal_bootstrap_interval": [
+              0.9631666666666667,
+              11.78675
+            ]
+          }
+        },
+        {
+          "threshold": 0.7,
+          "points_per_round": 4.206666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.503333333333333,
+            "deal_bootstrap_interval": [
+              1.9937500000000001,
+              13.223499999999982
+            ]
+          }
+        },
+        {
+          "threshold": 0.75,
+          "points_per_round": 5.073333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 8.37,
+            "deal_bootstrap_interval": [
+              3.17,
+              13.756666666666666
+            ]
+          }
+        },
+        {
+          "threshold": 0.8,
+          "points_per_round": 4.876666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 8.173333333333334,
+            "deal_bootstrap_interval": [
+              3.019416666666667,
+              13.187166666666664
+            ]
+          }
+        },
+        {
+          "threshold": 0.85,
+          "points_per_round": 2.48,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.776666666666666,
+            "deal_bootstrap_interval": [
+              0.8559166666666668,
+              10.383749999999997
+            ]
+          }
+        },
+        {
+          "threshold": 0.9,
+          "points_per_round": 3.88,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.176666666666667,
+            "deal_bootstrap_interval": [
+              2.9433333333333334,
+              11.660083333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.95,
+          "points_per_round": 1.72,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.016666666666667,
+            "deal_bootstrap_interval": [
+              0.9963333333333334,
+              9.23383333333333
+            ]
+          }
+        },
+        {
+          "threshold": 1.0,
+          "points_per_round": 0.0,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.296666666666667,
+            "deal_bootstrap_interval": [
+              -0.5205833333333333,
+              7.156916666666665
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "policy-mcts-12",
+      "label": "Transformer MCTS 5k / 12 Epochen",
+      "best_threshold": 0.25,
+      "baseline_points_per_round": 6.733333333333333,
+      "best_points_per_round": 15.52,
+      "delta": 8.786666666666667,
+      "interval": [
+        4.809916666666666,
+        13.03
+      ],
+      "best_metrics": {
+        "solo_rounds": 142,
+        "solo_wins": 129,
+        "defence_rounds": 158,
+        "defence_wins": 69,
+        "overbids": 0,
+        "card_points": 20678,
+        "game_points": 4656,
+        "played": 300,
+        "wins": 198,
+        "passed": 0,
+        "win_rate": 0.66,
+        "win_interval": [
+          0.6046734114246599,
+          0.7112806909760647
+        ],
+        "solo_win_rate": 0.9084507042253521,
+        "defence_win_rate": 0.43670886075949367,
+        "points_per_round": 15.52,
+        "solo_fraction": 0.47333333333333333,
+        "passed_fraction": 0.0
+      },
+      "manifest": {
+        "measured_at": "2026-10-12T17:21:07.694320+00:00",
+        "rounds": 300,
+        "seed": 42,
+        "bidding_seat": 1,
+        "thresholds": [
+          0.0,
+          0.05,
+          0.1,
+          0.15,
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.5,
+          0.55,
+          0.6,
+          0.65,
+          0.7,
+          0.75,
+          0.8,
+          0.85,
+          0.9,
+          0.95,
+          1.0
+        ],
+        "dealer_rotation": true,
+        "objective": "own official points per dealt round including passes",
+        "seats": [
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          },
+          {
+            "agent": "policy",
+            "policy": "trained_models/transformer-run-2.pt",
+            "policy_sha256": "fbb5ade4ed5de42d5a87ec5a218594d68ce7f63dfe6251f44d5d69d55e5111c8"
+          },
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          }
+        ],
+        "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+        "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+        "mcts": {
+          "simulations": 600,
+          "determinizations": 20
+        },
+        "workers": 1,
+        "batch_workers": 16,
+        "parallelization": "independent complete threshold runs",
+        "device": "cpu",
+        "torch_version": "2.14.0",
+        "source_sha256": "8a4b475a4ffa64405e20c82a8cb00b480aab9cb2d49d9576213c1de7f3cefad6",
+        "source_commit": "6b9c4d24eba82d01b444213b7bd1750967640b39"
+      },
+      "curve": [
+        {
+          "threshold": 0.0,
+          "points_per_round": 12.113333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.38,
+            "deal_bootstrap_interval": [
+              0.6431666666666667,
+              10.156749999999999
+            ]
+          }
+        },
+        {
+          "threshold": 0.05,
+          "points_per_round": 12.113333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.38,
+            "deal_bootstrap_interval": [
+              0.6431666666666667,
+              10.156749999999999
+            ]
+          }
+        },
+        {
+          "threshold": 0.1,
+          "points_per_round": 12.113333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.38,
+            "deal_bootstrap_interval": [
+              0.6431666666666667,
+              10.156749999999999
+            ]
+          }
+        },
+        {
+          "threshold": 0.15,
+          "points_per_round": 13.716666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.983333333333333,
+            "deal_bootstrap_interval": [
+              2.5131666666666663,
+              11.693999999999997
+            ]
+          }
+        },
+        {
+          "threshold": 0.2,
+          "points_per_round": 13.716666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.983333333333333,
+            "deal_bootstrap_interval": [
+              2.5131666666666663,
+              11.693999999999997
+            ]
+          }
+        },
+        {
+          "threshold": 0.25,
+          "points_per_round": 15.52,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 8.786666666666667,
+            "deal_bootstrap_interval": [
+              4.809916666666666,
+              13.03
+            ]
+          }
+        },
+        {
+          "threshold": 0.3,
+          "points_per_round": 13.503333333333334,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.77,
+            "deal_bootstrap_interval": [
+              2.2455833333333333,
+              11.533666666666665
+            ]
+          }
+        },
+        {
+          "threshold": 0.35,
+          "points_per_round": 14.176666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.443333333333333,
+            "deal_bootstrap_interval": [
+              3.4329166666666664,
+              11.60675
+            ]
+          }
+        },
+        {
+          "threshold": 0.4,
+          "points_per_round": 12.71,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.976666666666667,
+            "deal_bootstrap_interval": [
+              1.85,
+              10.241249999999994
+            ]
+          }
+        },
+        {
+          "threshold": 0.45,
+          "points_per_round": 14.4,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.666666666666667,
+            "deal_bootstrap_interval": [
+              4.266416666666666,
+              11.458083333333326
+            ]
+          }
+        },
+        {
+          "threshold": 0.5,
+          "points_per_round": 12.196666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.463333333333333,
+            "deal_bootstrap_interval": [
+              1.96,
+              9.24708333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.55,
+          "points_per_round": 10.456666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.723333333333333,
+            "deal_bootstrap_interval": [
+              -0.06699999999999998,
+              7.683583333333332
+            ]
+          }
+        },
+        {
+          "threshold": 0.6,
+          "points_per_round": 11.293333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.56,
+            "deal_bootstrap_interval": [
+              0.8865833333333334,
+              8.281666666666657
+            ]
+          }
+        },
+        {
+          "threshold": 0.65,
+          "points_per_round": 12.166666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.433333333333334,
+            "deal_bootstrap_interval": [
+              2.1030833333333336,
+              8.980166666666666
+            ]
+          }
+        },
+        {
+          "threshold": 0.7,
+          "points_per_round": 11.13,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.3966666666666665,
+            "deal_bootstrap_interval": [
+              1.0333333333333334,
+              7.864749999999992
+            ]
+          }
+        },
+        {
+          "threshold": 0.75,
+          "points_per_round": 10.123333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.39,
+            "deal_bootstrap_interval": [
+              0.04,
+              7.093583333333332
+            ]
+          }
+        },
+        {
+          "threshold": 0.8,
+          "points_per_round": 7.06,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 0.32666666666666666,
+            "deal_bootstrap_interval": [
+              -3.443583333333333,
+              4.516833333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.85,
+          "points_per_round": 5.923333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -0.81,
+            "deal_bootstrap_interval": [
+              -4.5400833333333335,
+              3.0815833333333247
+            ]
+          }
+        },
+        {
+          "threshold": 0.9,
+          "points_per_round": 4.81,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -1.9233333333333333,
+            "deal_bootstrap_interval": [
+              -5.570333333333334,
+              2.0144999999999933
+            ]
+          }
+        },
+        {
+          "threshold": 0.95,
+          "points_per_round": 1.92,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -4.8133333333333335,
+            "deal_bootstrap_interval": [
+              -8.06,
+              -1.2065833333333338
+            ]
+          }
+        },
+        {
+          "threshold": 1.0,
+          "points_per_round": 0.0,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -6.733333333333333,
+            "deal_bootstrap_interval": [
+              -9.490666666666668,
+              -3.669500000000003
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "policy-mcts-100",
+      "label": "Transformer MCTS 5k / 100 Epochen",
+      "best_threshold": 0.15,
+      "baseline_points_per_round": 6.673333333333333,
+      "best_points_per_round": 15.143333333333333,
+      "delta": 8.47,
+      "interval": [
+        4.442916666666667,
+        12.356833333333332
+      ],
+      "best_metrics": {
+        "solo_rounds": 147,
+        "solo_wins": 131,
+        "defence_rounds": 153,
+        "defence_wins": 79,
+        "overbids": 0,
+        "card_points": 21273,
+        "game_points": 4543,
+        "played": 300,
+        "wins": 210,
+        "passed": 0,
+        "win_rate": 0.7,
+        "win_interval": [
+          0.6458814453011743,
+          0.7490611826997313
+        ],
+        "solo_win_rate": 0.891156462585034,
+        "defence_win_rate": 0.5163398692810458,
+        "points_per_round": 15.143333333333333,
+        "solo_fraction": 0.49,
+        "passed_fraction": 0.0
+      },
+      "manifest": {
+        "measured_at": "2026-10-12T17:21:07.698262+00:00",
+        "rounds": 300,
+        "seed": 42,
+        "bidding_seat": 1,
+        "thresholds": [
+          0.0,
+          0.05,
+          0.1,
+          0.15,
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.5,
+          0.55,
+          0.6,
+          0.65,
+          0.7,
+          0.75,
+          0.8,
+          0.85,
+          0.9,
+          0.95,
+          1.0
+        ],
+        "dealer_rotation": true,
+        "objective": "own official points per dealt round including passes",
+        "seats": [
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          },
+          {
+            "agent": "policy",
+            "policy": "trained_models/transformer-run-2-100epochs.pt",
+            "policy_sha256": "6be3b7221bee9c718258926fa0e2cc4af0e231f54de7b10f5305164658127a71"
+          },
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          }
+        ],
+        "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+        "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+        "mcts": {
+          "simulations": 600,
+          "determinizations": 20
+        },
+        "workers": 1,
+        "batch_workers": 16,
+        "parallelization": "independent complete threshold runs",
+        "device": "cpu",
+        "torch_version": "2.14.0",
+        "source_sha256": "8a4b475a4ffa64405e20c82a8cb00b480aab9cb2d49d9576213c1de7f3cefad6",
+        "source_commit": "6b9c4d24eba82d01b444213b7bd1750967640b39"
+      },
+      "curve": [
+        {
+          "threshold": 0.0,
+          "points_per_round": 13.17,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.496666666666667,
+            "deal_bootstrap_interval": [
+              1.8758333333333335,
+              11.190333333333331
+            ]
+          }
+        },
+        {
+          "threshold": 0.05,
+          "points_per_round": 13.17,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.496666666666667,
+            "deal_bootstrap_interval": [
+              1.8758333333333335,
+              11.190333333333331
+            ]
+          }
+        },
+        {
+          "threshold": 0.1,
+          "points_per_round": 13.17,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.496666666666667,
+            "deal_bootstrap_interval": [
+              1.8758333333333335,
+              11.190333333333331
+            ]
+          }
+        },
+        {
+          "threshold": 0.15,
+          "points_per_round": 15.143333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 8.47,
+            "deal_bootstrap_interval": [
+              4.442916666666667,
+              12.356833333333332
+            ]
+          }
+        },
+        {
+          "threshold": 0.2,
+          "points_per_round": 15.143333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 8.47,
+            "deal_bootstrap_interval": [
+              4.442916666666667,
+              12.356833333333332
+            ]
+          }
+        },
+        {
+          "threshold": 0.25,
+          "points_per_round": 14.266666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.593333333333334,
+            "deal_bootstrap_interval": [
+              3.8029166666666665,
+              11.517083333333332
+            ]
+          }
+        },
+        {
+          "threshold": 0.3,
+          "points_per_round": 13.396666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.723333333333334,
+            "deal_bootstrap_interval": [
+              2.7630833333333333,
+              10.843749999999998
+            ]
+          }
+        },
+        {
+          "threshold": 0.35,
+          "points_per_round": 11.74,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.066666666666666,
+            "deal_bootstrap_interval": [
+              1.0265833333333332,
+              9.217083333333331
+            ]
+          }
+        },
+        {
+          "threshold": 0.4,
+          "points_per_round": 12.983333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.31,
+            "deal_bootstrap_interval": [
+              2.4730833333333333,
+              10.273749999999998
+            ]
+          }
+        },
+        {
+          "threshold": 0.45,
+          "points_per_round": 13.73,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.056666666666667,
+            "deal_bootstrap_interval": [
+              3.6431666666666667,
+              10.690416666666664
+            ]
+          }
+        },
+        {
+          "threshold": 0.5,
+          "points_per_round": 13.003333333333334,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.33,
+            "deal_bootstrap_interval": [
+              3.04,
+              9.713416666666665
+            ]
+          }
+        },
+        {
+          "threshold": 0.55,
+          "points_per_round": 12.186666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.513333333333334,
+            "deal_bootstrap_interval": [
+              2.0890833333333334,
+              9.110583333333329
+            ]
+          }
+        },
+        {
+          "threshold": 0.6,
+          "points_per_round": 12.033333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.36,
+            "deal_bootstrap_interval": [
+              1.82,
+              9.053749999999997
+            ]
+          }
+        },
+        {
+          "threshold": 0.65,
+          "points_per_round": 11.9,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.226666666666667,
+            "deal_bootstrap_interval": [
+              1.8230833333333332,
+              8.807083333333331
+            ]
+          }
+        },
+        {
+          "threshold": 0.7,
+          "points_per_round": 9.59,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 2.9166666666666665,
+            "deal_bootstrap_interval": [
+              -0.6505,
+              6.586749999999999
+            ]
+          }
+        },
+        {
+          "threshold": 0.75,
+          "points_per_round": 10.066666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.3933333333333335,
+            "deal_bootstrap_interval": [
+              0.003250000000000005,
+              6.990249999999999
+            ]
+          }
+        },
+        {
+          "threshold": 0.8,
+          "points_per_round": 8.236666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 1.5633333333333332,
+            "deal_bootstrap_interval": [
+              -2.0344166666666665,
+              5.326833333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.85,
+          "points_per_round": 6.843333333333334,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 0.17,
+            "deal_bootstrap_interval": [
+              -3.700166666666667,
+              4.154749999999992
+            ]
+          }
+        },
+        {
+          "threshold": 0.9,
+          "points_per_round": 4.62,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -2.0533333333333332,
+            "deal_bootstrap_interval": [
+              -5.504166666666666,
+              1.7240833333333292
+            ]
+          }
+        },
+        {
+          "threshold": 0.95,
+          "points_per_round": 1.8,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -4.873333333333333,
+            "deal_bootstrap_interval": [
+              -7.9703333333333335,
+              -1.416500000000001
+            ]
+          }
+        },
+        {
+          "threshold": 1.0,
+          "points_per_round": 0.0,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -6.673333333333333,
+            "deal_bootstrap_interval": [
+              -9.3505,
+              -3.893083333333335
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "policy-teacher-2000",
+      "label": "Transformer MCTS 2.000 / 10k / 100 Epochen",
+      "best_threshold": 0.35,
+      "baseline_points_per_round": 7.703333333333333,
+      "best_points_per_round": 13.99,
+      "delta": 6.286666666666667,
+      "interval": [
+        3.0199166666666666,
+        9.837416666666662
+      ],
+      "best_metrics": {
+        "solo_rounds": 129,
+        "solo_wins": 118,
+        "defence_rounds": 165,
+        "defence_wins": 91,
+        "overbids": 0,
+        "card_points": 20813,
+        "game_points": 4197,
+        "played": 294,
+        "wins": 209,
+        "passed": 6,
+        "win_rate": 0.7108843537414966,
+        "win_interval": [
+          0.6566054137498123,
+          0.7597232656556168
+        ],
+        "solo_win_rate": 0.9147286821705426,
+        "defence_win_rate": 0.5515151515151515,
+        "points_per_round": 13.99,
+        "solo_fraction": 0.43,
+        "passed_fraction": 0.02
+      },
+      "manifest": {
+        "measured_at": "2026-10-12T17:21:07.701437+00:00",
+        "rounds": 300,
+        "seed": 42,
+        "bidding_seat": 1,
+        "thresholds": [
+          0.0,
+          0.05,
+          0.1,
+          0.15,
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.5,
+          0.55,
+          0.6,
+          0.65,
+          0.7,
+          0.75,
+          0.8,
+          0.85,
+          0.9,
+          0.95,
+          1.0
+        ],
+        "dealer_rotation": true,
+        "objective": "own official points per dealt round including passes",
+        "seats": [
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          },
+          {
+            "agent": "policy",
+            "policy": "trained_models/transformer-teacher-2000-10k.pt",
+            "policy_sha256": "2f6f35c0aa2530737cdefa79be3663b8d16a6e704e0c9b3ffb0b1b7b9cac21d6"
+          },
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          }
+        ],
+        "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+        "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+        "mcts": {
+          "simulations": 600,
+          "determinizations": 20
+        },
+        "workers": 1,
+        "batch_workers": 16,
+        "parallelization": "independent complete threshold runs",
+        "device": "cpu",
+        "torch_version": "2.14.0",
+        "source_sha256": "8a4b475a4ffa64405e20c82a8cb00b480aab9cb2d49d9576213c1de7f3cefad6",
+        "source_commit": "6b9c4d24eba82d01b444213b7bd1750967640b39"
+      },
+      "curve": [
+        {
+          "threshold": 0.0,
+          "points_per_round": 13.113333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.41,
+            "deal_bootstrap_interval": [
+              0.9128333333333334,
+              9.964749999999992
+            ]
+          }
+        },
+        {
+          "threshold": 0.05,
+          "points_per_round": 13.113333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.41,
+            "deal_bootstrap_interval": [
+              0.9128333333333334,
+              9.964749999999992
+            ]
+          }
+        },
+        {
+          "threshold": 0.1,
+          "points_per_round": 13.113333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.41,
+            "deal_bootstrap_interval": [
+              0.9128333333333334,
+              9.964749999999992
+            ]
+          }
+        },
+        {
+          "threshold": 0.15,
+          "points_per_round": 13.096666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.3933333333333335,
+            "deal_bootstrap_interval": [
+              1.0728333333333333,
+              9.813999999999997
+            ]
+          }
+        },
+        {
+          "threshold": 0.2,
+          "points_per_round": 13.096666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.3933333333333335,
+            "deal_bootstrap_interval": [
+              1.0728333333333333,
+              9.813999999999997
+            ]
+          }
+        },
+        {
+          "threshold": 0.25,
+          "points_per_round": 11.653333333333334,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.95,
+            "deal_bootstrap_interval": [
+              -0.0635,
+              8.15058333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.3,
+          "points_per_round": 12.943333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.24,
+            "deal_bootstrap_interval": [
+              1.2328333333333334,
+              9.34683333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.35,
+          "points_per_round": 13.99,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.286666666666667,
+            "deal_bootstrap_interval": [
+              3.0199166666666666,
+              9.837416666666662
+            ]
+          }
+        },
+        {
+          "threshold": 0.4,
+          "points_per_round": 13.0,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.296666666666667,
+            "deal_bootstrap_interval": [
+              2.086583333333333,
+              8.666749999999999
+            ]
+          }
+        },
+        {
+          "threshold": 0.45,
+          "points_per_round": 13.14,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.4366666666666665,
+            "deal_bootstrap_interval": [
+              2.3133333333333335,
+              8.903916666666664
+            ]
+          }
+        },
+        {
+          "threshold": 0.5,
+          "points_per_round": 13.9,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.196666666666666,
+            "deal_bootstrap_interval": [
+              2.8564999999999996,
+              10.027
+            ]
+          }
+        },
+        {
+          "threshold": 0.55,
+          "points_per_round": 12.253333333333334,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.55,
+            "deal_bootstrap_interval": [
+              0.9990833333333334,
+              8.400749999999997
+            ]
+          }
+        },
+        {
+          "threshold": 0.6,
+          "points_per_round": 12.236666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.533333333333333,
+            "deal_bootstrap_interval": [
+              1.2658333333333334,
+              8.183666666666666
+            ]
+          }
+        },
+        {
+          "threshold": 0.65,
+          "points_per_round": 12.033333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.33,
+            "deal_bootstrap_interval": [
+              1.0165,
+              7.983666666666665
+            ]
+          }
+        },
+        {
+          "threshold": 0.7,
+          "points_per_round": 11.43,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.7266666666666666,
+            "deal_bootstrap_interval": [
+              0.35,
+              7.4600833333333325
+            ]
+          }
+        },
+        {
+          "threshold": 0.75,
+          "points_per_round": 9.973333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 2.27,
+            "deal_bootstrap_interval": [
+              -1.0135833333333335,
+              5.996833333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.8,
+          "points_per_round": 8.113333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 0.41,
+            "deal_bootstrap_interval": [
+              -3.1003333333333334,
+              4.406666666666666
+            ]
+          }
+        },
+        {
+          "threshold": 0.85,
+          "points_per_round": 6.326666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -1.3766666666666667,
+            "deal_bootstrap_interval": [
+              -4.903333333333333,
+              2.4140833333333296
+            ]
+          }
+        },
+        {
+          "threshold": 0.9,
+          "points_per_round": 4.37,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -3.3333333333333335,
+            "deal_bootstrap_interval": [
+              -6.62675,
+              0.24016666666666575
+            ]
+          }
+        },
+        {
+          "threshold": 0.95,
+          "points_per_round": 1.76,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -5.943333333333333,
+            "deal_bootstrap_interval": [
+              -9.080166666666667,
+              -2.599833333333334
+            ]
+          }
+        },
+        {
+          "threshold": 1.0,
+          "points_per_round": 0.0,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -7.703333333333333,
+            "deal_bootstrap_interval": [
+              -10.407666666666666,
+              -4.956500000000001
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "policy-iss",
+      "label": "Transformer ISS 100k / 20 Epochen",
+      "best_threshold": 0.35,
+      "baseline_points_per_round": 7.46,
+      "best_points_per_round": 16.243333333333332,
+      "delta": 8.783333333333333,
+      "interval": [
+        5.1258333333333335,
+        12.653333333333334
+      ],
+      "best_metrics": {
+        "solo_rounds": 129,
+        "solo_wins": 120,
+        "defence_rounds": 165,
+        "defence_wins": 91,
+        "overbids": 0,
+        "card_points": 21249,
+        "game_points": 4873,
+        "played": 294,
+        "wins": 211,
+        "passed": 6,
+        "win_rate": 0.717687074829932,
+        "win_interval": [
+          0.6636816232937517,
+          0.7660770135118524
+        ],
+        "solo_win_rate": 0.9302325581395349,
+        "defence_win_rate": 0.5515151515151515,
+        "points_per_round": 16.243333333333332,
+        "solo_fraction": 0.43,
+        "passed_fraction": 0.02
+      },
+      "manifest": {
+        "measured_at": "2026-10-12T17:21:07.704410+00:00",
+        "rounds": 300,
+        "seed": 42,
+        "bidding_seat": 1,
+        "thresholds": [
+          0.0,
+          0.05,
+          0.1,
+          0.15,
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.5,
+          0.55,
+          0.6,
+          0.65,
+          0.7,
+          0.75,
+          0.8,
+          0.85,
+          0.9,
+          0.95,
+          1.0
+        ],
+        "dealer_rotation": true,
+        "objective": "own official points per dealt round including passes",
+        "seats": [
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          },
+          {
+            "agent": "policy",
+            "policy": "benchmark_runs/iss-run-1/policy.pt",
+            "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff"
+          },
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          }
+        ],
+        "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+        "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+        "mcts": {
+          "simulations": 600,
+          "determinizations": 20
+        },
+        "workers": 1,
+        "batch_workers": 16,
+        "parallelization": "independent complete threshold runs",
+        "device": "cpu",
+        "torch_version": "2.14.0",
+        "source_sha256": "8a4b475a4ffa64405e20c82a8cb00b480aab9cb2d49d9576213c1de7f3cefad6",
+        "source_commit": "6b9c4d24eba82d01b444213b7bd1750967640b39"
+      },
+      "curve": [
+        {
+          "threshold": 0.0,
+          "points_per_round": 10.963333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.5033333333333334,
+            "deal_bootstrap_interval": [
+              -0.8805,
+              7.870083333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.05,
+          "points_per_round": 10.963333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.5033333333333334,
+            "deal_bootstrap_interval": [
+              -0.8805,
+              7.870083333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.1,
+          "points_per_round": 10.963333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.5033333333333334,
+            "deal_bootstrap_interval": [
+              -0.8805,
+              7.870083333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.15,
+          "points_per_round": 14.586666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.126666666666667,
+            "deal_bootstrap_interval": [
+              3.2895,
+              11.363416666666666
+            ]
+          }
+        },
+        {
+          "threshold": 0.2,
+          "points_per_round": 14.586666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.126666666666667,
+            "deal_bootstrap_interval": [
+              3.2895,
+              11.363416666666666
+            ]
+          }
+        },
+        {
+          "threshold": 0.25,
+          "points_per_round": 14.933333333333334,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.473333333333334,
+            "deal_bootstrap_interval": [
+              3.6929166666666666,
+              11.496833333333331
+            ]
+          }
+        },
+        {
+          "threshold": 0.3,
+          "points_per_round": 15.046666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.586666666666667,
+            "deal_bootstrap_interval": [
+              3.5227500000000003,
+              11.687083333333332
+            ]
+          }
+        },
+        {
+          "threshold": 0.35,
+          "points_per_round": 16.243333333333332,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 8.783333333333333,
+            "deal_bootstrap_interval": [
+              5.1258333333333335,
+              12.653333333333334
+            ]
+          }
+        },
+        {
+          "threshold": 0.4,
+          "points_per_round": 14.023333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.5633333333333335,
+            "deal_bootstrap_interval": [
+              2.8520833333333337,
+              10.367666666666661
+            ]
+          }
+        },
+        {
+          "threshold": 0.45,
+          "points_per_round": 14.19,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.73,
+            "deal_bootstrap_interval": [
+              2.962833333333333,
+              10.553499999999998
+            ]
+          }
+        },
+        {
+          "threshold": 0.5,
+          "points_per_round": 14.66,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.2,
+            "deal_bootstrap_interval": [
+              3.7533333333333334,
+              10.66025
+            ]
+          }
+        },
+        {
+          "threshold": 0.55,
+          "points_per_round": 14.046666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.586666666666667,
+            "deal_bootstrap_interval": [
+              3.1630833333333337,
+              10.28
+            ]
+          }
+        },
+        {
+          "threshold": 0.6,
+          "points_per_round": 13.72,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.26,
+            "deal_bootstrap_interval": [
+              2.776666666666667,
+              9.800166666666666
+            ]
+          }
+        },
+        {
+          "threshold": 0.65,
+          "points_per_round": 12.23,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.77,
+            "deal_bootstrap_interval": [
+              1.4393333333333334,
+              8.38025
+            ]
+          }
+        },
+        {
+          "threshold": 0.7,
+          "points_per_round": 11.163333333333334,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.703333333333333,
+            "deal_bootstrap_interval": [
+              0.4033333333333333,
+              7.3035
+            ]
+          }
+        },
+        {
+          "threshold": 0.75,
+          "points_per_round": 10.293333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 2.8333333333333335,
+            "deal_bootstrap_interval": [
+              -0.5540833333333333,
+              6.587166666666664
+            ]
+          }
+        },
+        {
+          "threshold": 0.8,
+          "points_per_round": 8.37,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 0.91,
+            "deal_bootstrap_interval": [
+              -2.5939166666666664,
+              4.643416666666666
+            ]
+          }
+        },
+        {
+          "threshold": 0.85,
+          "points_per_round": 6.51,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -0.95,
+            "deal_bootstrap_interval": [
+              -4.533666666666667,
+              2.840083333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.9,
+          "points_per_round": 4.693333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -2.7666666666666666,
+            "deal_bootstrap_interval": [
+              -6.100083333333333,
+              0.8404999999999972
+            ]
+          }
+        },
+        {
+          "threshold": 0.95,
+          "points_per_round": 1.84,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -5.62,
+            "deal_bootstrap_interval": [
+              -8.723833333333333,
+              -2.1560000000000037
+            ]
+          }
+        },
+        {
+          "threshold": 1.0,
+          "points_per_round": 0.0,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -7.46,
+            "deal_bootstrap_interval": [
+              -10.256749999999998,
+              -4.71
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "mcts-600",
+      "label": "MCTS 600 Simulationen",
+      "best_threshold": 0.25,
+      "baseline_points_per_round": 6.9366666666666665,
+      "best_points_per_round": 14.503333333333334,
+      "delta": 7.566666666666666,
+      "interval": [
+        3.2729166666666667,
+        11.897583333333328
+      ],
+      "best_metrics": {
+        "solo_rounds": 142,
+        "solo_wins": 127,
+        "defence_rounds": 158,
+        "defence_wins": 81,
+        "overbids": 0,
+        "card_points": 20472,
+        "game_points": 4351,
+        "played": 300,
+        "wins": 208,
+        "passed": 0,
+        "win_rate": 0.6933333333333334,
+        "win_interval": [
+          0.6389827786899308,
+          0.7427950950442782
+        ],
+        "solo_win_rate": 0.8943661971830986,
+        "defence_win_rate": 0.5126582278481012,
+        "points_per_round": 14.503333333333334,
+        "solo_fraction": 0.47333333333333333,
+        "passed_fraction": 0.0
+      },
+      "manifest": {
+        "measured_at": "2026-10-12T17:21:07.707473+00:00",
+        "rounds": 300,
+        "seed": 42,
+        "bidding_seat": 1,
+        "thresholds": [
+          0.0,
+          0.05,
+          0.1,
+          0.15,
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.5,
+          0.55,
+          0.6,
+          0.65,
+          0.7,
+          0.75,
+          0.8,
+          0.85,
+          0.9,
+          0.95,
+          1.0
+        ],
+        "dealer_rotation": true,
+        "objective": "own official points per dealt round including passes",
+        "seats": [
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          },
+          {
+            "agent": "mcts",
+            "policy": null,
+            "policy_sha256": null
+          },
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          }
+        ],
+        "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+        "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+        "mcts": {
+          "simulations": 600,
+          "determinizations": 20
+        },
+        "workers": 1,
+        "batch_workers": 16,
+        "parallelization": "independent complete threshold runs",
+        "device": "cpu",
+        "torch_version": "2.14.0",
+        "source_sha256": "8a4b475a4ffa64405e20c82a8cb00b480aab9cb2d49d9576213c1de7f3cefad6",
+        "source_commit": "6b9c4d24eba82d01b444213b7bd1750967640b39"
+      },
+      "curve": [
+        {
+          "threshold": 0.0,
+          "points_per_round": 12.796666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.86,
+            "deal_bootstrap_interval": [
+              1.2798333333333334,
+              10.400916666666662
+            ]
+          }
+        },
+        {
+          "threshold": 0.05,
+          "points_per_round": 12.796666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.86,
+            "deal_bootstrap_interval": [
+              1.2798333333333334,
+              10.400916666666662
+            ]
+          }
+        },
+        {
+          "threshold": 0.1,
+          "points_per_round": 12.796666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.86,
+            "deal_bootstrap_interval": [
+              1.2798333333333334,
+              10.400916666666662
+            ]
+          }
+        },
+        {
+          "threshold": 0.15,
+          "points_per_round": 13.436666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.5,
+            "deal_bootstrap_interval": [
+              2.07275,
+              10.82708333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.2,
+          "points_per_round": 13.436666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.5,
+            "deal_bootstrap_interval": [
+              2.07275,
+              10.82708333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.25,
+          "points_per_round": 14.503333333333334,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.566666666666666,
+            "deal_bootstrap_interval": [
+              3.2729166666666667,
+              11.897583333333328
+            ]
+          }
+        },
+        {
+          "threshold": 0.3,
+          "points_per_round": 14.256666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.32,
+            "deal_bootstrap_interval": [
+              3.276416666666667,
+              11.376666666666667
+            ]
+          }
+        },
+        {
+          "threshold": 0.35,
+          "points_per_round": 13.973333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.036666666666667,
+            "deal_bootstrap_interval": [
+              3.256416666666667,
+              10.900499999999997
+            ]
+          }
+        },
+        {
+          "threshold": 0.4,
+          "points_per_round": 13.82,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.883333333333334,
+            "deal_bootstrap_interval": [
+              3.402833333333333,
+              10.390416666666665
+            ]
+          }
+        },
+        {
+          "threshold": 0.45,
+          "points_per_round": 13.476666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 6.54,
+            "deal_bootstrap_interval": [
+              3.1765833333333333,
+              10.008083333333325
+            ]
+          }
+        },
+        {
+          "threshold": 0.5,
+          "points_per_round": 14.096666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 7.16,
+            "deal_bootstrap_interval": [
+              3.7528333333333332,
+              10.653416666666667
+            ]
+          }
+        },
+        {
+          "threshold": 0.55,
+          "points_per_round": 12.496666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.56,
+            "deal_bootstrap_interval": [
+              2.43,
+              8.76
+            ]
+          }
+        },
+        {
+          "threshold": 0.6,
+          "points_per_round": 11.3,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.363333333333333,
+            "deal_bootstrap_interval": [
+              1.1429166666666666,
+              7.706999999999998
+            ]
+          }
+        },
+        {
+          "threshold": 0.65,
+          "points_per_round": 11.43,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.493333333333333,
+            "deal_bootstrap_interval": [
+              1.27,
+              7.933666666666665
+            ]
+          }
+        },
+        {
+          "threshold": 0.7,
+          "points_per_round": 10.966666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.03,
+            "deal_bootstrap_interval": [
+              0.6765833333333333,
+              7.520749999999995
+            ]
+          }
+        },
+        {
+          "threshold": 0.75,
+          "points_per_round": 7.806666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 0.87,
+            "deal_bootstrap_interval": [
+              -3.04,
+              4.74
+            ]
+          }
+        },
+        {
+          "threshold": 0.8,
+          "points_per_round": 8.12,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 1.1833333333333333,
+            "deal_bootstrap_interval": [
+              -2.4233333333333333,
+              4.920416666666664
+            ]
+          }
+        },
+        {
+          "threshold": 0.85,
+          "points_per_round": 6.456666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -0.48,
+            "deal_bootstrap_interval": [
+              -3.970416666666667,
+              3.167083333333331
+            ]
+          }
+        },
+        {
+          "threshold": 0.9,
+          "points_per_round": 4.66,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -2.276666666666667,
+            "deal_bootstrap_interval": [
+              -5.6739999999999995,
+              1.3169166666666652
+            ]
+          }
+        },
+        {
+          "threshold": 0.95,
+          "points_per_round": 1.72,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -5.216666666666667,
+            "deal_bootstrap_interval": [
+              -8.31025,
+              -1.9299166666666672
+            ]
+          }
+        },
+        {
+          "threshold": 1.0,
+          "points_per_round": 0.0,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -6.9366666666666665,
+            "deal_bootstrap_interval": [
+              -9.53675,
+              -4.2064166666666685
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "mcts-2000",
+      "label": "MCTS 2.000 Simulationen",
+      "best_threshold": 0.35,
+      "baseline_points_per_round": 9.056666666666667,
+      "best_points_per_round": 14.07,
+      "delta": 5.013333333333334,
+      "interval": [
+        1.2096666666666667,
+        8.803666666666665
+      ],
+      "best_metrics": {
+        "solo_rounds": 129,
+        "solo_wins": 119,
+        "defence_rounds": 165,
+        "defence_wins": 82,
+        "overbids": 0,
+        "card_points": 20093,
+        "game_points": 4221,
+        "played": 294,
+        "wins": 201,
+        "passed": 6,
+        "win_rate": 0.6836734693877551,
+        "win_interval": [
+          0.628436527991383,
+          0.7341723218133454
+        ],
+        "solo_win_rate": 0.9224806201550387,
+        "defence_win_rate": 0.49696969696969695,
+        "points_per_round": 14.07,
+        "solo_fraction": 0.43,
+        "passed_fraction": 0.02
+      },
+      "manifest": {
+        "measured_at": "2026-10-12T17:21:07.709146+00:00",
+        "rounds": 300,
+        "seed": 42,
+        "bidding_seat": 1,
+        "thresholds": [
+          0.0,
+          0.05,
+          0.1,
+          0.15,
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.5,
+          0.55,
+          0.6,
+          0.65,
+          0.7,
+          0.75,
+          0.8,
+          0.85,
+          0.9,
+          0.95,
+          1.0
+        ],
+        "dealer_rotation": true,
+        "objective": "own official points per dealt round including passes",
+        "seats": [
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          },
+          {
+            "agent": "mcts",
+            "policy": null,
+            "policy_sha256": null
+          },
+          {
+            "agent": "random",
+            "policy": null,
+            "policy_sha256": null
+          }
+        ],
+        "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+        "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+        "mcts": {
+          "simulations": 2000,
+          "determinizations": 20
+        },
+        "workers": 1,
+        "batch_workers": 16,
+        "parallelization": "independent complete threshold runs",
+        "device": "cpu",
+        "torch_version": "2.14.0",
+        "source_sha256": "8a4b475a4ffa64405e20c82a8cb00b480aab9cb2d49d9576213c1de7f3cefad6",
+        "source_commit": "6b9c4d24eba82d01b444213b7bd1750967640b39"
+      },
+      "curve": [
+        {
+          "threshold": 0.0,
+          "points_per_round": 12.233333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.1766666666666667,
+            "deal_bootstrap_interval": [
+              -1.3976666666666666,
+              7.406916666666665
+            ]
+          }
+        },
+        {
+          "threshold": 0.05,
+          "points_per_round": 12.233333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.1766666666666667,
+            "deal_bootstrap_interval": [
+              -1.3976666666666666,
+              7.406916666666665
+            ]
+          }
+        },
+        {
+          "threshold": 0.1,
+          "points_per_round": 12.233333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.1766666666666667,
+            "deal_bootstrap_interval": [
+              -1.3976666666666666,
+              7.406916666666665
+            ]
+          }
+        },
+        {
+          "threshold": 0.15,
+          "points_per_round": 13.11,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.053333333333334,
+            "deal_bootstrap_interval": [
+              -0.24683333333333332,
+              8.296666666666667
+            ]
+          }
+        },
+        {
+          "threshold": 0.2,
+          "points_per_round": 13.11,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.053333333333334,
+            "deal_bootstrap_interval": [
+              -0.24683333333333332,
+              8.296666666666667
+            ]
+          }
+        },
+        {
+          "threshold": 0.25,
+          "points_per_round": 11.976666666666667,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 2.92,
+            "deal_bootstrap_interval": [
+              -1.4639166666666668,
+              7.325333333333322
+            ]
+          }
+        },
+        {
+          "threshold": 0.3,
+          "points_per_round": 13.87,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.8133333333333335,
+            "deal_bootstrap_interval": [
+              0.5983333333333334,
+              9.047083333333331
+            ]
+          }
+        },
+        {
+          "threshold": 0.35,
+          "points_per_round": 14.07,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 5.013333333333334,
+            "deal_bootstrap_interval": [
+              1.2096666666666667,
+              8.803666666666665
+            ]
+          }
+        },
+        {
+          "threshold": 0.4,
+          "points_per_round": 11.073333333333334,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 2.0166666666666666,
+            "deal_bootstrap_interval": [
+              -1.4509999999999998,
+              5.916999999999998
+            ]
+          }
+        },
+        {
+          "threshold": 0.45,
+          "points_per_round": 13.166666666666666,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.11,
+            "deal_bootstrap_interval": [
+              0.6594166666666668,
+              7.6700833333333325
+            ]
+          }
+        },
+        {
+          "threshold": 0.5,
+          "points_per_round": 13.703333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 4.6466666666666665,
+            "deal_bootstrap_interval": [
+              1.4431666666666667,
+              7.980166666666666
+            ]
+          }
+        },
+        {
+          "threshold": 0.55,
+          "points_per_round": 12.8,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 3.743333333333333,
+            "deal_bootstrap_interval": [
+              0.64975,
+              7.096666666666667
+            ]
+          }
+        },
+        {
+          "threshold": 0.6,
+          "points_per_round": 11.7,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 2.6433333333333335,
+            "deal_bootstrap_interval": [
+              -0.3903333333333333,
+              5.82733333333333
+            ]
+          }
+        },
+        {
+          "threshold": 0.65,
+          "points_per_round": 11.91,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 2.8533333333333335,
+            "deal_bootstrap_interval": [
+              -0.27725,
+              6.200166666666666
+            ]
+          }
+        },
+        {
+          "threshold": 0.7,
+          "points_per_round": 10.33,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 1.2733333333333334,
+            "deal_bootstrap_interval": [
+              -1.9335833333333334,
+              4.697499999999995
+            ]
+          }
+        },
+        {
+          "threshold": 0.75,
+          "points_per_round": 10.0,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": 0.9433333333333334,
+            "deal_bootstrap_interval": [
+              -2.2666666666666666,
+              4.373499999999999
+            ]
+          }
+        },
+        {
+          "threshold": 0.8,
+          "points_per_round": 8.15,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -0.9066666666666666,
+            "deal_bootstrap_interval": [
+              -4.210166666666667,
+              2.6809166666666617
+            ]
+          }
+        },
+        {
+          "threshold": 0.85,
+          "points_per_round": 6.293333333333333,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -2.763333333333333,
+            "deal_bootstrap_interval": [
+              -6.050333333333334,
+              0.9733333333333334
+            ]
+          }
+        },
+        {
+          "threshold": 0.9,
+          "points_per_round": 4.54,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -4.516666666666667,
+            "deal_bootstrap_interval": [
+              -7.640083333333333,
+              -0.9799166666666671
+            ]
+          }
+        },
+        {
+          "threshold": 0.95,
+          "points_per_round": 1.68,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -7.376666666666667,
+            "deal_bootstrap_interval": [
+              -10.07,
+              -4.426250000000002
+            ]
+          }
+        },
+        {
+          "threshold": 1.0,
+          "points_per_round": 0.0,
+          "paired": {
+            "paired": 300,
+            "deal_groups": 300,
+            "delta": -9.056666666666667,
+            "deal_bootstrap_interval": [
+              -11.393583333333332,
+              -6.619833333333334
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

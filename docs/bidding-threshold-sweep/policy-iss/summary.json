@@ -1,0 +1,1994 @@
+{
+  "status": "complete",
+  "manifest": {
+    "measured_at": "2026-10-12T17:21:07.704410+00:00",
+    "rounds": 300,
+    "seed": 42,
+    "bidding_seat": 1,
+    "thresholds": [
+      0.0,
+      0.05,
+      0.1,
+      0.15,
+      0.2,
+      0.25,
+      0.3,
+      0.35,
+      0.4,
+      0.45,
+      0.5,
+      0.55,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9,
+      0.95,
+      1.0
+    ],
+    "dealer_rotation": true,
+    "objective": "own official points per dealt round including passes",
+    "seats": [
+      {
+        "agent": "random",
+        "policy": null,
+        "policy_sha256": null
+      },
+      {
+        "agent": "policy",
+        "policy": "benchmark_runs/iss-run-1/policy.pt",
+        "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff"
+      },
+      {
+        "agent": "random",
+        "policy": null,
+        "policy_sha256": null
+      }
+    ],
+    "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+    "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+    "mcts": {
+      "simulations": 600,
+      "determinizations": 20
+    },
+    "workers": 1,
+    "batch_workers": 16,
+    "parallelization": "independent complete threshold runs",
+    "device": "cpu",
+    "torch_version": "2.14.0",
+    "source_sha256": "8a4b475a4ffa64405e20c82a8cb00b480aab9cb2d49d9576213c1de7f3cefad6",
+    "source_commit": "6b9c4d24eba82d01b444213b7bd1750967640b39"
+  },
+  "sweep": [
+    {
+      "threshold": 0.0,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 77,
+          "solo_wins": 40,
+          "defence_rounds": 223,
+          "defence_wins": 67,
+          "overbids": 0,
+          "card_points": 15102,
+          "game_points": -826,
+          "played": 300,
+          "wins": 107,
+          "passed": 0,
+          "win_rate": 0.3566666666666667,
+          "win_interval": [
+            0.3045865042894623,
+            0.41237127897655523
+          ],
+          "solo_win_rate": 0.5194805194805194,
+          "defence_win_rate": 0.3004484304932735,
+          "points_per_round": -2.7533333333333334,
+          "solo_fraction": 0.25666666666666665,
+          "passed_fraction": 0.0
+        },
+        {
+          "solo_rounds": 150,
+          "solo_wins": 122,
+          "defence_rounds": 150,
+          "defence_wins": 76,
+          "overbids": 0,
+          "card_points": 21322,
+          "game_points": 3289,
+          "played": 300,
+          "wins": 198,
+          "passed": 0,
+          "win_rate": 0.66,
+          "win_interval": [
+            0.6046734114246599,
+            0.7112806909760647
+          ],
+          "solo_win_rate": 0.8133333333333334,
+          "defence_win_rate": 0.5066666666666667,
+          "points_per_round": 10.963333333333333,
+          "solo_fraction": 0.5,
+          "passed_fraction": 0.0
+        },
+        {
+          "solo_rounds": 73,
+          "solo_wins": 34,
+          "defence_rounds": 227,
+          "defence_wins": 65,
+          "overbids": 0,
+          "card_points": 14482,
+          "game_points": -1322,
+          "played": 300,
+          "wins": 99,
+          "passed": 0,
+          "win_rate": 0.33,
+          "win_interval": [
+            0.27923357997608433,
+            0.3850651862231458
+          ],
+          "solo_win_rate": 0.4657534246575342,
+          "defence_win_rate": 0.28634361233480177,
+          "points_per_round": -4.406666666666666,
+          "solo_fraction": 0.24333333333333335,
+          "passed_fraction": 0.0
+        }
+      ],
+      "seconds": 42.357108390002395,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 3.5033333333333334,
+        "deal_bootstrap_interval": [
+          -0.8805,
+          7.870083333333333
+        ]
+      }
+    },
+    {
+      "threshold": 0.05,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.05)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 77,
+          "solo_wins": 40,
+          "defence_rounds": 223,
+          "defence_wins": 67,
+          "overbids": 0,
+          "card_points": 15102,
+          "game_points": -826,
+          "played": 300,
+          "wins": 107,
+          "passed": 0,
+          "win_rate": 0.3566666666666667,
+          "win_interval": [
+            0.3045865042894623,
+            0.41237127897655523
+          ],
+          "solo_win_rate": 0.5194805194805194,
+          "defence_win_rate": 0.3004484304932735,
+          "points_per_round": -2.7533333333333334,
+          "solo_fraction": 0.25666666666666665,
+          "passed_fraction": 0.0
+        },
+        {
+          "solo_rounds": 150,
+          "solo_wins": 122,
+          "defence_rounds": 150,
+          "defence_wins": 76,
+          "overbids": 0,
+          "card_points": 21322,
+          "game_points": 3289,
+          "played": 300,
+          "wins": 198,
+          "passed": 0,
+          "win_rate": 0.66,
+          "win_interval": [
+            0.6046734114246599,
+            0.7112806909760647
+          ],
+          "solo_win_rate": 0.8133333333333334,
+          "defence_win_rate": 0.5066666666666667,
+          "points_per_round": 10.963333333333333,
+          "solo_fraction": 0.5,
+          "passed_fraction": 0.0
+        },
+        {
+          "solo_rounds": 73,
+          "solo_wins": 34,
+          "defence_rounds": 227,
+          "defence_wins": 65,
+          "overbids": 0,
+          "card_points": 14482,
+          "game_points": -1322,
+          "played": 300,
+          "wins": 99,
+          "passed": 0,
+          "win_rate": 0.33,
+          "win_interval": [
+            0.27923357997608433,
+            0.3850651862231458
+          ],
+          "solo_win_rate": 0.4657534246575342,
+          "defence_win_rate": 0.28634361233480177,
+          "points_per_round": -4.406666666666666,
+          "solo_fraction": 0.24333333333333335,
+          "passed_fraction": 0.0
+        }
+      ],
+      "seconds": 42.8823717990017,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 3.5033333333333334,
+        "deal_bootstrap_interval": [
+          -0.8805,
+          7.870083333333333
+        ]
+      }
+    },
+    {
+      "threshold": 0.1,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.1)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 77,
+          "solo_wins": 40,
+          "defence_rounds": 223,
+          "defence_wins": 67,
+          "overbids": 0,
+          "card_points": 15102,
+          "game_points": -826,
+          "played": 300,
+          "wins": 107,
+          "passed": 0,
+          "win_rate": 0.3566666666666667,
+          "win_interval": [
+            0.3045865042894623,
+            0.41237127897655523
+          ],
+          "solo_win_rate": 0.5194805194805194,
+          "defence_win_rate": 0.3004484304932735,
+          "points_per_round": -2.7533333333333334,
+          "solo_fraction": 0.25666666666666665,
+          "passed_fraction": 0.0
+        },
+        {
+          "solo_rounds": 150,
+          "solo_wins": 122,
+          "defence_rounds": 150,
+          "defence_wins": 76,
+          "overbids": 0,
+          "card_points": 21322,
+          "game_points": 3289,
+          "played": 300,
+          "wins": 198,
+          "passed": 0,
+          "win_rate": 0.66,
+          "win_interval": [
+            0.6046734114246599,
+            0.7112806909760647
+          ],
+          "solo_win_rate": 0.8133333333333334,
+          "defence_win_rate": 0.5066666666666667,
+          "points_per_round": 10.963333333333333,
+          "solo_fraction": 0.5,
+          "passed_fraction": 0.0
+        },
+        {
+          "solo_rounds": 73,
+          "solo_wins": 34,
+          "defence_rounds": 227,
+          "defence_wins": 65,
+          "overbids": 0,
+          "card_points": 14482,
+          "game_points": -1322,
+          "played": 300,
+          "wins": 99,
+          "passed": 0,
+          "win_rate": 0.33,
+          "win_interval": [
+            0.27923357997608433,
+            0.3850651862231458
+          ],
+          "solo_win_rate": 0.4657534246575342,
+          "defence_win_rate": 0.28634361233480177,
+          "points_per_round": -4.406666666666666,
+          "solo_fraction": 0.24333333333333335,
+          "passed_fraction": 0.0
+        }
+      ],
+      "seconds": 42.50366627800395,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 3.5033333333333334,
+        "deal_bootstrap_interval": [
+          -0.8805,
+          7.870083333333333
+        ]
+      }
+    },
+    {
+      "threshold": 0.15,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.15)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 79,
+          "solo_wins": 38,
+          "defence_rounds": 221,
+          "defence_wins": 62,
+          "overbids": 0,
+          "card_points": 14879,
+          "game_points": -1203,
+          "played": 300,
+          "wins": 100,
+          "passed": 0,
+          "win_rate": 0.3333333333333333,
+          "win_interval": [
+            0.2823925597902556,
+            0.3884885835423229
+          ],
+          "solo_win_rate": 0.4810126582278481,
+          "defence_win_rate": 0.28054298642533937,
+          "points_per_round": -4.01,
+          "solo_fraction": 0.2633333333333333,
+          "passed_fraction": 0.0
+        },
+        {
+          "solo_rounds": 147,
+          "solo_wins": 128,
+          "defence_rounds": 153,
+          "defence_wins": 84,
+          "overbids": 0,
+          "card_points": 21599,
+          "game_points": 4376,
+          "played": 300,
+          "wins": 212,
+          "passed": 0,
+          "win_rate": 0.7066666666666667,
+          "win_interval": [
+            0.6527928854718688,
+            0.7553144967957339
+          ],
+          "solo_win_rate": 0.8707482993197279,
+          "defence_win_rate": 0.5490196078431373,
+          "points_per_round": 14.586666666666666,
+          "solo_fraction": 0.49,
+          "passed_fraction": 0.0
+        },
+        {
+          "solo_rounds": 74,
+          "solo_wins": 31,
+          "defence_rounds": 226,
+          "defence_wins": 60,
+          "overbids": 0,
+          "card_points": 14373,
+          "game_points": -1715,
+          "played": 300,
+          "wins": 91,
+          "passed": 0,
+          "win_rate": 0.30333333333333334,
+          "win_interval": [
+            0.25407027929306525,
+            0.35756946983937743
+          ],
+          "solo_win_rate": 0.4189189189189189,
+          "defence_win_rate": 0.26548672566371684,
+          "points_per_round": -5.716666666666667,
+          "solo_fraction": 0.24666666666666667,
+          "passed_fraction": 0.0
+        }
+      ],
+      "seconds": 42.71621092200803,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 7.126666666666667,
+        "deal_bootstrap_interval": [
+          3.2895,
+          11.363416666666666
+        ]
+      }
+    },
+    {
+      "threshold": 0.2,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.2)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 79,
+          "solo_wins": 38,
+          "defence_rounds": 221,
+          "defence_wins": 62,
+          "overbids": 0,
+          "card_points": 14879,
+          "game_points": -1203,
+          "played": 300,
+          "wins": 100,
+          "passed": 0,
+          "win_rate": 0.3333333333333333,
+          "win_interval": [
+            0.2823925597902556,
+            0.3884885835423229
+          ],
+          "solo_win_rate": 0.4810126582278481,
+          "defence_win_rate": 0.28054298642533937,
+          "points_per_round": -4.01,
+          "solo_fraction": 0.2633333333333333,
+          "passed_fraction": 0.0
+        },
+        {
+          "solo_rounds": 147,
+          "solo_wins": 128,
+          "defence_rounds": 153,
+          "defence_wins": 84,
+          "overbids": 0,
+          "card_points": 21599,
+          "game_points": 4376,
+          "played": 300,
+          "wins": 212,
+          "passed": 0,
+          "win_rate": 0.7066666666666667,
+          "win_interval": [
+            0.6527928854718688,
+            0.7553144967957339
+          ],
+          "solo_win_rate": 0.8707482993197279,
+          "defence_win_rate": 0.5490196078431373,
+          "points_per_round": 14.586666666666666,
+          "solo_fraction": 0.49,
+          "passed_fraction": 0.0
+        },
+        {
+          "solo_rounds": 74,
+          "solo_wins": 31,
+          "defence_rounds": 226,
+          "defence_wins": 60,
+          "overbids": 0,
+          "card_points": 14373,
+          "game_points": -1715,
+          "played": 300,
+          "wins": 91,
+          "passed": 0,
+          "win_rate": 0.30333333333333334,
+          "win_interval": [
+            0.25407027929306525,
+            0.35756946983937743
+          ],
+          "solo_win_rate": 0.4189189189189189,
+          "defence_win_rate": 0.26548672566371684,
+          "points_per_round": -5.716666666666667,
+          "solo_fraction": 0.24666666666666667,
+          "passed_fraction": 0.0
+        }
+      ],
+      "seconds": 44.76571694399172,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 7.126666666666667,
+        "deal_bootstrap_interval": [
+          3.2895,
+          11.363416666666666
+        ]
+      }
+    },
+    {
+      "threshold": 0.25,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.25)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 81,
+          "solo_wins": 40,
+          "defence_rounds": 219,
+          "defence_wins": 63,
+          "overbids": 0,
+          "card_points": 14999,
+          "game_points": -1137,
+          "played": 300,
+          "wins": 103,
+          "passed": 0,
+          "win_rate": 0.3433333333333333,
+          "win_interval": [
+            0.291887036388584,
+            0.3987412383440398
+          ],
+          "solo_win_rate": 0.49382716049382713,
+          "defence_win_rate": 0.2876712328767123,
+          "points_per_round": -3.79,
+          "solo_fraction": 0.27,
+          "passed_fraction": 0.0
+        },
+        {
+          "solo_rounds": 142,
+          "solo_wins": 126,
+          "defence_rounds": 158,
+          "defence_wins": 88,
+          "overbids": 0,
+          "card_points": 21617,
+          "game_points": 4480,
+          "played": 300,
+          "wins": 214,
+          "passed": 0,
+          "win_rate": 0.7133333333333334,
+          "win_interval": [
+            0.6597173468493974,
+            0.7615547896849021
+          ],
+          "solo_win_rate": 0.8873239436619719,
+          "defence_win_rate": 0.5569620253164557,
+          "points_per_round": 14.933333333333334,
+          "solo_fraction": 0.47333333333333333,
+          "passed_fraction": 0.0
+        },
+        {
+          "solo_rounds": 77,
+          "solo_wins": 30,
+          "defence_rounds": 223,
+          "defence_wins": 57,
+          "overbids": 0,
+          "card_points": 14257,
+          "game_points": -2004,
+          "played": 300,
+          "wins": 87,
+          "passed": 0,
+          "win_rate": 0.29,
+          "win_interval": [
+            0.2415637129951771,
+            0.3437465276038718
+          ],
+          "solo_win_rate": 0.38961038961038963,
+          "defence_win_rate": 0.2556053811659193,
+          "points_per_round": -6.68,
+          "solo_fraction": 0.25666666666666665,
+          "passed_fraction": 0.0
+        }
+      ],
+      "seconds": 43.56606589499279,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 7.473333333333334,
+        "deal_bootstrap_interval": [
+          3.6929166666666666,
+          11.496833333333331
+        ]
+      }
+    },
+    {
+      "threshold": 0.3,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.3)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 82,
+          "solo_wins": 43,
+          "defence_rounds": 216,
+          "defence_wins": 56,
+          "overbids": 0,
+          "card_points": 14509,
+          "game_points": -901,
+          "played": 298,
+          "wins": 99,
+          "passed": 2,
+          "win_rate": 0.33221476510067116,
+          "win_interval": [
+            0.2811706329546783,
+            0.3875297714958679
+          ],
+          "solo_win_rate": 0.524390243902439,
+          "defence_win_rate": 0.25925925925925924,
+          "points_per_round": -3.0033333333333334,
+          "solo_fraction": 0.2733333333333333,
+          "passed_fraction": 0.006666666666666667
+        },
+        {
+          "solo_rounds": 135,
+          "solo_wins": 121,
+          "defence_rounds": 163,
+          "defence_wins": 81,
+          "overbids": 0,
+          "card_points": 21417,
+          "game_points": 4514,
+          "played": 298,
+          "wins": 202,
+          "passed": 2,
+          "win_rate": 0.6778523489932886,
+          "win_interval": [
+            0.6228218928442719,
+            0.7283556784381491
+          ],
+          "solo_win_rate": 0.8962962962962963,
+          "defence_win_rate": 0.49693251533742333,
+          "points_per_round": 15.046666666666667,
+          "solo_fraction": 0.45,
+          "passed_fraction": 0.006666666666666667
+        },
+        {
+          "solo_rounds": 81,
+          "solo_wins": 39,
+          "defence_rounds": 217,
+          "defence_wins": 53,
+          "overbids": 0,
+          "card_points": 14151,
+          "game_points": -1637,
+          "played": 298,
+          "wins": 92,
+          "passed": 2,
+          "win_rate": 0.3087248322147651,
+          "win_interval": [
+            0.25898560057548087,
+            0.3633328604981419
+          ],
+          "solo_win_rate": 0.48148148148148145,
+          "defence_win_rate": 0.24423963133640553,
+          "points_per_round": -5.456666666666667,
+          "solo_fraction": 0.27,
+          "passed_fraction": 0.006666666666666667
+        }
+      ],
+      "seconds": 42.35006841199356,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 7.586666666666667,
+        "deal_bootstrap_interval": [
+          3.5227500000000003,
+          11.687083333333332
+        ]
+      }
+    },
+    {
+      "threshold": 0.35,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.35)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 82,
+          "solo_wins": 41,
+          "defence_rounds": 212,
+          "defence_wins": 59,
+          "overbids": 0,
+          "card_points": 14521,
+          "game_points": -1548,
+          "played": 294,
+          "wins": 100,
+          "passed": 6,
+          "win_rate": 0.3401360544217687,
+          "win_interval": [
+            0.28835421213823403,
+            0.3960417889576506
+          ],
+          "solo_win_rate": 0.5,
+          "defence_win_rate": 0.2783018867924528,
+          "points_per_round": -5.16,
+          "solo_fraction": 0.2733333333333333,
+          "passed_fraction": 0.02
+        },
+        {
+          "solo_rounds": 129,
+          "solo_wins": 120,
+          "defence_rounds": 165,
+          "defence_wins": 91,
+          "overbids": 0,
+          "card_points": 21249,
+          "game_points": 4873,
+          "played": 294,
+          "wins": 211,
+          "passed": 6,
+          "win_rate": 0.717687074829932,
+          "win_interval": [
+            0.6636816232937517,
+            0.7660770135118524
+          ],
+          "solo_win_rate": 0.9302325581395349,
+          "defence_win_rate": 0.5515151515151515,
+          "points_per_round": 16.243333333333332,
+          "solo_fraction": 0.43,
+          "passed_fraction": 0.02
+        },
+        {
+          "solo_rounds": 83,
+          "solo_wins": 33,
+          "defence_rounds": 211,
+          "defence_wins": 50,
+          "overbids": 0,
+          "card_points": 13877,
+          "game_points": -2163,
+          "played": 294,
+          "wins": 83,
+          "passed": 6,
+          "win_rate": 0.282312925170068,
+          "win_interval": [
+            0.23392298648814763,
+            0.33631837670624837
+          ],
+          "solo_win_rate": 0.39759036144578314,
+          "defence_win_rate": 0.23696682464454977,
+          "points_per_round": -7.21,
+          "solo_fraction": 0.27666666666666667,
+          "passed_fraction": 0.02
+        }
+      ],
+      "seconds": 43.00716688300599,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 8.783333333333333,
+        "deal_bootstrap_interval": [
+          5.1258333333333335,
+          12.653333333333334
+        ]
+      }
+    },
+    {
+      "threshold": 0.4,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.4)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 87,
+          "solo_wins": 41,
+          "defence_rounds": 205,
+          "defence_wins": 57,
+          "overbids": 0,
+          "card_points": 14186,
+          "game_points": -1484,
+          "played": 292,
+          "wins": 98,
+          "passed": 8,
+          "win_rate": 0.3356164383561644,
+          "win_interval": [
+            0.2838993711826662,
+            0.39160265422552515
+          ],
+          "solo_win_rate": 0.47126436781609193,
+          "defence_win_rate": 0.2780487804878049,
+          "points_per_round": -4.946666666666666,
+          "solo_fraction": 0.29,
+          "passed_fraction": 0.02666666666666667
+        },
+        {
+          "solo_rounds": 120,
+          "solo_wins": 110,
+          "defence_rounds": 172,
+          "defence_wins": 93,
+          "overbids": 0,
+          "card_points": 20968,
+          "game_points": 4207,
+          "played": 292,
+          "wins": 203,
+          "passed": 8,
+          "win_rate": 0.6952054794520548,
+          "win_interval": [
+            0.6401544954364172,
+            0.7451868493913555
+          ],
+          "solo_win_rate": 0.9166666666666666,
+          "defence_win_rate": 0.5406976744186046,
+          "points_per_round": 14.023333333333333,
+          "solo_fraction": 0.4,
+          "passed_fraction": 0.02666666666666667
+        },
+        {
+          "solo_rounds": 85,
+          "solo_wins": 38,
+          "defence_rounds": 207,
+          "defence_wins": 56,
+          "overbids": 0,
+          "card_points": 14102,
+          "game_points": -2281,
+          "played": 292,
+          "wins": 94,
+          "passed": 8,
+          "win_rate": 0.3219178082191781,
+          "win_interval": [
+            0.27093981321246363,
+            0.3775207143130771
+          ],
+          "solo_win_rate": 0.4470588235294118,
+          "defence_win_rate": 0.27053140096618356,
+          "points_per_round": -7.6033333333333335,
+          "solo_fraction": 0.2833333333333333,
+          "passed_fraction": 0.02666666666666667
+        }
+      ],
+      "seconds": 42.07299629598856,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 6.5633333333333335,
+        "deal_bootstrap_interval": [
+          2.8520833333333337,
+          10.367666666666661
+        ]
+      }
+    },
+    {
+      "threshold": 0.45,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.45)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 92,
+          "solo_wins": 47,
+          "defence_rounds": 199,
+          "defence_wins": 52,
+          "overbids": 0,
+          "card_points": 14427,
+          "game_points": -1588,
+          "played": 291,
+          "wins": 99,
+          "passed": 9,
+          "win_rate": 0.3402061855670103,
+          "win_interval": [
+            0.2881681067343447,
+            0.396408289540808
+          ],
+          "solo_win_rate": 0.5108695652173914,
+          "defence_win_rate": 0.2613065326633166,
+          "points_per_round": -5.293333333333333,
+          "solo_fraction": 0.30666666666666664,
+          "passed_fraction": 0.03
+        },
+        {
+          "solo_rounds": 111,
+          "solo_wins": 103,
+          "defence_rounds": 180,
+          "defence_wins": 89,
+          "overbids": 0,
+          "card_points": 20827,
+          "game_points": 4257,
+          "played": 291,
+          "wins": 192,
+          "passed": 9,
+          "win_rate": 0.6597938144329897,
+          "win_interval": [
+            0.6035917104591921,
+            0.7118318932656553
+          ],
+          "solo_win_rate": 0.9279279279279279,
+          "defence_win_rate": 0.49444444444444446,
+          "points_per_round": 14.19,
+          "solo_fraction": 0.37,
+          "passed_fraction": 0.03
+        },
+        {
+          "solo_rounds": 88,
+          "solo_wins": 44,
+          "defence_rounds": 203,
+          "defence_wins": 53,
+          "overbids": 0,
+          "card_points": 13881,
+          "game_points": -1811,
+          "played": 291,
+          "wins": 97,
+          "passed": 9,
+          "win_rate": 0.3333333333333333,
+          "win_interval": [
+            0.2816520303725613,
+            0.3893577592907698
+          ],
+          "solo_win_rate": 0.5,
+          "defence_win_rate": 0.26108374384236455,
+          "points_per_round": -6.036666666666667,
+          "solo_fraction": 0.29333333333333333,
+          "passed_fraction": 0.03
+        }
+      ],
+      "seconds": 41.95129065999936,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 6.73,
+        "deal_bootstrap_interval": [
+          2.962833333333333,
+          10.553499999999998
+        ]
+      }
+    },
+    {
+      "threshold": 0.5,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.5)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 96,
+          "solo_wins": 51,
+          "defence_rounds": 194,
+          "defence_wins": 57,
+          "overbids": 0,
+          "card_points": 14513,
+          "game_points": -1006,
+          "played": 290,
+          "wins": 108,
+          "passed": 10,
+          "win_rate": 0.3724137931034483,
+          "win_interval": [
+            0.3187790793825357,
+            0.4293845570801028
+          ],
+          "solo_win_rate": 0.53125,
+          "defence_win_rate": 0.29381443298969073,
+          "points_per_round": -3.3533333333333335,
+          "solo_fraction": 0.32,
+          "passed_fraction": 0.03333333333333333
+        },
+        {
+          "solo_rounds": 100,
+          "solo_wins": 97,
+          "defence_rounds": 190,
+          "defence_wins": 99,
+          "overbids": 0,
+          "card_points": 20695,
+          "game_points": 4398,
+          "played": 290,
+          "wins": 196,
+          "passed": 10,
+          "win_rate": 0.6758620689655173,
+          "win_interval": [
+            0.6199963327165615,
+            0.7271294656727748
+          ],
+          "solo_win_rate": 0.97,
+          "defence_win_rate": 0.5210526315789473,
+          "points_per_round": 14.66,
+          "solo_fraction": 0.3333333333333333,
+          "passed_fraction": 0.03333333333333333
+        },
+        {
+          "solo_rounds": 94,
+          "solo_wins": 40,
+          "defence_rounds": 196,
+          "defence_wins": 48,
+          "overbids": 0,
+          "card_points": 13873,
+          "game_points": -2582,
+          "played": 290,
+          "wins": 88,
+          "passed": 10,
+          "win_rate": 0.30344827586206896,
+          "win_interval": [
+            0.2533875305248751,
+            0.35864834186351385
+          ],
+          "solo_win_rate": 0.425531914893617,
+          "defence_win_rate": 0.24489795918367346,
+          "points_per_round": -8.606666666666667,
+          "solo_fraction": 0.31333333333333335,
+          "passed_fraction": 0.03333333333333333
+        }
+      ],
+      "seconds": 41.82200794600067,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 7.2,
+        "deal_bootstrap_interval": [
+          3.7533333333333334,
+          10.66025
+        ]
+      }
+    },
+    {
+      "threshold": 0.55,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.55)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 101,
+          "solo_wins": 49,
+          "defence_rounds": 187,
+          "defence_wins": 55,
+          "overbids": 0,
+          "card_points": 14440,
+          "game_points": -1728,
+          "played": 288,
+          "wins": 104,
+          "passed": 12,
+          "win_rate": 0.3611111111111111,
+          "win_interval": [
+            0.30780091370943596,
+            0.4180777821310474
+          ],
+          "solo_win_rate": 0.48514851485148514,
+          "defence_win_rate": 0.29411764705882354,
+          "points_per_round": -5.76,
+          "solo_fraction": 0.33666666666666667,
+          "passed_fraction": 0.04
+        },
+        {
+          "solo_rounds": 89,
+          "solo_wins": 88,
+          "defence_rounds": 199,
+          "defence_wins": 106,
+          "overbids": 0,
+          "card_points": 20314,
+          "game_points": 4214,
+          "played": 288,
+          "wins": 194,
+          "passed": 12,
+          "win_rate": 0.6736111111111112,
+          "win_interval": [
+            0.6174807033945902,
+            0.7251709268048059
+          ],
+          "solo_win_rate": 0.9887640449438202,
+          "defence_win_rate": 0.5326633165829145,
+          "points_per_round": 14.046666666666667,
+          "solo_fraction": 0.2966666666666667,
+          "passed_fraction": 0.04
+        },
+        {
+          "solo_rounds": 98,
+          "solo_wins": 44,
+          "defence_rounds": 190,
+          "defence_wins": 53,
+          "overbids": 0,
+          "card_points": 13994,
+          "game_points": -2406,
+          "played": 288,
+          "wins": 97,
+          "passed": 12,
+          "win_rate": 0.3368055555555556,
+          "win_interval": [
+            0.2846870758104516,
+            0.39322039180211643
+          ],
+          "solo_win_rate": 0.4489795918367347,
+          "defence_win_rate": 0.2789473684210526,
+          "points_per_round": -8.02,
+          "solo_fraction": 0.32666666666666666,
+          "passed_fraction": 0.04
+        }
+      ],
+      "seconds": 44.2812064710015,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 6.586666666666667,
+        "deal_bootstrap_interval": [
+          3.1630833333333337,
+          10.28
+        ]
+      }
+    },
+    {
+      "threshold": 0.6,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.6)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 104,
+          "solo_wins": 55,
+          "defence_rounds": 181,
+          "defence_wins": 54,
+          "overbids": 0,
+          "card_points": 14638,
+          "game_points": -1290,
+          "played": 285,
+          "wins": 109,
+          "passed": 15,
+          "win_rate": 0.3824561403508772,
+          "win_interval": [
+            0.32795086416006025,
+            0.44008808867775817
+          ],
+          "solo_win_rate": 0.5288461538461539,
+          "defence_win_rate": 0.2983425414364641,
+          "points_per_round": -4.3,
+          "solo_fraction": 0.3466666666666667,
+          "passed_fraction": 0.05
+        },
+        {
+          "solo_rounds": 79,
+          "solo_wins": 79,
+          "defence_rounds": 206,
+          "defence_wins": 103,
+          "overbids": 0,
+          "card_points": 19862,
+          "game_points": 4116,
+          "played": 285,
+          "wins": 182,
+          "passed": 15,
+          "win_rate": 0.6385964912280702,
+          "win_interval": [
+            0.5813191964232008,
+            0.692187112917282
+          ],
+          "solo_win_rate": 1.0,
+          "defence_win_rate": 0.5,
+          "points_per_round": 13.72,
+          "solo_fraction": 0.2633333333333333,
+          "passed_fraction": 0.05
+        },
+        {
+          "solo_rounds": 102,
+          "solo_wins": 48,
+          "defence_rounds": 183,
+          "defence_wins": 49,
+          "overbids": 0,
+          "card_points": 13854,
+          "game_points": -1889,
+          "played": 285,
+          "wins": 97,
+          "passed": 15,
+          "win_rate": 0.34035087719298246,
+          "win_interval": [
+            0.2877885170293859,
+            0.39715991145183005
+          ],
+          "solo_win_rate": 0.47058823529411764,
+          "defence_win_rate": 0.2677595628415301,
+          "points_per_round": -6.296666666666667,
+          "solo_fraction": 0.34,
+          "passed_fraction": 0.05
+        }
+      ],
+      "seconds": 42.71681127999909,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 6.26,
+        "deal_bootstrap_interval": [
+          2.776666666666667,
+          9.800166666666666
+        ]
+      }
+    },
+    {
+      "threshold": 0.65,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.65)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 107,
+          "solo_wins": 52,
+          "defence_rounds": 177,
+          "defence_wins": 64,
+          "overbids": 0,
+          "card_points": 15164,
+          "game_points": -1924,
+          "played": 284,
+          "wins": 116,
+          "passed": 16,
+          "win_rate": 0.4084507042253521,
+          "win_interval": [
+            0.3528729662614665,
+            0.4664721179793105
+          ],
+          "solo_win_rate": 0.48598130841121495,
+          "defence_win_rate": 0.3615819209039548,
+          "points_per_round": -6.413333333333333,
+          "solo_fraction": 0.3566666666666667,
+          "passed_fraction": 0.05333333333333334
+        },
+        {
+          "solo_rounds": 70,
+          "solo_wins": 70,
+          "defence_rounds": 214,
+          "defence_wins": 119,
+          "overbids": 0,
+          "card_points": 19942,
+          "game_points": 3669,
+          "played": 284,
+          "wins": 189,
+          "passed": 16,
+          "win_rate": 0.6654929577464789,
+          "win_interval": [
+            0.6087323464441989,
+            0.7178361551205505
+          ],
+          "solo_win_rate": 1.0,
+          "defence_win_rate": 0.5560747663551402,
+          "points_per_round": 12.23,
+          "solo_fraction": 0.23333333333333334,
+          "passed_fraction": 0.05333333333333334
+        },
+        {
+          "solo_rounds": 107,
+          "solo_wins": 43,
+          "defence_rounds": 177,
+          "defence_wins": 55,
+          "overbids": 0,
+          "card_points": 13904,
+          "game_points": -2700,
+          "played": 284,
+          "wins": 98,
+          "passed": 16,
+          "win_rate": 0.34507042253521125,
+          "win_interval": [
+            0.2921792457942434,
+            0.40209705061322515
+          ],
+          "solo_win_rate": 0.40186915887850466,
+          "defence_win_rate": 0.3107344632768362,
+          "points_per_round": -9.0,
+          "solo_fraction": 0.3566666666666667,
+          "passed_fraction": 0.05333333333333334
+        }
+      ],
+      "seconds": 42.191654137001024,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 4.77,
+        "deal_bootstrap_interval": [
+          1.4393333333333334,
+          8.38025
+        ]
+      }
+    },
+    {
+      "threshold": 0.7,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.7)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 108,
+          "solo_wins": 47,
+          "defence_rounds": 172,
+          "defence_wins": 66,
+          "overbids": 0,
+          "card_points": 15043,
+          "game_points": -2565,
+          "played": 280,
+          "wins": 113,
+          "passed": 20,
+          "win_rate": 0.4035714285714286,
+          "win_interval": [
+            0.34778508523715274,
+            0.4619679601233582
+          ],
+          "solo_win_rate": 0.4351851851851852,
+          "defence_win_rate": 0.38372093023255816,
+          "points_per_round": -8.55,
+          "solo_fraction": 0.36,
+          "passed_fraction": 0.06666666666666667
+        },
+        {
+          "solo_rounds": 63,
+          "solo_wins": 63,
+          "defence_rounds": 217,
+          "defence_wins": 127,
+          "overbids": 0,
+          "card_points": 19721,
+          "game_points": 3349,
+          "played": 280,
+          "wins": 190,
+          "passed": 20,
+          "win_rate": 0.6785714285714286,
+          "win_interval": [
+            0.6217685627732283,
+            0.7305406124850848
+          ],
+          "solo_win_rate": 1.0,
+          "defence_win_rate": 0.5852534562211982,
+          "points_per_round": 11.163333333333334,
+          "solo_fraction": 0.21,
+          "passed_fraction": 0.06666666666666667
+        },
+        {
+          "solo_rounds": 109,
+          "solo_wins": 43,
+          "defence_rounds": 171,
+          "defence_wins": 61,
+          "overbids": 0,
+          "card_points": 14337,
+          "game_points": -3065,
+          "played": 280,
+          "wins": 104,
+          "passed": 20,
+          "win_rate": 0.37142857142857144,
+          "win_interval": [
+            0.31692925401142463,
+            0.4294081398025899
+          ],
+          "solo_win_rate": 0.3944954128440367,
+          "defence_win_rate": 0.3567251461988304,
+          "points_per_round": -10.216666666666667,
+          "solo_fraction": 0.36333333333333334,
+          "passed_fraction": 0.06666666666666667
+        }
+      ],
+      "seconds": 40.78735191600572,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 3.703333333333333,
+        "deal_bootstrap_interval": [
+          0.4033333333333333,
+          7.3035
+        ]
+      }
+    },
+    {
+      "threshold": 0.75,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.75)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 110,
+          "solo_wins": 52,
+          "defence_rounds": 170,
+          "defence_wins": 68,
+          "overbids": 0,
+          "card_points": 15031,
+          "game_points": -2022,
+          "played": 280,
+          "wins": 120,
+          "passed": 20,
+          "win_rate": 0.42857142857142855,
+          "win_interval": [
+            0.3719581397655307,
+            0.487118190131144
+          ],
+          "solo_win_rate": 0.4727272727272727,
+          "defence_win_rate": 0.4,
+          "points_per_round": -6.74,
+          "solo_fraction": 0.36666666666666664,
+          "passed_fraction": 0.06666666666666667
+        },
+        {
+          "solo_rounds": 55,
+          "solo_wins": 55,
+          "defence_rounds": 225,
+          "defence_wins": 126,
+          "overbids": 0,
+          "card_points": 19319,
+          "game_points": 3088,
+          "played": 280,
+          "wins": 181,
+          "passed": 20,
+          "win_rate": 0.6464285714285715,
+          "win_interval": [
+            0.5887932683106276,
+            0.7001002554011893
+          ],
+          "solo_win_rate": 1.0,
+          "defence_win_rate": 0.56,
+          "points_per_round": 10.293333333333333,
+          "solo_fraction": 0.18333333333333332,
+          "passed_fraction": 0.06666666666666667
+        },
+        {
+          "solo_rounds": 115,
+          "solo_wins": 47,
+          "defence_rounds": 165,
+          "defence_wins": 58,
+          "overbids": 0,
+          "card_points": 14561,
+          "game_points": -2966,
+          "played": 280,
+          "wins": 105,
+          "passed": 20,
+          "win_rate": 0.375,
+          "win_interval": [
+            0.3203449530288227,
+            0.4330386242903581
+          ],
+          "solo_win_rate": 0.40869565217391307,
+          "defence_win_rate": 0.3515151515151515,
+          "points_per_round": -9.886666666666667,
+          "solo_fraction": 0.38333333333333336,
+          "passed_fraction": 0.06666666666666667
+        }
+      ],
+      "seconds": 40.15436004800722,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 2.8333333333333335,
+        "deal_bootstrap_interval": [
+          -0.5540833333333333,
+          6.587166666666664
+        ]
+      }
+    },
+    {
+      "threshold": 0.8,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.8)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 115,
+          "solo_wins": 54,
+          "defence_rounds": 165,
+          "defence_wins": 82,
+          "overbids": 0,
+          "card_points": 15818,
+          "game_points": -1969,
+          "played": 280,
+          "wins": 136,
+          "passed": 20,
+          "win_rate": 0.4857142857142857,
+          "win_interval": [
+            0.42776253346773263,
+            0.5440527325116024
+          ],
+          "solo_win_rate": 0.46956521739130436,
+          "defence_win_rate": 0.49696969696969695,
+          "points_per_round": -6.5633333333333335,
+          "solo_fraction": 0.38333333333333336,
+          "passed_fraction": 0.06666666666666667
+        },
+        {
+          "solo_rounds": 41,
+          "solo_wins": 41,
+          "defence_rounds": 239,
+          "defence_wins": 143,
+          "overbids": 0,
+          "card_points": 18952,
+          "game_points": 2511,
+          "played": 280,
+          "wins": 184,
+          "passed": 20,
+          "win_rate": 0.6571428571428571,
+          "win_interval": [
+            0.5997540600715685,
+            0.710278014155747
+          ],
+          "solo_win_rate": 1.0,
+          "defence_win_rate": 0.5983263598326359,
+          "points_per_round": 8.37,
+          "solo_fraction": 0.13666666666666666,
+          "passed_fraction": 0.06666666666666667
+        },
+        {
+          "solo_rounds": 124,
+          "solo_wins": 42,
+          "defence_rounds": 156,
+          "defence_wins": 61,
+          "overbids": 0,
+          "card_points": 14780,
+          "game_points": -4002,
+          "played": 280,
+          "wins": 103,
+          "passed": 20,
+          "win_rate": 0.3678571428571429,
+          "win_interval": [
+            0.31351679438210683,
+            0.42577441592674153
+          ],
+          "solo_win_rate": 0.3387096774193548,
+          "defence_win_rate": 0.391025641025641,
+          "points_per_round": -13.34,
+          "solo_fraction": 0.41333333333333333,
+          "passed_fraction": 0.06666666666666667
+        }
+      ],
+      "seconds": 41.49010567800724,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": 0.91,
+        "deal_bootstrap_interval": [
+          -2.5939166666666664,
+          4.643416666666666
+        ]
+      }
+    },
+    {
+      "threshold": 0.85,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.85)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 118,
+          "solo_wins": 52,
+          "defence_rounds": 159,
+          "defence_wins": 74,
+          "overbids": 0,
+          "card_points": 15461,
+          "game_points": -2660,
+          "played": 277,
+          "wins": 126,
+          "passed": 23,
+          "win_rate": 0.4548736462093863,
+          "win_interval": [
+            0.39724792645382606,
+            0.5137339223890804
+          ],
+          "solo_win_rate": 0.4406779661016949,
+          "defence_win_rate": 0.46540880503144655,
+          "points_per_round": -8.866666666666667,
+          "solo_fraction": 0.3933333333333333,
+          "passed_fraction": 0.07666666666666666
+        },
+        {
+          "solo_rounds": 32,
+          "solo_wins": 32,
+          "defence_rounds": 245,
+          "defence_wins": 140,
+          "overbids": 0,
+          "card_points": 18249,
+          "game_points": 1953,
+          "played": 277,
+          "wins": 172,
+          "passed": 23,
+          "win_rate": 0.6209386281588448,
+          "win_interval": [
+            0.5625182360985697,
+            0.6760504090024411
+          ],
+          "solo_win_rate": 1.0,
+          "defence_win_rate": 0.5714285714285714,
+          "points_per_round": 6.51,
+          "solo_fraction": 0.10666666666666667,
+          "passed_fraction": 0.07666666666666666
+        },
+        {
+          "solo_rounds": 127,
+          "solo_wins": 53,
+          "defence_rounds": 150,
+          "defence_wins": 66,
+          "overbids": 0,
+          "card_points": 15195,
+          "game_points": -3763,
+          "played": 277,
+          "wins": 119,
+          "passed": 23,
+          "win_rate": 0.4296028880866426,
+          "win_interval": [
+            0.37266196145022157,
+            0.48846972274471245
+          ],
+          "solo_win_rate": 0.41732283464566927,
+          "defence_win_rate": 0.44,
+          "points_per_round": -12.543333333333333,
+          "solo_fraction": 0.42333333333333334,
+          "passed_fraction": 0.07666666666666666
+        }
+      ],
+      "seconds": 39.507566341999336,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": -0.95,
+        "deal_bootstrap_interval": [
+          -4.533666666666667,
+          2.840083333333333
+        ]
+      }
+    },
+    {
+      "threshold": 0.9,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.9)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 120,
+          "solo_wins": 55,
+          "defence_rounds": 153,
+          "defence_wins": 78,
+          "overbids": 0,
+          "card_points": 15738,
+          "game_points": -2781,
+          "played": 273,
+          "wins": 133,
+          "passed": 27,
+          "win_rate": 0.48717948717948717,
+          "win_interval": [
+            0.42847715161918665,
+            0.5462376311302268
+          ],
+          "solo_win_rate": 0.4583333333333333,
+          "defence_win_rate": 0.5098039215686274,
+          "points_per_round": -9.27,
+          "solo_fraction": 0.4,
+          "passed_fraction": 0.09
+        },
+        {
+          "solo_rounds": 21,
+          "solo_wins": 21,
+          "defence_rounds": 252,
+          "defence_wins": 143,
+          "overbids": 0,
+          "card_points": 17810,
+          "game_points": 1408,
+          "played": 273,
+          "wins": 164,
+          "passed": 27,
+          "win_rate": 0.6007326007326007,
+          "win_interval": [
+            0.5416262056293655,
+            0.6570433584823865
+          ],
+          "solo_win_rate": 1.0,
+          "defence_win_rate": 0.5674603174603174,
+          "points_per_round": 4.693333333333333,
+          "solo_fraction": 0.07,
+          "passed_fraction": 0.09
+        },
+        {
+          "solo_rounds": 132,
+          "solo_wins": 54,
+          "defence_rounds": 141,
+          "defence_wins": 65,
+          "overbids": 0,
+          "card_points": 15238,
+          "game_points": -4107,
+          "played": 273,
+          "wins": 119,
+          "passed": 27,
+          "win_rate": 0.4358974358974359,
+          "win_interval": [
+            0.3783669048455138,
+            0.4952070089015533
+          ],
+          "solo_win_rate": 0.4090909090909091,
+          "defence_win_rate": 0.46099290780141844,
+          "points_per_round": -13.69,
+          "solo_fraction": 0.44,
+          "passed_fraction": 0.09
+        }
+      ],
+      "seconds": 41.541554874012945,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": -2.7666666666666666,
+        "deal_bootstrap_interval": [
+          -6.100083333333333,
+          0.8404999999999972
+        ]
+      }
+    },
+    {
+      "threshold": 0.95,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (0.95)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 127,
+          "solo_wins": 54,
+          "defence_rounds": 143,
+          "defence_wins": 87,
+          "overbids": 0,
+          "card_points": 15988,
+          "game_points": -3624,
+          "played": 270,
+          "wins": 141,
+          "passed": 30,
+          "win_rate": 0.5222222222222223,
+          "win_interval": [
+            0.4627470887112816,
+            0.5810738647158091
+          ],
+          "solo_win_rate": 0.4251968503937008,
+          "defence_win_rate": 0.6083916083916084,
+          "points_per_round": -12.08,
+          "solo_fraction": 0.42333333333333334,
+          "passed_fraction": 0.1
+        },
+        {
+          "solo_rounds": 5,
+          "solo_wins": 5,
+          "defence_rounds": 265,
+          "defence_wins": 160,
+          "overbids": 0,
+          "card_points": 17372,
+          "game_points": 552,
+          "played": 270,
+          "wins": 165,
+          "passed": 30,
+          "win_rate": 0.6111111111111112,
+          "win_interval": [
+            0.5517910240364242,
+            0.6673137430990294
+          ],
+          "solo_win_rate": 1.0,
+          "defence_win_rate": 0.6037735849056604,
+          "points_per_round": 1.84,
+          "solo_fraction": 0.016666666666666666,
+          "passed_fraction": 0.1
+        },
+        {
+          "solo_rounds": 138,
+          "solo_wins": 51,
+          "defence_rounds": 132,
+          "defence_wins": 73,
+          "overbids": 0,
+          "card_points": 15872,
+          "game_points": -4499,
+          "played": 270,
+          "wins": 124,
+          "passed": 30,
+          "win_rate": 0.45925925925925926,
+          "win_interval": [
+            0.4008038587745259,
+            0.5188577266091412
+          ],
+          "solo_win_rate": 0.3695652173913043,
+          "defence_win_rate": 0.553030303030303,
+          "points_per_round": -14.996666666666666,
+          "solo_fraction": 0.46,
+          "passed_fraction": 0.1
+        }
+      ],
+      "seconds": 39.8316530650045,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": -5.62,
+        "deal_bootstrap_interval": [
+          -8.723833333333333,
+          -2.1560000000000037
+        ]
+      }
+    },
+    {
+      "threshold": 1.0,
+      "completed_rounds": 300,
+      "status": "complete",
+      "bidders": [
+        "conservative",
+        "neural (1)",
+        "conservative"
+      ],
+      "seats": [
+        {
+          "solo_rounds": 127,
+          "solo_wins": 51,
+          "defence_rounds": 142,
+          "defence_wins": 84,
+          "overbids": 0,
+          "card_points": 16347,
+          "game_points": -3679,
+          "played": 269,
+          "wins": 135,
+          "passed": 31,
+          "win_rate": 0.5018587360594795,
+          "win_interval": [
+            0.44250345652889855,
+            0.5611616737151697
+          ],
+          "solo_win_rate": 0.4015748031496063,
+          "defence_win_rate": 0.5915492957746479,
+          "points_per_round": -12.263333333333334,
+          "solo_fraction": 0.42333333333333334,
+          "passed_fraction": 0.10333333333333333
+        },
+        {
+          "solo_rounds": 0,
+          "solo_wins": 0,
+          "defence_rounds": 269,
+          "defence_wins": 160,
+          "overbids": 0,
+          "card_points": 16969,
+          "game_points": 0,
+          "played": 269,
+          "wins": 160,
+          "passed": 31,
+          "win_rate": 0.5947955390334573,
+          "win_interval": [
+            0.5351920709041643,
+            0.6517295715433217
+          ],
+          "solo_win_rate": null,
+          "defence_win_rate": 0.5947955390334573,
+          "points_per_round": 0.0,
+          "solo_fraction": 0.0,
+          "passed_fraction": 0.10333333333333333
+        },
+        {
+          "solo_rounds": 142,
+          "solo_wins": 58,
+          "defence_rounds": 127,
+          "defence_wins": 76,
+          "overbids": 0,
+          "card_points": 15933,
+          "game_points": -4168,
+          "played": 269,
+          "wins": 134,
+          "passed": 31,
+          "win_rate": 0.49814126394052044,
+          "win_interval": [
+            0.4388383262848302,
+            0.5574965434711013
+          ],
+          "solo_win_rate": 0.4084507042253521,
+          "defence_win_rate": 0.5984251968503937,
+          "points_per_round": -13.893333333333333,
+          "solo_fraction": 0.47333333333333333,
+          "passed_fraction": 0.10333333333333333
+        }
+      ],
+      "seconds": 38.50669034200837,
+      "paired_points": {
+        "paired": 300,
+        "deal_groups": 300,
+        "delta": -7.46,
+        "deal_bootstrap_interval": [
+          -10.256749999999998,
+          -4.71
+        ]
+      }
+    }
+  ],
+  "baseline": {
+    "threshold": null,
+    "completed_rounds": 300,
+    "status": "complete",
+    "bidders": [
+      "conservative",
+      "conservative",
+      "conservative"
+    ],
+    "seats": [
+      {
+        "solo_rounds": 94,
+        "solo_wins": 41,
+        "defence_rounds": 188,
+        "defence_wins": 66,
+        "overbids": 0,
+        "card_points": 15053,
+        "game_points": -2339,
+        "played": 282,
+        "wins": 107,
+        "passed": 18,
+        "win_rate": 0.37943262411347517,
+        "win_interval": [
+          0.324775443752382,
+          0.43733056181153873
+        ],
+        "solo_win_rate": 0.43617021276595747,
+        "defence_win_rate": 0.35106382978723405,
+        "points_per_round": -7.796666666666667,
+        "solo_fraction": 0.31333333333333335,
+        "passed_fraction": 0.06
+      },
+      {
+        "solo_rounds": 86,
+        "solo_wins": 77,
+        "defence_rounds": 196,
+        "defence_wins": 110,
+        "overbids": 0,
+        "card_points": 19507,
+        "game_points": 2238,
+        "played": 282,
+        "wins": 187,
+        "passed": 18,
+        "win_rate": 0.6631205673758865,
+        "win_interval": [
+          0.6060912277578262,
+          0.7157653529498106
+        ],
+        "solo_win_rate": 0.8953488372093024,
+        "defence_win_rate": 0.5612244897959183,
+        "points_per_round": 7.46,
+        "solo_fraction": 0.2866666666666667,
+        "passed_fraction": 0.06
+      },
+      {
+        "solo_rounds": 102,
+        "solo_wins": 45,
+        "defence_rounds": 180,
+        "defence_wins": 62,
+        "overbids": 0,
+        "card_points": 14543,
+        "game_points": -2935,
+        "played": 282,
+        "wins": 107,
+        "passed": 18,
+        "win_rate": 0.37943262411347517,
+        "win_interval": [
+          0.324775443752382,
+          0.43733056181153873
+        ],
+        "solo_win_rate": 0.4411764705882353,
+        "defence_win_rate": 0.34444444444444444,
+        "points_per_round": -9.783333333333333,
+        "solo_fraction": 0.34,
+        "passed_fraction": 0.06
+      }
+    ],
+    "seconds": 21.255510967996088
+  },
+  "best_threshold": 0.35
+}

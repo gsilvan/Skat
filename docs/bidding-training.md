@@ -157,6 +157,11 @@ Runden und einem neuen Seed bestätigt werden. Das Intervall ist für jeden
 Vergleich einzeln berechnet und berücksichtigt die Auswahl aus 21 Schwellen
 nicht. Dieser Sweep ersetzt nicht die README-Ratings mit 1.000 Runden.
 
+Die [Auswertung der Sweeps an Sitz 1](bidding-threshold-sweep/analysis.md)
+enthält den Gesamtvergleich und Einzelplots für Random, vier Transformer-
+Checkpoints sowie MCTS mit 600 und 2.000 Simulationen. Die zugehörigen
+Kennzahlen, Modellhashes und PDF-Plots sind dort ebenfalls gespeichert.
+
 ### Auswahl und unabhängiger Test gegen Referenzgruppen
 
 ```bash
