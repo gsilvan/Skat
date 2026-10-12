@@ -20,6 +20,12 @@ class Agent(ABC):
     def set_state(self, state):
         self.state = state
 
+    @property
+    def bidding_label(self):
+        if self.bidding is BiddingStyle.NEURAL and self.neural_bidder is not None:
+            return f"neural ({self.neural_bidder.threshold:g})"
+        return self.bidding.value
+
     def intended_game(self):
         return best_game(set(self.state.hand))
 
