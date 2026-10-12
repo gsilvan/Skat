@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from skat.evaluation import paired_comparison, summarize
+from skat.evaluation import paired_comparison, paired_points_comparison, summarize
 
 
 def compare(first, second, output=None):
@@ -49,6 +49,7 @@ def compare(first, second, output=None):
                 baseline=summarize(old),
                 candidate=summarize(new),
                 paired=paired_comparison(old, new, a["manifest"]["seed"]),
+                points_paired=paired_points_comparison(old, new, a["manifest"]["seed"]),
             )
         comparisons[agent] = panels
     by_game = {}

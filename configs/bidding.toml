@@ -1,0 +1,8 @@
+[train]
+epochs = 20
+batch_size = 512
+d_model = 64
+nhead = 4
+num_layers = 2
+learning_rate = 0.0003
+dropout = 0.1

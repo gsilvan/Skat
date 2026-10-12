@@ -224,8 +224,14 @@ def audit(archive, output, *, progress=True):
         db.close()
 
 
-def import_corpus(audit_directory, output, *, max_games=100000, seed=7, progress=True):
-    require_sgf_support()
+def select_games(
+    audit_directory, output, *, max_games, seed, predicate="", validation_halves=False
+):
+    """Select immutable game groups once for card-play or bidding import.
+
+    predicate is internal SQL, never supplied by CLI input. Time boundaries and
+    group extents always use the full audit, regardless of the eligibility filter.
+    """
     if type(max_games) is not int or max_games < 3:
         raise ValueError("max-games must be at least three")
     directory, output = Path(audit_directory), Path(output)
@@ -273,7 +279,9 @@ def import_corpus(audit_directory, output, *, max_games=100000, seed=7, progress
         selected = Counter()
         excluded = 0
         for line, group in source.execute(
-            "SELECT line, group_id FROM records WHERE reason IS NULL AND decisions>0 ORDER BY sample_key(id)"
+            "SELECT line, group_id FROM records WHERE reason IS NULL AND decisions>0"
+            + predicate
+            + " ORDER BY sample_key(id)"
         ):
             root = groups.root(group)
             start, end = source.execute(
@@ -288,6 +296,18 @@ def import_corpus(audit_directory, output, *, max_games=100000, seed=7, progress
                 if start >= second
                 else None
             )
+            if validation_halves and split == "val":
+                split = (
+                    "val"
+                    if int(
+                        hashlib.sha256(
+                            f"{seed}:calibration:{root}".encode()
+                        ).hexdigest(),
+                        16,
+                    )
+                    % 2
+                    else "calibration"
+                )
             if split is None:
                 excluded += 1
                 continue
@@ -297,11 +317,38 @@ def import_corpus(audit_directory, output, *, max_games=100000, seed=7, progress
                 )
                 selected[split] += 1
         db.commit()
-        if any(selected[split] == 0 for split in ("train", "val", "test")):
+        splits = (
+            ("train", "val", "calibration", "test")
+            if validation_halves
+            else ("train", "val", "test")
+        )
+        if any(selected[split] == 0 for split in splits):
             raise ValueError(
                 "temporal/session/deal split has an empty partition; increase max-games or inspect audit"
             )
-        writer = DemonstrationWriter(output)
+        return archive, dict(
+            source="ISS",
+            archive_sha256=report["archive_sha256"],
+            seed=seed,
+            requested_games=max_games,
+            selected_games=dict(selected),
+            excluded_boundary_games=excluded,
+            temporal_boundaries=[first, second],
+            sampling="sha256(seed:id), whole games; no strength/outcome weighting",
+        )
+    finally:
+        source.close()
+        db.close()
+
+
+def import_corpus(audit_directory, output, *, max_games=100000, seed=7, progress=True):
+    require_sgf_support()
+    archive, provenance = select_games(
+        audit_directory, output, max_games=max_games, seed=seed
+    )
+    output = Path(output)
+    writer = DemonstrationWriter(output)
+    with connect(output / "index.sqlite") as db:
         targets = iter(db.execute("SELECT line, split FROM selection ORDER BY line"))
         target = next(targets, None)
         with records(archive, progress=progress) as lines:
@@ -311,24 +358,8 @@ def import_corpus(audit_directory, output, *, max_games=100000, seed=7, progress
                 if index != target[0]:
                     continue
                 game = parse_record(line)
-                rows = replay(game)
-                writer.add_game(index, target[1], game.metadata, rows)
+                writer.add_game(index, target[1], game.metadata, replay(game))
                 target = next(targets, None)
         if target is not None:
             raise ValueError("archive ended before selected record")
-        manifest = writer.finish(
-            dict(
-                source="ISS",
-                archive_sha256=report["archive_sha256"],
-                seed=seed,
-                requested_games=max_games,
-                selected_games=dict(selected),
-                excluded_boundary_games=excluded,
-                temporal_boundaries=[first, second],
-                sampling="sha256(seed:id), whole games; no strength/outcome weighting",
-            )
-        )
-        return manifest
-    finally:
-        source.close()
-        db.close()
+    return writer.finish(provenance)

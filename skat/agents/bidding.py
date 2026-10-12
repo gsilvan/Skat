@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import bisect
+from enum import Enum
 from typing import TYPE_CHECKING
 
 from skat.card import SUITS, Card
@@ -9,6 +10,12 @@ from skat.games.suit import SuitGame
 
 if TYPE_CHECKING:
     from skat.games import Game
+
+
+class BiddingStyle(str, Enum):
+    CONSERVATIVE = "conservative"
+    NEURAL = "neural"
+
 
 #: The official bid ladder (ISkO 3.3.4). Ascending, starting at "pass".
 VALID_BIDS = sorted(
