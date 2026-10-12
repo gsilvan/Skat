@@ -5,6 +5,60 @@ Random-Agent, MCTS und Transformer-Policies. Policies lassen sich aus MCTS-
 Selbstspiel oder aufgezeichneten ISS-Kartenzügen trainieren. Das Reizen ist
 separat konfigurierbar und kann einen trainierten ISS-Handklassifikator nutzen.
 
+## Agentenstärke gegen Random
+
+Jede Variante spielt **1.000 Runden mit Seed 42** an Sitz 0 gegen zwei
+`random`-Agenten mit `conservative`-Reizern an Sitz 1 und 2. Der Geber rotiert.
+Alle Varianten erhalten dieselben Deals; die 1.000 Runden enthalten auch
+eingepasste Blätter. Kartenmodell und Reizer werden getrennt angegeben.
+
+<!-- agent-ratings:start -->
+| Agent / Kartenmodell | Reizer | Siege / gespielt | Als Alleinspieler | Im Gegenspiel | Eingepasst | Punkte / Runde | Δ Punkte zur Baseline |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Transformer · ISS 100k / 20 Epochen | neural (0.55) | 648/949 (68.3%) | 321/333 (96.4%) | 327/616 (53.1%) | 51 | +13.42 | +14.39 |
+| MCTS · 600 Simulationen / 20 Welten | conservative | 651/946 (68.8%) | 313/330 (94.8%) | 338/616 (54.9%) | 54 | +10.38 | +11.35 |
+| Transformer · MCTS 2.000 / 10k / 100 Epochen | conservative | 651/946 (68.8%) | 311/330 (94.2%) | 340/616 (55.2%) | 54 | +10.33 | +11.29 |
+| Transformer · ISS 100k / 20 Epochen | conservative | 648/946 (68.5%) | 302/330 (91.5%) | 346/616 (56.2%) | 54 | +10.16 | +11.12 |
+| Transformer · MCTS 5k / 12 Epochen | conservative | 618/946 (65.3%) | 307/330 (93.0%) | 311/616 (50.5%) | 54 | +10.04 | +11.00 |
+| MCTS · 2.000 Simulationen / 20 Welten | conservative | 643/946 (68.0%) | 312/330 (94.5%) | 331/616 (53.7%) | 54 | +9.97 | +10.94 |
+| Transformer · MCTS 5k / 100 Epochen | conservative | 652/946 (68.9%) | 305/330 (92.4%) | 347/616 (56.3%) | 54 | +9.38 | +10.34 |
+| Random | neural (0.55) | 470/949 (49.5%) | 242/333 (72.7%) | 228/616 (37.0%) | 51 | +1.81 | +2.77 |
+| Random (Baseline) | conservative | 440/946 (46.5%) | 215/330 (65.2%) | 225/616 (36.5%) | 54 | -0.96 | +0.00 |
+<!-- agent-ratings:end -->
+
+`5k` und `10k` bezeichnen die Anzahl der MCTS-Korpusrunden, `100k` die
+ISS-Spiele im Trainingskorpus. Die Epochenzahl beschreibt den Trainingslauf;
+gespielt wird jeweils mit dessen bestem Validierungscheckpoint.
+
+Die Tabelle ist nach offiziellen Punkten pro ausgeteilter Runde sortiert.
+Gegenspiel und eingepasste Blätter tragen dabei null Punkte bei; verlorene
+Alleinspiele zählen negativ. Die Gewinnquoten beziehen sich auf gespielte
+Runden und geben jeweils den Parteisieg des Kandidaten an. Eine hohe
+Alleinspielerquote kann auch durch selektiveres Reizen entstehen; deshalb
+stehen die Anzahl der Spiele und die Punkte daneben. Kleine Unterschiede in
+diesem einen Lauf belegen keine allgemeine Rangfolge gegen andere Gegner.
+
+Einstellungen, Checkpoint-Hashes und ungerundete Ergebnisse stehen in
+[docs/agent-ratings.json](docs/agent-ratings.json). Die Tabelle wird bei neuen
+Agenten, Checkpoints und Änderungen an Spielstrategie oder Reizen mit diesem
+festen Vergleichsverfahren aktualisiert. Alle aufgeführten Varianten neu messen:
+
+```bash
+# System-Python mit installiertem Torch; ein neues Ausgabeverzeichnis verwenden.
+python -m scripts.rate_agents \
+  --out benchmark_runs/readme-ratings-run-1 --device cpu
+
+# Einzelvergleich nach demselben Verfahren, beispielsweise MCTS:
+python -m skat play --agents mcts random random \
+  --bidding0 conservative --bidding1 conservative --bidding2 conservative \
+  --rounds 1000 --seed 42
+```
+
+Der Rating-Lauf benötigt die in [scripts/rate_agents.py](scripts/rate_agents.py)
+aufgeführten lokalen Checkpoints. Er speichert vollständige Rundenergebnisse im
+Ausgabeverzeichnis und aktualisiert die Tabelle sowie den Ergebnisbericht nach
+Abschluss.
+
 ## Installation
 
 Python >= 3.12.3 und [uv](https://docs.astral.sh/uv/):
@@ -185,7 +239,8 @@ uv run --extra ai python -m skat play \
 
 `--bidding0`, `--bidding1` und `--bidding2` nehmen `conservative` oder `neural`;
 der Standard ist `conservative`. Der Klassifikator wird mit `--bidding-model`
-geladen und mit `--bidding-threshold` kalibriert. Die Zusammenfassung zeigt den
+geladen; `--bidding-threshold` setzt die Mindestgewinnchance für das Reizen.
+Die Standardschwelle ist 2/3. Die Zusammenfassung zeigt den
 Reizer pro Sitz samt Schwelle. Für `evaluate` gelten `--bidding neural`,
 `--bidding-model` und `--bidding-threshold` nur für den Kandidaten; die beiden
 Referenzagenten reizen konservativ. Details und Benchmarks stehen in

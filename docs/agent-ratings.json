@@ -1,0 +1,242 @@
+{
+  "protocol": "play-seat0-random-conservative-v1",
+  "measured_at": "2026-10-12T16:26:40.122193+00:00",
+  "rounds": 1000,
+  "seed": 42,
+  "candidate_seat": 0,
+  "dealer_rotation": true,
+  "reference_agents": [
+    "random",
+    "random"
+  ],
+  "reference_bidding": "conservative",
+  "source_commit": "c30bf5655751987f048b217a59b561ce19bbeb3c",
+  "source_sha256": "8a4b475a4ffa64405e20c82a8cb00b480aab9cb2d49d9576213c1de7f3cefad6",
+  "device": "cpu",
+  "torch_version": "2.14.0",
+  "profiles": [
+    {
+      "id": "random",
+      "label": "Random (Baseline)",
+      "agent": "random",
+      "bidder": "conservative",
+      "policy": null,
+      "policy_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 215,
+        "defence_rounds": 616,
+        "defence_wins": 225,
+        "overbids": 0,
+        "card_points": 54711,
+        "game_points": -965
+      },
+      "passed": 54,
+      "seconds": 56.31027406499197
+    },
+    {
+      "id": "random-neural",
+      "label": "Random",
+      "agent": "random",
+      "bidder": "neural (0.55)",
+      "policy": null,
+      "policy_sha256": null,
+      "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+      "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+      "bidding_threshold": 0.55,
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 333,
+        "solo_wins": 242,
+        "defence_rounds": 616,
+        "defence_wins": 228,
+        "overbids": 0,
+        "card_points": 55741,
+        "game_points": 1808
+      },
+      "passed": 51,
+      "seconds": 57.77319322399853
+    },
+    {
+      "id": "mcts-600",
+      "label": "MCTS · 600 Simulationen / 20 Welten",
+      "agent": "mcts",
+      "bidder": "conservative",
+      "policy": null,
+      "policy_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "mcts": {
+        "simulations": 600,
+        "determinizations": 20
+      },
+      "search_workers": 16,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 313,
+        "defence_rounds": 616,
+        "defence_wins": 338,
+        "overbids": 0,
+        "card_points": 64643,
+        "game_points": 10381
+      },
+      "passed": 54,
+      "seconds": 157.75124063099793
+    },
+    {
+      "id": "mcts-2000",
+      "label": "MCTS · 2.000 Simulationen / 20 Welten",
+      "agent": "mcts",
+      "bidder": "conservative",
+      "policy": null,
+      "policy_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "mcts": {
+        "simulations": 2000,
+        "determinizations": 20
+      },
+      "search_workers": 16,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 312,
+        "defence_rounds": 616,
+        "defence_wins": 331,
+        "overbids": 0,
+        "card_points": 64064,
+        "game_points": 9973
+      },
+      "passed": 54,
+      "seconds": 315.49097866698867
+    },
+    {
+      "id": "policy-mcts-12",
+      "label": "Transformer · MCTS 5k / 12 Epochen",
+      "agent": "policy",
+      "bidder": "conservative",
+      "policy": "trained_models/transformer-run-2.pt",
+      "policy_sha256": "fbb5ade4ed5de42d5a87ec5a218594d68ce7f63dfe6251f44d5d69d55e5111c8",
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 307,
+        "defence_rounds": 616,
+        "defence_wins": 311,
+        "overbids": 0,
+        "card_points": 64359,
+        "game_points": 10037
+      },
+      "passed": 54,
+      "seconds": 67.4430650400027
+    },
+    {
+      "id": "policy-mcts-100",
+      "label": "Transformer · MCTS 5k / 100 Epochen",
+      "agent": "policy",
+      "bidder": "conservative",
+      "policy": "trained_models/transformer-run-2-100epochs.pt",
+      "policy_sha256": "6be3b7221bee9c718258926fa0e2cc4af0e231f54de7b10f5305164658127a71",
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 305,
+        "defence_rounds": 616,
+        "defence_wins": 347,
+        "overbids": 0,
+        "card_points": 65487,
+        "game_points": 9375
+      },
+      "passed": 54,
+      "seconds": 65.91645759799576
+    },
+    {
+      "id": "policy-teacher-2000",
+      "label": "Transformer · MCTS 2.000 / 10k / 100 Epochen",
+      "agent": "policy",
+      "bidder": "conservative",
+      "policy": "trained_models/transformer-teacher-2000-10k.pt",
+      "policy_sha256": "2f6f35c0aa2530737cdefa79be3663b8d16a6e704e0c9b3ffb0b1b7b9cac21d6",
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 311,
+        "defence_rounds": 616,
+        "defence_wins": 340,
+        "overbids": 0,
+        "card_points": 65882,
+        "game_points": 10329
+      },
+      "passed": 54,
+      "seconds": 65.71284099199693
+    },
+    {
+      "id": "policy-iss",
+      "label": "Transformer · ISS 100k / 20 Epochen",
+      "agent": "policy",
+      "bidder": "conservative",
+      "policy": "benchmark_runs/iss-run-1/policy.pt",
+      "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 302,
+        "defence_rounds": 616,
+        "defence_wins": 346,
+        "overbids": 0,
+        "card_points": 67354,
+        "game_points": 10156
+      },
+      "passed": 54,
+      "seconds": 65.8429076540051
+    },
+    {
+      "id": "policy-iss-neural",
+      "label": "Transformer · ISS 100k / 20 Epochen",
+      "agent": "policy",
+      "bidder": "neural (0.55)",
+      "policy": "benchmark_runs/iss-run-1/policy.pt",
+      "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+      "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+      "bidding_threshold": 0.55,
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 333,
+        "solo_wins": 321,
+        "defence_rounds": 616,
+        "defence_wins": 327,
+        "overbids": 0,
+        "card_points": 67687,
+        "game_points": 13424
+      },
+      "passed": 51,
+      "seconds": 66.5314258569997
+    }
+  ],
+  "status": "complete"
+}
