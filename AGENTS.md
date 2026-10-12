@@ -3,6 +3,27 @@
 The stable core implements official digital Skat (ISkO November 2022). The
 `vibe-coding` branch preserves experiments and historical models/corpora.
 
+## Commit messages
+
+- Use Conventional Commits: `type(scope): short description` (scope optional).
+- Be precise and to the point; describe the concrete change.
+- Keep messages concise. No long narratives or unnecessary detail.
+
+## README agent ratings
+
+- Keep a measured agent-strength table in README.md. List card-policy checkpoints
+  and bidding strategies separately, including the conservative Random baseline.
+- The fixed protocol is 1,000 dealt rounds, seed 42, candidate at seat 0, two
+  Random agents with conservative bidding at seats 1 and 2, and rotating dealer.
+  Include passes in the 1,000 rounds; report party wins, solo/defence results,
+  passes and official points per dealt round. Never mix this with seat-rotated
+  evaluation panels or matches against different opponents.
+- Refresh ratings when adding a model/agent or changing strategy/bidding. Use
+  `python -m scripts.rate_agents --out NEW_DIRECTORY --device cpu`; preserve the
+  checkpoint hashes and results in docs/agent-ratings.json. Add new variants to
+  the script's PROFILES while retaining the fixed Random baseline. Long rating runs are
+  standalone benchmarks, not test-suite training.
+
 ## Commands
 
 - `uv sync`: engine and development tools; Torch is optional.
