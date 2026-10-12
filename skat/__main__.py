@@ -36,6 +36,8 @@ def get_args(argv=None):
                 help="Shared checkpoint for policy seats; evaluation candidate checkpoint",
             )
             p.add_argument("--device", default="cpu")
+            p.add_argument("--bidding-model", help="Independent ISS hand classifier")
+            p.add_argument("--bidding-threshold", type=float, default=2 / 3)
         if name in ("play", "collect"):
             p.add_argument("--rounds", type=int, default=33 if name == "play" else 1000)
         if name == "play":
@@ -43,6 +45,12 @@ def get_args(argv=None):
                 p.add_argument(
                     f"--policy{seat}",
                     help=f"Checkpoint for policy agent at seat {seat} (overrides --policy)",
+                )
+            for seat in range(3):
+                p.add_argument(
+                    f"--bidding{seat}",
+                    choices=("conservative", "neural"),
+                    default="conservative",
                 )
             p.add_argument("--verbose", action="store_true")
             p.add_argument(
@@ -59,6 +67,9 @@ def get_args(argv=None):
             p.add_argument("--out", required=True)
             p.add_argument("--device", default="cpu")
         if name == "evaluate":
+            p.add_argument(
+                "--bidding", choices=("conservative", "neural"), default="conservative"
+            )
             p.add_argument(
                 "--reference-policy",
                 "--opponent-policy",
@@ -81,20 +92,30 @@ def get_player(
     mcts=None,
     recorder=None,
     search_pool=None,
+    bidding="conservative",
+    bidder=None,
 ):
+    if bidding == "neural" and bidder is None:
+        raise ValueError("neural bidding requires --bidding-model")
+    if name == "cli" and bidding != "conservative":
+        raise ValueError("human bidding is controlled by stdin")
+
+    def configured(agent):
+        return agent.configure_bidding(bidding, bidder)
+
     if name == "random":
         from skat.agents.random import RandomAgent
 
-        return RandomAgent(seed=seed)
+        return configured(RandomAgent(seed=seed))
     if name == "cli":
         from skat.agents.command_line import CommandLineAgent
 
-        return CommandLineAgent(seed=seed)
+        return configured(CommandLineAgent(seed=seed))
     if name == "mcts":
         from skat.agents.mcts import MCTSAgent, RecordingMCTSAgent
 
         kwargs = asdict(mcts) if mcts is not None else {}
-        return (
+        return configured(
             RecordingMCTSAgent(recorder, seed=seed, search_pool=search_pool, **kwargs)
             if recorder is not None
             else MCTSAgent(seed=seed, search_pool=search_pool, **kwargs)
@@ -104,7 +125,7 @@ def get_player(
 
         if not policy:
             raise ValueError("policy agent requires a checkpoint")
-        return PolicyAgent(policy, device=device, seed=seed)
+        return configured(PolicyAgent(policy, device=device, seed=seed))
     raise ValueError(f"unknown agent {name}")
 
 
@@ -116,6 +137,17 @@ def main(argv=None):
             from skat.agents.search.parallel import SearchPool
             from skat.game import Tournament
 
+            bidder = None
+            if any(getattr(args, f"bidding{i}") == "neural" for i in range(3)):
+                if not args.bidding_model:
+                    raise ValueError("neural bidding requires --bidding-model")
+                from skat.agents.neural_bidding.inference import NeuralBidder
+
+                bidder = NeuralBidder(
+                    args.bidding_model,
+                    device=args.device,
+                    threshold=args.bidding_threshold,
+                )
             with SearchPool(
                 args.workers, capacity=mcts.determinizations
             ) as search_pool:
@@ -127,6 +159,8 @@ def main(argv=None):
                         device=args.device,
                         mcts=mcts,
                         search_pool=search_pool,
+                        bidding=getattr(args, f"bidding{i}"),
+                        bidder=bidder,
                     )
                     for i, name in enumerate(args.agents)
                 ]
@@ -179,6 +213,9 @@ def main(argv=None):
                     mcts=mcts,
                     search_pool=search_pool,
                     opponent_policy=args.opponent_policy,
+                    bidding=args.bidding,
+                    bidding_model=args.bidding_model,
+                    bidding_threshold=args.bidding_threshold,
                 )
     except (ValueError, RuntimeError, FileNotFoundError, ImportError) as exc:
         raise SystemExit(str(exc)) from exc

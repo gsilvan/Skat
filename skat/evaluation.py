@@ -49,6 +49,16 @@ def summarize(rows):
         soloist=role(True),
         defence=role(False),
         official_points=sum(r["official_points"] for r in played),
+        points_per_deal=sum(r["official_points"] for r in rows) / len(rows)
+        if rows
+        else None,
+        soloist_fraction=sum(r["soloist"] == r["seat"] for r in played) / len(rows)
+        if rows
+        else None,
+        overbids=sum(
+            r.get("result", {}).get("reason") == "overbid" and r["soloist"] == r["seat"]
+            for r in played
+        ),
         seconds=elapsed,
         rounds_per_second=len(rows) / elapsed if elapsed else None,
     )
@@ -94,6 +104,40 @@ def paired_comparison(first, second, seed=1):
     )
 
 
+def paired_points_comparison(first, second, seed=1):
+    """Points per dealt round, including passes; bootstrap complete deals."""
+
+    def index(rows):
+        result = {(r["panel"], r["seat"], r["seed"]): r for r in rows}
+        if len(result) != len(rows):
+            raise ValueError("duplicate paired outcomes")
+        return result
+
+    a, b = index(first), index(second)
+    if not a or a.keys() != b.keys():
+        raise ValueError(
+            "paired point comparison requires identical complete deals/seats"
+        )
+    groups = {}
+    for key in sorted(a):
+        groups.setdefault(key[2], []).append(
+            b[key]["official_points"] - a[key]["official_points"]
+        )
+    sums = np.asarray([sum(v) for v in groups.values()], dtype=float)
+    sizes = np.asarray([len(v) for v in groups.values()], dtype=float)
+    rng = np.random.default_rng(seed)
+    bootstraps = []
+    for _ in range(10):
+        draws = rng.integers(len(groups), size=(200, len(groups)))
+        bootstraps.extend(sums[draws].sum(1) / sizes[draws].sum(1))
+    return dict(
+        paired=len(a),
+        deal_groups=len(groups),
+        delta=sums.sum() / sizes.sum(),
+        deal_bootstrap_interval=np.quantile(bootstraps, [0.025, 0.975]).tolist(),
+    )
+
+
 def evaluate(
     agent_names,
     policy,
@@ -106,6 +150,9 @@ def evaluate(
     deal_offset=0,
     search_pool=None,
     opponent_policy=None,
+    bidding="conservative",
+    bidding_model=None,
+    bidding_threshold=2 / 3,
 ):
     from skat.__main__ import get_player
 
@@ -126,12 +173,29 @@ def evaluate(
     import torch
 
     torch.set_num_threads(1)
+    bidder = None
+    if bidding not in ("conservative", "neural"):
+        raise ValueError("unknown bidding style")
+    if bidding == "neural":
+        if not bidding_model:
+            raise ValueError("neural bidding requires --bidding-model")
+        from skat.agents.neural_bidding.inference import NeuralBidder
+
+        bidder = NeuralBidder(bidding_model, device=device, threshold=bidding_threshold)
     rows = []
     source_hash = hashlib.sha256()
     for source in sorted(Path(__file__).parent.rglob("*.py")):
         source_hash.update(str(source.relative_to(Path(__file__).parent)).encode())
         source_hash.update(source.read_bytes())
     manifest = dict(
+        bidding=dict(
+            candidate_style=bidding,
+            reference_style="conservative",
+            model_sha256=hashlib.sha256(Path(bidding_model).read_bytes()).hexdigest()
+            if bidder
+            else None,
+            threshold=bidding_threshold if bidder else None,
+        ),
         rules_schema=RULES_SCHEMA,
         observation_schema=OBSERVATION_SCHEMA,
         source_sha256=source_hash.hexdigest(),
@@ -200,6 +264,8 @@ def evaluate(
                             device=device,
                             mcts=mcts,
                             search_pool=search_pool,
+                            bidding=bidding if s == seat else "conservative",
+                            bidder=bidder if s == seat else None,
                         )
                         for s in range(3)
                     ]
@@ -234,6 +300,10 @@ def evaluate(
                                 else 0,
                                 result=asdict(r.result),
                                 seconds=elapsed,
+                                bidding_probability=agents[
+                                    seat
+                                ].last_bidding_probability,
+                                bidding_ceiling=agents[seat]._ceiling,
                             )
                         )
                         if (i + 1) % 100 == 0:

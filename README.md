@@ -32,6 +32,10 @@ Eine eigenständige Policy aus dem ISS-Archiv ist in
 [docs/iss-training.md](docs/iss-training.md) beschrieben, einschließlich
 automatischem Audit, Training, Evaluation und Partien.
 
+Reizen lässt sich unabhängig vom Kartenagenten mit einem ISS-Handklassifikator
+konfigurieren. Training und Vergleiche stehen in
+[docs/bidding-training.md](docs/bidding-training.md).
+
 ## Vier Arbeitsabläufe
 
 ```bash

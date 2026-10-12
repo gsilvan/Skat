@@ -40,7 +40,11 @@ after each epoch; cross-entropy and KL metrics use the same source targets.
   Engine actions validate ownership, turn order and follow-suit before mutation.
 - Card selection and pressing return decisions without removing cards.
 - MCTS samples uniformly from feasible full worlds; never discard known voids.
-- All seats use the same conservative bidding/declaration heuristics.
+- Bidding is separate from card play: conservative by default, optional ISS neural
+  hand filter for any automatic agent. Both retain safe ceilings and covering
+  declarations. Bidding features are the original ten cards plus relative position.
+  Historical probabilities are not guaranteed calibrated for every card strategy.
+  `docs/bidding-training.md` documents calibration and separate risk benchmarks.
 - Policy observation is egocentric and includes contract, exposed cards, known
   skat and trick counts. Changing its meaning requires a schema bump and new data.
 - Distillation imports arrays, Card and model metadata, never Agent/Player/Round.
@@ -53,6 +57,9 @@ after each epoch; cross-entropy and KL metrics use the same source targets.
   without one, the agent runs serially and owns no worker processes.
 - Groups remain round groups across shard boundaries; never split samples by row.
 - Checkpoints/shards require exact rules, observation and objective versions.
+  Bidding checkpoints have their own schema and are never card-policy checkpoints.
+  Bidding comparisons optimize points per dealt round, including passes; bootstrap
+  complete deals and freeze thresholds before independent test deals.
 - One transformer and one win/loss reward. MCTS uses visit targets; the separate
   `iss-action-v1` corpus uses recorded legal cards, never fabricated visit counts. Archive experiments in
   separate branches rather than expanding the common CLI.
