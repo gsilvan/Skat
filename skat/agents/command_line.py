@@ -11,6 +11,10 @@ def read_choice(prompt, choices):
 
 
 class CommandLineAgent(Agent):
+    @property
+    def bidding_label(self):
+        return "human"
+
     def choose_card(self, valid_moves):
         print(f"Seat {self.state.seat_id}: {list(self.state.hand)}")
         for seat, cards in enumerate(self.state.exposed_hands):
