@@ -1,13 +1,9 @@
 # Skat
 
-Eine Python-Engine für offizielles digitales Skat, mit menschlichem Spieler,
-Random-Agent, MCTS und einer aus MCTS oder ISS-Spielzügen trainierten
-Transformer-Policy.
-
-Der Branch `consolidation` beginnt auf `master` und übernimmt ausgewählte
-Korrekturen aus `vibe-coding`. Die Versuche mit DQN, Belief-Netzen, gelerntem
-Reizen, alternativen Belohnungen und Weboberfläche bleiben dort erhalten.
-Übernahmeentscheidungen stehen in [docs/consolidation.md](docs/consolidation.md).
+Eine Python-Engine für offizielles digitales Skat mit Kommandozeilenspieler,
+Random-Agent, MCTS und Transformer-Policies. Policies lassen sich aus MCTS-
+Selbstspiel oder aufgezeichneten ISS-Kartenzügen trainieren. Das Reizen ist
+separat konfigurierbar und kann einen trainierten ISS-Handklassifikator nutzen.
 
 ## Installation
 
@@ -24,9 +20,9 @@ Die normale Installation braucht keine KI-Checkpoints. MCTS läuft ebenfalls ohn
 Torch. Auf Linux/Windows installiert das AI-Extra standardmäßig CPU-Torch;
 GPU-Training benötigt einen passenden CUDA/ROCm-Build im verwendeten Interpreter.
 
-Der nächste Trainingslauf mit **2.000 MCTS-Simulationen, 10.000 Runden und
-100 Epochen** ist in [docs/teacher-training.md](docs/teacher-training.md)
-mit Lehrerprüfung und Befehlen für alle vier Arbeitsabläufe beschrieben.
+Ein dokumentierter Trainingslauf mit **2.000 MCTS-Simulationen, 10.000 Runden
+und 100 Epochen** steht in [docs/teacher-training.md](docs/teacher-training.md),
+mit Lehrerprüfung und Befehlen für alle vier Arbeitsabläufe.
 
 Eine eigenständige Policy aus dem ISS-Archiv ist in
 [docs/iss-training.md](docs/iss-training.md) beschrieben, einschließlich
@@ -167,10 +163,33 @@ durch die Engine. Ungültige Aktionen ändern den Spielzustand nicht.
 Agenten bekommen `PlayerView`: eigene Karten, öffentliche Stiche, Ansage,
 Handgrößen, offenliegende Karten und rechtmäßig bekannte Skatkarten. Die Ansicht
 enthält keinen Zugriff auf die anderen Hände oder den echten verborgenen Spielwert.
-Automatische Agenten verwenden dieselbe konservative Reiz-/Ansageheuristik;
-MCTS und Policy unterscheiden sich ausschließlich im Kartenspiel. Die Engine
-unterstützt alle Spielarten; die automatische Heuristik wählt Farbspiel oder Grand
-mit Skataufnahme. Menschen und die Python-API können sämtliche Varianten wählen.
+Automatische Agenten reizen standardmäßig konservativ und verwenden dieselbe
+Heuristik für Skataufnahme, Drücken und Ansage. Die Engine unterstützt alle
+Spielarten; die automatische Heuristik wählt Farbspiel oder Grand mit
+Skataufnahme. Menschen und die Python-API können sämtliche Varianten wählen.
+
+Ein optionaler ISS-Klassifikator bewertet die Gewinnchance des ursprünglichen
+Zehn-Karten-Blatts. Er steuert nur, ob ein automatischer Agent das Reizen
+fortsetzt; die konservative Reizgrenze und die passende Spielansage bleiben
+erhalten. So kann man den Reizer unabhängig vom Kartenagenten pro Sitz setzen:
+
+```bash
+uv run --extra ai python -m skat play \
+  --agents policy random random \
+  --policy trained_models/policy.pt \
+  --bidding0 neural \
+  --bidding-model trained_models/bidding.pt \
+  --bidding-threshold 0.55 \
+  --rounds 1000 --seed 42
+```
+
+`--bidding0`, `--bidding1` und `--bidding2` nehmen `conservative` oder `neural`;
+der Standard ist `conservative`. Der Klassifikator wird mit `--bidding-model`
+geladen und mit `--bidding-threshold` kalibriert. Die Zusammenfassung zeigt den
+Reizer pro Sitz samt Schwelle. Für `evaluate` gelten `--bidding neural`,
+`--bidding-model` und `--bidding-threshold` nur für den Kandidaten; die beiden
+Referenzagenten reizen konservativ. Details und Benchmarks stehen in
+[docs/bidding-training.md](docs/bidding-training.md).
 
 ## Training und Vergleich
 
