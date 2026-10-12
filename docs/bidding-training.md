@@ -99,6 +99,66 @@ agent = MCTSAgent().configure_bidding("neural", bidder)
 
 ## Erfolg und Wahrscheinlichkeitsschwelle
 
+### Sweep auf einem festen Tisch
+
+Der folgende eigenständige Lauf entspricht `random / random / random`, zunächst
+mit konservativen Reizern an allen Sitzen. Danach bekommt **nur Sitz 1** den
+Neural-Reizer mit Schwellen 0.00, 0.05, …, 1.00. Jeder der 22 Durchläufe spielt
+300 Runden mit Seed 42 und rotierendem Geber; dieselben Deals werden wiederverwendet.
+Eingepasste Blätter zählen zu den 300 Runden. An jedem Durchlauf nehmen frische
+Agenten mit denselben Ausgangsseeds teil.
+
+```bash
+# System-Python mit Torch und Matplotlib; jeweils ein neues Verzeichnis verwenden.
+python -m scripts.sweep_bidding_threshold \
+  --bidding-model benchmark_runs/bidding-run-1/bidding.pt \
+  --out benchmark_runs/threshold-sweep-random-seed42
+
+# Gleiche Random-Gegner, aber eine ISS-Kartenpolicy am untersuchten Sitz 1:
+python -m scripts.sweep_bidding_threshold \
+  --agents random policy random \
+  --policy1 benchmark_runs/iss-run-1/policy.pt \
+  --bidding-model benchmark_runs/bidding-run-1/bidding.pt \
+  --out benchmark_runs/threshold-sweep-iss-seed42
+
+# Ein Tisch mit drei Policies; --policy0/1/2 erlauben verschiedene Modelle.
+python -m scripts.sweep_bidding_threshold \
+  --agents policy policy policy --policy benchmark_runs/iss-run-1/policy.pt \
+  --bidding-model benchmark_runs/bidding-run-1/bidding.pt \
+  --out benchmark_runs/threshold-sweep-iss-table-seed42
+```
+
+`--agents` nimmt drei automatische Agenten (`random`, `mcts`, `policy`).
+`--policy` ist der gemeinsame Kartencheckpoint; `--policy0`, `--policy1` und
+`--policy2` überschreiben ihn pro Sitz. Der jeweils konfigurierte Tisch bleibt
+auch im konservativen Baseline-Lauf derselbe. Weitere Optionen sind `--rounds`
+(Standard 300), `--seed` (42), `--bidding-seat` (1), `--device` (`cpu`),
+`--workers` und `--config configs/teacher-2000.toml` für das MCTS-Suchbudget.
+
+Nach der Baseline und jeder Schwelle wird eine JSON-Datei mit allen
+Rundenergebnissen und Kennzahlen der drei Sitze gespeichert. `summary.json`
+enthält Fortschritt, Einstellungen, Modellhashes und den besten gemessenen
+Threshold nach **offiziellen Punkten pro ausgeteilter Runde am untersuchten
+Sitz**, einschließlich eingepasster Blätter. Bei gleichen Punkten gewinnt die
+niedrigere Schwelle. Abbrüche erhalten die bereits abgeschlossenen Runden.
+
+`threshold-sweep.csv` enthält die kompakte Auswertung. Die Matplotlib-Plots
+`threshold-sweep.png` und `threshold-sweep.pdf` zeigen Punkte, gepaarte
+Punktdifferenzen zur Baseline mit 95%-Bootstrap-Intervallen, Parteisiegquoten
+sowie Solo- und Eingepasst-Anteile. Die vertikale Linie markiert den besten
+Messwert dieses Laufs. Fehlende Solo-Quoten, etwa wenn bei Threshold 1.0 nie
+gereizt wird, bleiben Lücken im Plot.
+
+Für den Einfluss der eigenen Spielstärke bleiben Sitz 0 und 2 unverändert,
+während nur Agent/Kartenmodell an Sitz 1 gewechselt werden. Eine Änderung
+aller drei Agenten untersucht zusätzlich den Einfluss der Tischbesetzung.
+300 Runden dienen der Suche; der gemessene beste Threshold sollte auf mehr
+Runden und einem neuen Seed bestätigt werden. Das Intervall ist für jeden
+Vergleich einzeln berechnet und berücksichtigt die Auswahl aus 21 Schwellen
+nicht. Dieser Sweep ersetzt nicht die README-Ratings mit 1.000 Runden.
+
+### Auswahl und unabhängiger Test gegen Referenzgruppen
+
 ```bash
 python -m skat.agents.neural_bidding benchmark \
   --agent policy --policy benchmark_runs/iss-run-1/policy.pt \

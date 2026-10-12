@@ -246,6 +246,12 @@ Reizer pro Sitz samt Schwelle. Für `evaluate` gelten `--bidding neural`,
 Referenzagenten reizen konservativ. Details und Benchmarks stehen in
 [docs/bidding-training.md](docs/bidding-training.md).
 
+Ein [Threshold-Sweep](docs/bidding-training.md#sweep-auf-einem-festen-tisch)
+vergleicht den konservativen Reizer mit Neural-Schwellen von 0.00 bis 1.00 in
+0.05-Schritten: 300 Runden mit Seed 42 pro Wert, Neural nur an Sitz 1.
+Agenten und Kartenmodelle sind pro Sitz wählbar; Ergebnisse werden als JSON,
+CSV und Matplotlib-Plots gespeichert.
+
 ## Training und Vergleich
 
 KI-Ziel ist der regelgerechte Parteisieg, ohne zusätzliche Bonusnetze. Offizielle
