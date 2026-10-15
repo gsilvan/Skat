@@ -177,6 +177,30 @@ def test_streaming_audit_import_dedup_and_temporal_grouping(tmp_path):
         import_corpus(directory, tmp_path / "changed", progress=False)
 
 
+def test_belief_import_selects_directly_from_audit(tmp_path):
+    from iss.belief import BeliefCorpus, import_belief_from_audit
+
+    archive = tmp_path / "games.sgf"
+    archive.write_text("".join(dated_lines()))
+    directory = tmp_path / "audit"
+    audit(archive, directory, progress=False)
+    relocated = tmp_path / "relocated.sgf"
+    archive.rename(relocated)
+    corpus = tmp_path / "belief"
+    report = import_belief_from_audit(
+        directory, corpus, archive=relocated, max_games=100, progress=False
+    )
+    assert sum(report["games"].values()) == len(dated_lines())
+    assert all(report["rows"][split] > 0 for split in ("train", "val", "test"))
+    assert BeliefCorpus(corpus).manifest == report
+    with sqlite3.connect(corpus / "selection" / "index.sqlite") as db:
+        assert not db.execute(
+            "SELECT group_id FROM selection GROUP BY group_id HAVING count(DISTINCT split)>1"
+        ).fetchall()
+    with pytest.raises(ValueError, match="new belief corpus"):
+        import_belief_from_audit(directory, corpus, archive=relocated, progress=False)
+
+
 def test_conflicting_ids_reject_both_records(tmp_path):
     lines = dated_lines()
     duplicate = lines[0].replace("P0[jeff]", "P0[another]")

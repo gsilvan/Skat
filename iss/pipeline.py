@@ -225,7 +225,14 @@ def audit(archive, output, *, progress=True):
 
 
 def select_games(
-    audit_directory, output, *, max_games, seed, predicate="", validation_halves=False
+    audit_directory,
+    output,
+    *,
+    max_games,
+    seed,
+    predicate="",
+    validation_halves=False,
+    archive_override=None,
 ):
     """Select immutable game groups once for card-play or bidding import.
 
@@ -238,7 +245,11 @@ def select_games(
     report = json.loads((directory / "audit.json").read_text())
     if report.get("format") != AUDIT_FORMAT or not report.get("complete"):
         raise ValueError("incomplete or incompatible audit")
-    archive = Path(report["archive"])
+    archive = (
+        Path(archive_override)
+        if archive_override is not None
+        else Path(report["archive"])
+    )
     if sha256(archive) != report["archive_sha256"]:
         raise ValueError("archive changed since audit")
     # Keep only the selected index in the corpus; the full audit stays read-only.

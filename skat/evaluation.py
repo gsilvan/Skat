@@ -153,6 +153,7 @@ def evaluate(
     bidding="conservative",
     bidding_model=None,
     bidding_threshold=2 / 3,
+    belief_model=None,
 ):
     from skat.__main__ import get_player
 
@@ -208,6 +209,9 @@ def evaluate(
         mcts=asdict(mcts),
         search_workers=search_pool.workers if search_pool is not None else 1,
         mcts_rng_scheme="independent-world-v1",
+        belief_model_sha256=hashlib.sha256(Path(belief_model).read_bytes()).hexdigest()
+        if belief_model
+        else None,
         device=device,
         policy_sha256=hashlib.sha256(Path(policy).read_bytes()).hexdigest(),
         opponent_policy_sha256=hashlib.sha256(
@@ -266,6 +270,7 @@ def evaluate(
                             search_pool=search_pool,
                             bidding=bidding if s == seat else "conservative",
                             bidder=bidder if s == seat else None,
+                            belief_model=belief_model if s == seat else None,
                         )
                         for s in range(3)
                     ]

@@ -7,11 +7,11 @@ from skat.agents.declaring import HeuristicDeclarer
 from skat.agents.search import (
     SKAT_SLOT,
     PlayoutState,
-    deal_unseen,
     infer_voids,
     uct_search,
 )
 from skat.agents.search.playout import copy_trick
+from skat.agents.search.samplers import UniformSampler
 from skat.config import MCTSConfig
 from skat.hand import FULL_HAND
 from skat.rules import null_overbid_substitute
@@ -19,11 +19,17 @@ from skat.rules import null_overbid_substitute
 
 class MCTSAgent(HeuristicDeclarer, Agent):
     def __init__(
-        self, simulations=600, determinizations=20, seed=None, search_pool=None
+        self,
+        simulations=600,
+        determinizations=20,
+        seed=None,
+        search_pool=None,
+        sampler=None,
     ):
         super().__init__(seed)
         self.config = MCTSConfig(simulations, determinizations)
         self.search_pool = search_pool
+        self.sampler = sampler if sampler is not None else UniformSampler()
 
     def choose_card(self, valid_moves):
         return self.search(valid_moves)
@@ -44,12 +50,13 @@ class MCTSAgent(HeuristicDeclarer, Agent):
     def tally(self, moves):
         totals = {c: [0, 0.0] for c in moves}
         base, remainder = divmod(self.config.simulations, self.config.determinizations)
+        sampler = self.sampler.prepare(self.state)
         tasks = []
         for i in range(self.config.determinizations):
             # Each world owns its sampling/playout stream; scheduling and worker
             # count cannot change subsequent worlds or the selected card.
             rng = Random(self.rng.getrandbits(64))
-            world = self.determinize(rng)
+            world = self.determinize(rng, sampler=sampler)
             tasks.append((world, base + int(i < remainder), rng.getstate()))
         if self.search_pool is not None:
             results = self.search_pool.search(tasks)
@@ -65,8 +72,9 @@ class MCTSAgent(HeuristicDeclarer, Agent):
                 totals[c][1] += value
         return totals
 
-    def determinize(self, rng=None):
+    def determinize(self, rng=None, sampler=None):
         rng = self.rng if rng is None else rng
+        sampler = self.sampler.prepare(self.state) if sampler is None else sampler
         v = self.state
         me, solo = v.seat_id, v.solo_player_id
         seen = set(v.hand) | set(v.skat)
@@ -86,7 +94,7 @@ class MCTSAgent(HeuristicDeclarer, Agent):
         if not v.skat:
             capacities[SKAT_SLOT] = 2
         voids = infer_voids((*v.trick_history, v.game.trick), v.game.trick)
-        deal = deal_unseen(
+        deal = sampler.deal(
             [c for c in FULL_HAND if c not in seen], capacities, voids, rng
         )
         for seat in range(3):

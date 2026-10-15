@@ -60,8 +60,13 @@ def get_args(argv=None):
             p.add_argument(
                 "--workers", type=int, help="CPU workers (default: all available CPUs)"
             )
+            p.add_argument(
+                "--belief-model",
+                help="Optional ISS hand-prediction checkpoint for MCTS",
+            )
         if name == "collect":
             p.add_argument("--out", required=True, help="New corpus directory")
+            p.add_argument("--device", default="cpu")
         if name == "train":
             p.add_argument("--data", required=True)
             p.add_argument("--out", required=True)
@@ -94,6 +99,7 @@ def get_player(
     search_pool=None,
     bidding="conservative",
     bidder=None,
+    belief_model=None,
 ):
     if bidding == "neural" and bidder is None:
         raise ValueError("neural bidding requires --bidding-model")
@@ -115,6 +121,10 @@ def get_player(
         from skat.agents.mcts import MCTSAgent, RecordingMCTSAgent
 
         kwargs = asdict(mcts) if mcts is not None else {}
+        if belief_model:
+            from skat.agents.belief.inference import BeliefSampler
+
+            kwargs["sampler"] = BeliefSampler(belief_model, device=device)
         return configured(
             RecordingMCTSAgent(recorder, seed=seed, search_pool=search_pool, **kwargs)
             if recorder is not None
@@ -161,6 +171,7 @@ def main(argv=None):
                         search_pool=search_pool,
                         bidding=getattr(args, f"bidding{i}"),
                         bidder=bidder,
+                        belief_model=args.belief_model,
                     )
                     for i, name in enumerate(args.agents)
                 ]
@@ -183,6 +194,8 @@ def main(argv=None):
                 seed=args.seed,
                 mcts=mcts,
                 workers=args.workers,
+                belief_model=args.belief_model,
+                device=args.device,
             )
             print(f"Recorded {result['decisions']} decisions in {args.out}")
         elif args.command == "train":
@@ -216,6 +229,7 @@ def main(argv=None):
                     bidding=args.bidding,
                     bidding_model=args.bidding_model,
                     bidding_threshold=args.bidding_threshold,
+                    belief_model=args.belief_model,
                 )
     except (ValueError, RuntimeError, FileNotFoundError, ImportError) as exc:
         raise SystemExit(str(exc)) from exc

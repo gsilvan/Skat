@@ -42,6 +42,22 @@ PROFILES = (
         "conservative",
     ),
     (
+        "mcts-iss-belief",
+        "MCTS · ISS-Handmodell 100k / 600 Simulationen / 20 Welten",
+        "mcts",
+        "trained_models/iss-belief-100k.pt",
+        600,
+        "conservative",
+    ),
+    (
+        "mcts-iss-belief-300k",
+        "MCTS · ISS-Handmodell 300k / 600 Simulationen / 20 Welten",
+        "mcts",
+        "trained_models/iss-belief-300k.pt",
+        600,
+        "conservative",
+    ),
+    (
         "policy-mcts-12",
         "Transformer · MCTS 5k / 12 Epochen",
         "policy",
@@ -169,10 +185,12 @@ def main():
             else None
         )
         with SearchPool(args.workers, capacity=config.determinizations) as pool:
+            belief = policy if key.startswith("mcts-iss-belief") else None
             candidate = get_player(
                 name,
                 seed=SEED,
-                policy=policy,
+                policy=None if belief else policy,
+                belief_model=belief,
                 device=args.device,
                 mcts=config,
                 search_pool=pool,
@@ -193,8 +211,10 @@ def main():
                 label=label,
                 agent=name,
                 bidder=candidate.bidding_label,
-                policy=policy,
-                policy_sha256=sha256(policy) if policy else None,
+                policy=None if belief else policy,
+                policy_sha256=sha256(policy) if policy and not belief else None,
+                belief_model=belief,
+                belief_model_sha256=sha256(belief) if belief else None,
                 bidding_model=BIDDER if bidder else None,
                 bidding_model_sha256=sha256(BIDDER) if bidder else None,
                 bidding_threshold=0.55 if bidder else None,
