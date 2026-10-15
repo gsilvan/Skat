@@ -1,6 +1,6 @@
 {
   "protocol": "play-seat0-random-conservative-v1",
-  "measured_at": "2026-10-12T16:26:40.122193+00:00",
+  "measured_at": "2026-10-15T15:36:22.102487+00:00",
   "rounds": 1000,
   "seed": 42,
   "candidate_seat": 0,
@@ -10,10 +10,10 @@
     "random"
   ],
   "reference_bidding": "conservative",
-  "source_commit": "c30bf5655751987f048b217a59b561ce19bbeb3c",
-  "source_sha256": "8a4b475a4ffa64405e20c82a8cb00b480aab9cb2d49d9576213c1de7f3cefad6",
+  "source_commit": "442fa84d5588206c856d57908d2b4d5a39a1736f",
+  "source_sha256": "faf27b6a39e5316e11865097fa0e215af12e75b8cdf8b28fb6f99a6453815c4b",
   "device": "cpu",
-  "torch_version": "2.14.0",
+  "torch_version": "2.5.1+cpu",
   "profiles": [
     {
       "id": "random",
@@ -22,6 +22,8 @@
       "bidder": "conservative",
       "policy": null,
       "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
@@ -37,7 +39,7 @@
         "game_points": -965
       },
       "passed": 54,
-      "seconds": 56.31027406499197
+      "seconds": 39.801988205999805
     },
     {
       "id": "random-neural",
@@ -46,6 +48,8 @@
       "bidder": "neural (0.55)",
       "policy": null,
       "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
       "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
       "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
       "bidding_threshold": 0.55,
@@ -61,7 +65,7 @@
         "game_points": 1808
       },
       "passed": 51,
-      "seconds": 57.77319322399853
+      "seconds": 39.781267916000616
     },
     {
       "id": "mcts-600",
@@ -70,6 +74,8 @@
       "bidder": "conservative",
       "policy": null,
       "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
@@ -77,7 +83,7 @@
         "simulations": 600,
         "determinizations": 20
       },
-      "search_workers": 16,
+      "search_workers": 4,
       "score": {
         "solo_rounds": 330,
         "solo_wins": 313,
@@ -88,7 +94,7 @@
         "game_points": 10381
       },
       "passed": 54,
-      "seconds": 157.75124063099793
+      "seconds": 153.62466706800024
     },
     {
       "id": "mcts-2000",
@@ -97,6 +103,8 @@
       "bidder": "conservative",
       "policy": null,
       "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
@@ -104,7 +112,7 @@
         "simulations": 2000,
         "determinizations": 20
       },
-      "search_workers": 16,
+      "search_workers": 4,
       "score": {
         "solo_rounds": 330,
         "solo_wins": 312,
@@ -115,7 +123,65 @@
         "game_points": 9973
       },
       "passed": 54,
-      "seconds": 315.49097866698867
+      "seconds": 342.16220285599957
+    },
+    {
+      "id": "mcts-iss-belief",
+      "label": "MCTS · ISS-Handmodell 100k / 600 Simulationen / 20 Welten",
+      "agent": "mcts",
+      "bidder": "conservative",
+      "policy": null,
+      "policy_sha256": null,
+      "belief_model": "trained_models/iss-belief-100k.pt",
+      "belief_model_sha256": "aae1047030e4bbc0b397b8a5349fcb794ea32482f948251a6c33dbe8c28e931d",
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "mcts": {
+        "simulations": 600,
+        "determinizations": 20
+      },
+      "search_workers": 4,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 312,
+        "defence_rounds": 616,
+        "defence_wins": 344,
+        "overbids": 0,
+        "card_points": 64314,
+        "game_points": 10483
+      },
+      "passed": 54,
+      "seconds": 157.41516178500024
+    },
+    {
+      "id": "mcts-iss-belief-300k",
+      "label": "MCTS · ISS-Handmodell 300k / 600 Simulationen / 20 Welten",
+      "agent": "mcts",
+      "bidder": "conservative",
+      "policy": null,
+      "policy_sha256": null,
+      "belief_model": "trained_models/iss-belief-300k.pt",
+      "belief_model_sha256": "446e5e98be9afbd4fd487c48794b129de799a80c66d12732dfb5199eded8fd57",
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "mcts": {
+        "simulations": 600,
+        "determinizations": 20
+      },
+      "search_workers": 4,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 312,
+        "defence_rounds": 616,
+        "defence_wins": 345,
+        "overbids": 0,
+        "card_points": 64748,
+        "game_points": 10469
+      },
+      "passed": 54,
+      "seconds": 156.8520141050003
     },
     {
       "id": "policy-mcts-12",
@@ -124,6 +190,8 @@
       "bidder": "conservative",
       "policy": "trained_models/transformer-run-2.pt",
       "policy_sha256": "fbb5ade4ed5de42d5a87ec5a218594d68ce7f63dfe6251f44d5d69d55e5111c8",
+      "belief_model": null,
+      "belief_model_sha256": null,
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
@@ -139,7 +207,7 @@
         "game_points": 10037
       },
       "passed": 54,
-      "seconds": 67.4430650400027
+      "seconds": 46.85094236200075
     },
     {
       "id": "policy-mcts-100",
@@ -148,6 +216,8 @@
       "bidder": "conservative",
       "policy": "trained_models/transformer-run-2-100epochs.pt",
       "policy_sha256": "6be3b7221bee9c718258926fa0e2cc4af0e231f54de7b10f5305164658127a71",
+      "belief_model": null,
+      "belief_model_sha256": null,
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
@@ -163,7 +233,7 @@
         "game_points": 9375
       },
       "passed": 54,
-      "seconds": 65.91645759799576
+      "seconds": 46.81678664999981
     },
     {
       "id": "policy-teacher-2000",
@@ -172,6 +242,8 @@
       "bidder": "conservative",
       "policy": "trained_models/transformer-teacher-2000-10k.pt",
       "policy_sha256": "2f6f35c0aa2530737cdefa79be3663b8d16a6e704e0c9b3ffb0b1b7b9cac21d6",
+      "belief_model": null,
+      "belief_model_sha256": null,
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
@@ -187,7 +259,7 @@
         "game_points": 10329
       },
       "passed": 54,
-      "seconds": 65.71284099199693
+      "seconds": 46.29179958399982
     },
     {
       "id": "policy-iss",
@@ -196,6 +268,8 @@
       "bidder": "conservative",
       "policy": "benchmark_runs/iss-run-1/policy.pt",
       "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "belief_model": null,
+      "belief_model_sha256": null,
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
@@ -211,7 +285,7 @@
         "game_points": 10156
       },
       "passed": 54,
-      "seconds": 65.8429076540051
+      "seconds": 46.453491624999515
     },
     {
       "id": "policy-iss-neural",
@@ -220,6 +294,8 @@
       "bidder": "neural (0.55)",
       "policy": "benchmark_runs/iss-run-1/policy.pt",
       "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "belief_model": null,
+      "belief_model_sha256": null,
       "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
       "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
       "bidding_threshold": 0.55,
@@ -235,7 +311,7 @@
         "game_points": 13424
       },
       "passed": 51,
-      "seconds": 66.5314258569997
+      "seconds": 46.187496139999894
     }
   ],
   "status": "complete"

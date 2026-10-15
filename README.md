@@ -16,6 +16,8 @@ eingepasste Blätter. Kartenmodell und Reizer werden getrennt angegeben.
 | Agent / Kartenmodell | Reizer | Siege / gespielt | Als Alleinspieler | Im Gegenspiel | Eingepasst | Punkte / Runde | Δ Punkte zur Baseline |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Transformer · ISS 100k / 20 Epochen | neural (0.55) | 648/949 (68.3%) | 321/333 (96.4%) | 327/616 (53.1%) | 51 | +13.42 | +14.39 |
+| MCTS · ISS-Handmodell 100k / 600 Simulationen / 20 Welten | conservative | 656/946 (69.3%) | 312/330 (94.5%) | 344/616 (55.8%) | 54 | +10.48 | +11.45 |
+| MCTS · ISS-Handmodell 300k / 600 Simulationen / 20 Welten | conservative | 657/946 (69.5%) | 312/330 (94.5%) | 345/616 (56.0%) | 54 | +10.47 | +11.43 |
 | MCTS · 600 Simulationen / 20 Welten | conservative | 651/946 (68.8%) | 313/330 (94.8%) | 338/616 (54.9%) | 54 | +10.38 | +11.35 |
 | Transformer · MCTS 2.000 / 10k / 100 Epochen | conservative | 651/946 (68.8%) | 311/330 (94.2%) | 340/616 (55.2%) | 54 | +10.33 | +11.29 |
 | Transformer · ISS 100k / 20 Epochen | conservative | 648/946 (68.5%) | 302/330 (91.5%) | 346/616 (56.2%) | 54 | +10.16 | +11.12 |
@@ -81,6 +83,10 @@ mit Lehrerprüfung und Befehlen für alle vier Arbeitsabläufe.
 Eine eigenständige Policy aus dem ISS-Archiv ist in
 [docs/iss-training.md](docs/iss-training.md) beschrieben, einschließlich
 automatischem Audit, Training, Evaluation und Partien.
+
+Ein optionales ISS-Modell zur Vorhersage versteckter Hände und zur Gewichtung
+der MCTS-Suchwelten steht in [docs/belief-sampling.md](docs/belief-sampling.md).
+Ohne `--belief-model PATH` nutzt MCTS weiterhin den gleichverteilten Sampler.
 
 Reizen lässt sich unabhängig vom Kartenagenten mit einem ISS-Handklassifikator
 konfigurieren. Training und Vergleiche stehen in

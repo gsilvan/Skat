@@ -55,8 +55,8 @@ class CardTransformer(nn.Module):
         self.head = nn.Linear(d_model, 1)
 
     def features_of(self, x):
-        if x.ndim != 2 or x.shape[-1] != self.INPUT_SIZE:
-            raise ValueError(f"expected (batch, {self.INPUT_SIZE}) observation")
+        if x.ndim != 2 or x.shape[-1] != INPUT_SIZE:
+            raise ValueError(f"expected (batch, {INPUT_SIZE}) observation")
         batch = len(x)
         status = x[:, self.status_index].reshape(batch, 7, 32).transpose(1, 2)
         unseen = 1 - status.sum(-1, keepdim=True)

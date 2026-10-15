@@ -1,5 +1,6 @@
 """Collect independent MCTS games in CPU worker processes."""
 
+import hashlib
 import json
 import os
 import signal
@@ -28,7 +29,9 @@ def _publish(directory, output):
         directory.rmdir()
 
 
-def _worker(output, index, start, rounds, seed, mcts, report):
+def _worker(
+    output, index, start, rounds, seed, mcts, report, belief_model=None, device="cpu"
+):
     output = Path(output)
     directory = output / f".worker-{index}"
     provenance = dict(
@@ -41,7 +44,19 @@ def _worker(output, index, start, rounds, seed, mcts, report):
     try:
         with ShardWriter(directory, provenance=provenance) as writer:
             writer.group = 3 * start - 1
-            agents = [RecordingMCTSAgent(writer, **mcts) for _ in range(3)]
+            if belief_model:
+                from skat.agents.belief.inference import BeliefSampler
+
+            agents = [
+                RecordingMCTSAgent(
+                    writer,
+                    sampler=BeliefSampler(belief_model, device=device)
+                    if belief_model
+                    else None,
+                    **mcts,
+                )
+                for _ in range(3)
+            ]
             for deal in range(start, start + rounds):
                 deal_seed = stage_seed(seed, f"collect-deal-{deal}")
                 for seat, agent in enumerate(agents):
@@ -71,7 +86,17 @@ def _stop(processes):
             process.wait()
 
 
-def collect(output, *, rounds=1000, seed=1, mcts=None, workers=None, progress=True):
+def collect(
+    output,
+    *,
+    rounds=1000,
+    seed=1,
+    mcts=None,
+    workers=None,
+    progress=True,
+    belief_model=None,
+    device="cpu",
+):
     """Return collection metadata; worker count never changes a deal's searches."""
     if type(rounds) is not int or rounds < 0:
         raise ValueError("rounds must be a nonnegative integer")
@@ -91,6 +116,10 @@ def collect(output, *, rounds=1000, seed=1, mcts=None, workers=None, progress=Tr
         status="running",
         seed_scheme="sha256-collect-deal-v1",
         mcts_rng_scheme="independent-world-v1",
+        belief_model=belief_model,
+        belief_model_sha256=hashlib.sha256(Path(belief_model).read_bytes()).hexdigest()
+        if belief_model
+        else None,
     )
     processes, logs = [], []
     readers = None
@@ -119,7 +148,17 @@ def collect(output, *, rounds=1000, seed=1, mcts=None, workers=None, progress=Tr
                     bar.update(1)
 
             if count == 1:
-                _worker(str(output), 0, 0, rounds, seed, asdict(mcts), report)
+                _worker(
+                    str(output),
+                    0,
+                    0,
+                    rounds,
+                    seed,
+                    asdict(mcts),
+                    report,
+                    belief_model,
+                    device,
+                )
             elif count:
                 environment = worker_environment()
                 # Workers do Python search; NumPy's numerical thread pools would
@@ -134,6 +173,8 @@ def collect(output, *, rounds=1000, seed=1, mcts=None, workers=None, progress=Tr
                         rounds=size,
                         seed=seed,
                         mcts=asdict(mcts),
+                        belief_model=belief_model,
+                        device=device,
                     )
                     log = (output / f"worker-{index}.log").open("w")
                     logs.append(log)
