@@ -62,6 +62,55 @@ python -m skat.agents.belief.train \
 Die Auswahl verwendet denselben Seed und dieselben zeitlichen Grenzen wie der
 100k-Lauf. Dessen ausgewählte Spiele behalten ihren ursprünglichen Split.
 
+### Siegerfilter: abgeschlossener 300k-Vergleich
+
+Das reguläre Handmodell wurde auf gewonnenen **und** verlorenen, vollständig
+geprüften ISS-Partien trainiert. Das Audit enthält 6.615.551 solche Spiele:
+4.896.916 Siege und 1.718.635 Niederlagen des Alleinspielers.
+
+Für einen einmaligen Kontrollversuch wurden aus derselben 300k-Auswahl zwei
+weitere Modelle mit je 177.585 Trainingsspielen und identischer Validierung
+und identischem Test trainiert: eines nur mit Siegen, eines mit zufällig
+gewählten ganzen Partien beider Ausgänge. Die Trainingsdaten enthalten
+532.755 beziehungsweise 532.253 Positionen (0,09 % Unterschied). Die
+Zufallsauswahl enthält 131.497 Siege und 46.088 Niederlagen. Der
+Siegerfilter ist **keine** Option des regulären Imports oder Trainings.
+
+Nach zwölf Epochen ergaben die unveränderten 90.046 Testpositionen folgende
+Vorhersagewerte; kleiner ist besser. Die Weltmetrik nutzt dieselben 1.000
+Testpositionen und für alle Modelle Gewichtungsstärke 1,0:
+
+| Training | Trainingsspiele | Kartenverlust | Ganze Verteilung |
+| --- | ---: | ---: | ---: |
+| Alle Spiele | 239.902 | 0,6928 | 6,508 |
+| Zufällige ganze Spiele | 177.585 | 0,6979 | 6,535 |
+| Nur Siege | 177.585 | 0,7002 | 6,571 |
+
+Im gepaarten Spieltest wurden 1.000 identische Deals, alle drei
+Kandidatensitze, konservative Gebote und zwei getrennte Gegnerfelder genutzt.
+Je Gegnerfeld gab es 2.877 gespielte Kandidatenrunden und 123 Pässe. Die
+**Parteisiegquoten** waren:
+
+| Gegner | Alle 300k | Zufallsauswahl | Nur Siege | Nur Siege minus Zufallsauswahl (95-%-Intervall) |
+| --- | ---: | ---: | ---: | ---: |
+| Random | 69,17 % | 68,89 % | 68,16 % | −0,73 (−2,12 bis +0,70) Prozentpunkte |
+| Feste Policy | 48,49 % | 48,91 % | 49,43 % | +0,52 (−0,66 bis +1,63) Prozentpunkte |
+
+Die Intervalle bootstrappen vollständige Deals. Der kleine beobachtete
+Siegquotenvorteil gegen die feste Policy ist nicht abgesichert; gegen Random
+zeigt die Richtung nach unten. Bei gleicher Spielzahl sagt das Sieger-Modell
+die Hände etwas schlechter voraus, besonders bei Nullspielen (Kartenverlust
+0,7616 statt 0,7471). Aus diesem Versuch folgt kein Grund, verlorene
+Partien aus dem regulären Training zu entfernen.
+
+Die vollständigen Resultate liegen unter
+`benchmark_runs/iss-belief-300k-{wins-eval,game-matched-eval,filter-vs-matched,wins-vs-all,matched-vs-all}.json`.
+Die experimentellen Checkpoints bleiben unter
+`trained_models/iss-belief-300k-{wins,game-matched}.pt` erhalten; ihre
+SHA-256-Hashes sind
+`847fdb6d55b4d7bc0f59dd5d798ea16284058e3a49519127edecfa3c482e2700`
+und `e66c780960b5ea49494ab7a182e7dd74ac87794b0562e1644e7b813dc025060d`.
+
 ## Spielen und vergleichen
 
 ```bash
