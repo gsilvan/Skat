@@ -14,6 +14,7 @@ import torch
 from skat.__main__ import get_player
 from skat.agents.neural_bidding.inference import NeuralBidder
 from skat.agents.neural_declaring.inference import DeclarationScorer
+from skat.agents.neural_pickup.inference import PickupScorer
 from skat.agents.search.parallel import SearchPool
 from skat.config import MCTSConfig
 from skat.game import Tournament
@@ -27,6 +28,7 @@ DECLARER = "benchmark_runs/declaration-run-1/declaration.pt"
 DECLARER_300K = "benchmark_runs/declaration-run-2/declaration.pt"
 DECLARER_1M = "benchmark_runs/declaration-run-3/declaration.pt"
 DECLARER_1M_40 = "benchmark_runs/declaration-run-4/declaration.pt"
+PICKUP = "benchmark_runs/pickup-run-2/pickup.pt"
 DECLARER_LABELS = {
     DECLARER: "100k",
     DECLARER_300K: "300k",
@@ -225,6 +227,30 @@ PROFILES = (
         "neural",
         DECLARER_1M_40,
     ),
+    (
+        "policy-iss-neural-pickup",
+        "Transformer · ISS 100k / 20 Epochen",
+        "policy",
+        "benchmark_runs/iss-run-1/policy.pt",
+        600,
+        "conservative",
+        "heuristic",
+        None,
+        "neural",
+        PICKUP,
+    ),
+    (
+        "policy-iss-neural-declaration-1m-pickup",
+        "Transformer · ISS 100k / 20 Epochen",
+        "policy",
+        "benchmark_runs/iss-run-1/policy.pt",
+        600,
+        "conservative",
+        "neural",
+        DECLARER_1M,
+        "neural",
+        PICKUP,
+    ),
 )
 
 
@@ -254,8 +280,11 @@ def rating_table(rows):
         played = score["solo_rounds"] + score["defence_rounds"]
         wins = score["solo_wins"] + score["defence_wins"]
         points = score["game_points"] / ROUNDS
+        declarer = row["declarer"]
+        if row.get("pickup") == "neural":
+            declarer += " + Hand-NN"
         lines.append(
-            f"| {row['label']} | {row['bidder']} | {row['declarer']} | {fraction(wins, played)} | "
+            f"| {row['label']} | {row['bidder']} | {declarer} | {fraction(wins, played)} | "
             f"{fraction(score['solo_wins'], score['solo_rounds'])} | "
             f"{fraction(score['defence_wins'], score['defence_rounds'])} | "
             f"{row['passed']} | {points:+.2f} | {points - baseline:+.2f} |"
@@ -286,6 +315,7 @@ def main():
         for p in PROFILES
         if len(p) > 6 and p[6] == "neural"
     )
+    required.update(p[9] for p in PROFILES if len(p) > 9 and p[8] == "neural")
     for path in required:
         if not Path(path).is_file():
             parser.error(f"missing checkpoint: {path}")
@@ -331,6 +361,7 @@ def main():
                 ("belief_model", "belief_model_sha256"),
                 ("bidding_model", "bidding_model_sha256"),
                 ("declaration_model", "declaration_model_sha256"),
+                ("pickup_model", "pickup_model_sha256"),
             ):
                 path = row.get(path_key)
                 if path and sha256(path) != row.get(hash_key):
@@ -344,6 +375,7 @@ def main():
             status="running",
         )
     declaration_models = {}
+    pickup_models = {}
     for index, profile in enumerate(PROFILES):
         if index < len(report["profiles"]):
             continue
@@ -354,10 +386,14 @@ def main():
             if declaration == "neural"
             else None
         )
+        pickup = profile[8] if len(profile) > 8 else "always"
+        pickup_path = profile[9] if pickup == "neural" else None
         if declaration_path and declaration_path not in declaration_models:
             declaration_models[declaration_path] = DeclarationScorer(
                 declaration_path, device=args.device
             )
+        if pickup_path and pickup_path not in pickup_models:
+            pickup_models[pickup_path] = PickupScorer(pickup_path, device=args.device)
         print(
             f"[{index + 1}/{len(PROFILES)}] {label}, {bidding}, {declaration}",
             flush=True,
@@ -382,6 +418,8 @@ def main():
                 bidder=bidder,
                 declaration=declaration,
                 declaration_model=declaration_models.get(declaration_path),
+                pickup=pickup,
+                pickup_model=pickup_models.get(pickup_path),
             )
             agents = [
                 candidate,
@@ -402,6 +440,7 @@ def main():
                     if declaration_path
                     else candidate.declaration_label
                 ),
+                pickup=pickup,
                 policy=None if belief else policy,
                 policy_sha256=sha256(policy) if policy and not belief else None,
                 belief_model=belief,
@@ -413,6 +452,9 @@ def main():
                 declaration_model_sha256=sha256(declaration_path)
                 if declaration_path
                 else None,
+                pickup_model=pickup_path,
+                pickup_model_sha256=sha256(pickup_path) if pickup_path else None,
+                pickup_margin=0.0 if pickup_path else None,
                 mcts=asdict(config) if name == "mcts" else None,
                 search_workers=pool.workers if name == "mcts" else None,
                 score=asdict(tournament.seat_scores[0]),

@@ -20,6 +20,8 @@ class Agent(ABC):
         self.declaration_strategy = HeuristicDeclarer()
         self.declaration_style = "heuristic"
         self._declaration_choice = None
+        self.pickup_strategy = None
+        self.pickup_style = "always"
 
     def set_state(self, state):
         self.state = state
@@ -74,6 +76,20 @@ class Agent(ABC):
         self._declaration_choice = None
         return self
 
+    def configure_pickup(self, style="always", model=None, margin=0.0):
+        if style == "always":
+            self.pickup_strategy = None
+        elif style == "neural":
+            if model is None:
+                raise ValueError("neural pickup requires a pickup model")
+            from skat.agents.neural_pickup.inference import NeuralPickup
+
+            self.pickup_strategy = NeuralPickup(model, margin=margin)
+        else:
+            raise ValueError(f"unknown pickup style: {style}")
+        self.pickup_style = style
+        return self
+
     @property
     def declaration_label(self):
         return self.declaration_style
@@ -102,6 +118,8 @@ class Agent(ABC):
         raise NotImplementedError
 
     def pickup_skat(self, state=None):
+        if self.pickup_strategy is not None:
+            return self.pickup_strategy.choose_pickup(self.state)
         return self.declaration_strategy.choose_pickup(self.state)
 
     def press_skat(self):

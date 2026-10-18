@@ -156,6 +156,9 @@ def evaluate(
     belief_model=None,
     declaration="heuristic",
     declaration_model=None,
+    pickup="always",
+    pickup_model=None,
+    pickup_margin=0.0,
 ):
     from skat.__main__ import get_player
 
@@ -194,12 +197,29 @@ def evaluate(
         from skat.agents.neural_declaring.inference import DeclarationScorer
 
         declarer = DeclarationScorer(declaration_model, device=device)
+    if pickup not in ("always", "neural"):
+        raise ValueError("unknown pickup style")
+    pickup_scorer = None
+    if pickup == "neural":
+        if not pickup_model:
+            raise ValueError("neural pickup requires --pickup-model")
+        from skat.agents.neural_pickup.inference import PickupScorer
+
+        pickup_scorer = PickupScorer(pickup_model, device=device)
     rows = []
     source_hash = hashlib.sha256()
     for source in sorted(Path(__file__).parent.rglob("*.py")):
         source_hash.update(str(source.relative_to(Path(__file__).parent)).encode())
         source_hash.update(source.read_bytes())
     manifest = dict(
+        pickup=dict(
+            candidate_style=pickup,
+            reference_style="always",
+            model_sha256=hashlib.sha256(Path(pickup_model).read_bytes()).hexdigest()
+            if pickup_scorer
+            else None,
+            margin=pickup_margin if pickup_scorer else None,
+        ),
         declaration=dict(
             candidate_style=declaration,
             reference_style="heuristic",
@@ -293,6 +313,9 @@ def evaluate(
                             belief_model=belief_model if s == seat else None,
                             declaration=declaration if s == seat else "heuristic",
                             declaration_model=declarer if s == seat else None,
+                            pickup=pickup if s == seat else "always",
+                            pickup_model=pickup_scorer if s == seat else None,
+                            pickup_margin=pickup_margin,
                         )
                         for s in range(3)
                     ]

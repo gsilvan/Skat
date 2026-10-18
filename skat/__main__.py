@@ -41,6 +41,8 @@ def get_args(argv=None):
             p.add_argument(
                 "--declaration-model", help="Pickup discard/declaration checkpoint"
             )
+            p.add_argument("--pickup-model", help="Pre-skat Hand/pickup checkpoint")
+            p.add_argument("--pickup-margin", type=float, default=0.0)
         if name in ("play", "collect"):
             p.add_argument("--rounds", type=int, default=33 if name == "play" else 1000)
         if name == "play":
@@ -59,6 +61,9 @@ def get_args(argv=None):
                     f"--declaration{seat}",
                     choices=("heuristic", "neural"),
                     default="heuristic",
+                )
+                p.add_argument(
+                    f"--pickup{seat}", choices=("always", "neural"), default="always"
                 )
             p.add_argument("--verbose", action="store_true")
             p.add_argument(
@@ -86,6 +91,7 @@ def get_args(argv=None):
             p.add_argument(
                 "--declaration", choices=("heuristic", "neural"), default="heuristic"
             )
+            p.add_argument("--pickup", choices=("always", "neural"), default="always")
             p.add_argument(
                 "--reference-policy",
                 "--opponent-policy",
@@ -113,6 +119,9 @@ def get_player(
     belief_model=None,
     declaration="heuristic",
     declaration_model=None,
+    pickup="always",
+    pickup_model=None,
+    pickup_margin=0.0,
 ):
     if bidding == "neural" and bidder is None:
         raise ValueError("neural bidding requires --bidding-model")
@@ -120,12 +129,17 @@ def get_player(
         raise ValueError("human bidding is controlled by stdin")
     if name == "cli" and declaration != "heuristic":
         raise ValueError("human declaration is controlled by stdin")
+    if name == "cli" and pickup != "always":
+        raise ValueError("human pickup is controlled by stdin")
     if declaration == "neural" and declaration_model is None:
         raise ValueError("neural declaration requires --declaration-model")
+    if pickup == "neural" and pickup_model is None:
+        raise ValueError("neural pickup requires --pickup-model")
 
     def configured(agent):
         agent.configure_bidding(bidding, bidder)
-        return agent.configure_declaration(declaration, declaration_model)
+        agent.configure_declaration(declaration, declaration_model)
+        return agent.configure_pickup(pickup, pickup_model, pickup_margin)
 
     if name == "random":
         from skat.agents.random import RandomAgent
@@ -183,6 +197,13 @@ def main(argv=None):
                 from skat.agents.neural_declaring.inference import DeclarationScorer
 
                 declarer = DeclarationScorer(args.declaration_model, device=args.device)
+            pickup_scorer = None
+            if any(getattr(args, f"pickup{i}") == "neural" for i in range(3)):
+                if not args.pickup_model:
+                    raise ValueError("neural pickup requires --pickup-model")
+                from skat.agents.neural_pickup.inference import PickupScorer
+
+                pickup_scorer = PickupScorer(args.pickup_model, device=args.device)
             with SearchPool(
                 args.workers, capacity=mcts.determinizations
             ) as search_pool:
@@ -199,6 +220,9 @@ def main(argv=None):
                         belief_model=args.belief_model,
                         declaration=getattr(args, f"declaration{i}"),
                         declaration_model=declarer,
+                        pickup=getattr(args, f"pickup{i}"),
+                        pickup_model=pickup_scorer,
+                        pickup_margin=args.pickup_margin,
                     )
                     for i, name in enumerate(args.agents)
                 ]
@@ -259,6 +283,9 @@ def main(argv=None):
                     belief_model=args.belief_model,
                     declaration=args.declaration,
                     declaration_model=args.declaration_model,
+                    pickup=args.pickup,
+                    pickup_model=args.pickup_model,
+                    pickup_margin=args.pickup_margin,
                 )
     except (ValueError, RuntimeError, FileNotFoundError, ImportError) as exc:
         raise SystemExit(str(exc)) from exc

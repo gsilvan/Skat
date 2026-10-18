@@ -86,5 +86,6 @@ agent = RandomAgent().configure_declaration("neural", scorer)
 ```
 
 Die Entscheidung für ein Handspiel erfolgt vor Sicht auf den Skat. Beide
-automatischen Ansagestrategien nehmen ihn derzeit auf; Handspiele benötigen
-später ein eigenes Modell für diese frühere Entscheidung.
+automatischen Ansagestrategien nehmen standardmäßig den Skat auf. Der
+unabhängige [Hand-/Aufnahme-Klassifikator](pickup-training.md) kann diese
+frühere Entscheidung für beide Strategien treffen.

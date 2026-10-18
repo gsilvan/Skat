@@ -116,6 +116,12 @@ mit der Heuristik (12.000 ausgeteilte Kandidatenrunden). Training und Bewertung 
 Ein längerer [40-Epochen-Versuch](docs/declaration-40epoch-experiment.md)
 verbesserte die Vorhersage, aber auf neuen Deals nicht die Solosiege.
 
+Vor der Skataufnahme kann ein eigener Hand-Klassifikator mit
+`--pickup0/1/2 neural --pickup-model PATH` gewählt werden. Er vergleicht die
+Gewinnchance von Handspiel und Skataufnahme anhand der ursprünglichen zehn
+Karten und des Reizwerts. Standard bleibt Skataufnahme; Daten, Grenzen und
+Bewertung stehen in [docs/pickup-training.md](docs/pickup-training.md).
+
 ## Vier Arbeitsabläufe
 
 ```bash
