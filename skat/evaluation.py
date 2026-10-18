@@ -154,6 +154,8 @@ def evaluate(
     bidding_model=None,
     bidding_threshold=2 / 3,
     belief_model=None,
+    declaration="heuristic",
+    declaration_model=None,
 ):
     from skat.__main__ import get_player
 
@@ -183,12 +185,30 @@ def evaluate(
         from skat.agents.neural_bidding.inference import NeuralBidder
 
         bidder = NeuralBidder(bidding_model, device=device, threshold=bidding_threshold)
+    if declaration not in ("heuristic", "neural"):
+        raise ValueError("unknown declaration style")
+    declarer = None
+    if declaration == "neural":
+        if not declaration_model:
+            raise ValueError("neural declaration requires --declaration-model")
+        from skat.agents.neural_declaring.inference import DeclarationScorer
+
+        declarer = DeclarationScorer(declaration_model, device=device)
     rows = []
     source_hash = hashlib.sha256()
     for source in sorted(Path(__file__).parent.rglob("*.py")):
         source_hash.update(str(source.relative_to(Path(__file__).parent)).encode())
         source_hash.update(source.read_bytes())
     manifest = dict(
+        declaration=dict(
+            candidate_style=declaration,
+            reference_style="heuristic",
+            model_sha256=hashlib.sha256(
+                Path(declaration_model).read_bytes()
+            ).hexdigest()
+            if declarer
+            else None,
+        ),
         bidding=dict(
             candidate_style=bidding,
             reference_style="conservative",
@@ -271,6 +291,8 @@ def evaluate(
                             bidding=bidding if s == seat else "conservative",
                             bidder=bidder if s == seat else None,
                             belief_model=belief_model if s == seat else None,
+                            declaration=declaration if s == seat else "heuristic",
+                            declaration_model=declarer if s == seat else None,
                         )
                         for s in range(3)
                     ]

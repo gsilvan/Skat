@@ -13,6 +13,7 @@ import torch
 
 from skat.__main__ import get_player
 from skat.agents.neural_bidding.inference import NeuralBidder
+from skat.agents.neural_declaring.inference import DeclarationScorer
 from skat.agents.search.parallel import SearchPool
 from skat.config import MCTSConfig
 from skat.game import Tournament
@@ -22,6 +23,16 @@ END = "<!-- agent-ratings:end -->"
 ROUNDS = 1000
 SEED = 42
 BIDDER = "benchmark_runs/bidding-run-1/bidding.pt"
+DECLARER = "benchmark_runs/declaration-run-1/declaration.pt"
+DECLARER_300K = "benchmark_runs/declaration-run-2/declaration.pt"
+DECLARER_1M = "benchmark_runs/declaration-run-3/declaration.pt"
+DECLARER_1M_40 = "benchmark_runs/declaration-run-4/declaration.pt"
+DECLARER_LABELS = {
+    DECLARER: "100k",
+    DECLARER_300K: "300k",
+    DECLARER_1M: "1M/20 Ep.",
+    DECLARER_1M_40: "1M/40 Ep.",
+}
 PROFILES = (
     ("random", "Random (Baseline)", "random", None, 600, "conservative"),
     ("random-neural", "Random", "random", None, 600, "neural"),
@@ -97,6 +108,123 @@ PROFILES = (
         600,
         "neural",
     ),
+    (
+        "random-neural-declaration",
+        "Random",
+        "random",
+        None,
+        600,
+        "conservative",
+        "neural",
+    ),
+    (
+        "policy-iss-neural-declaration",
+        "Transformer · ISS 100k / 20 Epochen",
+        "policy",
+        "benchmark_runs/iss-run-1/policy.pt",
+        600,
+        "conservative",
+        "neural",
+    ),
+    (
+        "mcts-600-neural-declaration",
+        "MCTS · 600 Simulationen / 20 Welten",
+        "mcts",
+        None,
+        600,
+        "conservative",
+        "neural",
+    ),
+    (
+        "random-neural-declaration-300k",
+        "Random",
+        "random",
+        None,
+        600,
+        "conservative",
+        "neural",
+        DECLARER_300K,
+    ),
+    (
+        "policy-iss-neural-declaration-300k",
+        "Transformer · ISS 100k / 20 Epochen",
+        "policy",
+        "benchmark_runs/iss-run-1/policy.pt",
+        600,
+        "conservative",
+        "neural",
+        DECLARER_300K,
+    ),
+    (
+        "mcts-600-neural-declaration-300k",
+        "MCTS · 600 Simulationen / 20 Welten",
+        "mcts",
+        None,
+        600,
+        "conservative",
+        "neural",
+        DECLARER_300K,
+    ),
+    (
+        "random-neural-declaration-1m",
+        "Random",
+        "random",
+        None,
+        600,
+        "conservative",
+        "neural",
+        DECLARER_1M,
+    ),
+    (
+        "policy-iss-neural-declaration-1m",
+        "Transformer · ISS 100k / 20 Epochen",
+        "policy",
+        "benchmark_runs/iss-run-1/policy.pt",
+        600,
+        "conservative",
+        "neural",
+        DECLARER_1M,
+    ),
+    (
+        "mcts-600-neural-declaration-1m",
+        "MCTS · 600 Simulationen / 20 Welten",
+        "mcts",
+        None,
+        600,
+        "conservative",
+        "neural",
+        DECLARER_1M,
+    ),
+    (
+        "random-neural-declaration-1m-40",
+        "Random",
+        "random",
+        None,
+        600,
+        "conservative",
+        "neural",
+        DECLARER_1M_40,
+    ),
+    (
+        "policy-iss-neural-declaration-1m-40",
+        "Transformer · ISS 100k / 20 Epochen",
+        "policy",
+        "benchmark_runs/iss-run-1/policy.pt",
+        600,
+        "conservative",
+        "neural",
+        DECLARER_1M_40,
+    ),
+    (
+        "mcts-600-neural-declaration-1m-40",
+        "MCTS · 600 Simulationen / 20 Welten",
+        "mcts",
+        None,
+        600,
+        "conservative",
+        "neural",
+        DECLARER_1M_40,
+    ),
 )
 
 
@@ -118,8 +246,8 @@ def fraction(wins, played):
 def rating_table(rows):
     baseline = rows[0]["score"]["game_points"] / ROUNDS
     lines = [
-        "| Agent / Kartenmodell | Reizer | Siege / gespielt | Als Alleinspieler | Im Gegenspiel | Eingepasst | Punkte / Runde | Δ Punkte zur Baseline |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Agent / Kartenmodell | Reizer | Ansager | Siege / gespielt | Als Alleinspieler | Im Gegenspiel | Eingepasst | Punkte / Runde | Δ Punkte zur Baseline |",
+        "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in sorted(rows, key=lambda r: r["score"]["game_points"], reverse=True):
         score = row["score"]
@@ -127,7 +255,7 @@ def rating_table(rows):
         wins = score["solo_wins"] + score["defence_wins"]
         points = score["game_points"] / ROUNDS
         lines.append(
-            f"| {row['label']} | {row['bidder']} | {fraction(wins, played)} | "
+            f"| {row['label']} | {row['bidder']} | {row['declarer']} | {fraction(wins, played)} | "
             f"{fraction(score['solo_wins'], score['solo_rounds'])} | "
             f"{fraction(score['defence_wins'], score['defence_rounds'])} | "
             f"{row['passed']} | {points:+.2f} | {points - baseline:+.2f} |"
@@ -140,6 +268,9 @@ def main():
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--workers", type=int)
     parser.add_argument(
+        "--resume", action="store_true", help="Continue an interrupted rating directory"
+    )
+    parser.add_argument(
         "--out", required=True, type=Path, help="New directory for full round records"
     )
     parser.add_argument("--report", type=Path, default=Path("docs/agent-ratings.json"))
@@ -149,18 +280,22 @@ def main():
     if readme.count(START) != 1 or readme.count(END) != 1:
         parser.error("README needs exactly one agent-ratings marker pair")
     # Check every required checkpoint before starting the benchmark.
-    for path in {BIDDER, *(p[3] for p in PROFILES if p[3])}:
+    required = {BIDDER, *(p[3] for p in PROFILES if p[3])}
+    required.update(
+        p[7] if len(p) > 7 else DECLARER
+        for p in PROFILES
+        if len(p) > 6 and p[6] == "neural"
+    )
+    for path in required:
         if not Path(path).is_file():
             parser.error(f"missing checkpoint: {path}")
-    args.out.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(1)
     source = hashlib.sha256()
     for path in sorted(Path("skat").rglob("*.py")):
         source.update(path.as_posix().encode())
         source.update(path.read_bytes())
-    report = dict(
+    expected = dict(
         protocol="play-seat0-random-conservative-v1",
-        measured_at=datetime.now(timezone.utc).isoformat(),
         rounds=ROUNDS,
         seed=SEED,
         candidate_seat=0,
@@ -173,11 +308,60 @@ def main():
         source_sha256=source.hexdigest(),
         device=args.device,
         torch_version=str(torch.__version__),
-        profiles=[],
-        status="running",
     )
-    for index, (key, label, name, policy, simulations, bidding) in enumerate(PROFILES):
-        print(f"[{index + 1}/{len(PROFILES)}] {label}, {bidding}", flush=True)
+    if args.resume:
+        report = json.loads((args.out / "summary.json").read_text())
+        for key, value in expected.items():
+            if report.get(key) != value:
+                parser.error(f"cannot resume rating with changed {key}")
+        completed = report.get("profiles")
+        if report.get("status") != "running" or not isinstance(completed, list):
+            parser.error("rating directory is not an interrupted run")
+        if [row.get("id") for row in completed] != [
+            profile[0] for profile in PROFILES[: len(completed)]
+        ]:
+            parser.error("completed profiles do not match the current rating order")
+        for row in completed:
+            result_path = args.out / f"{row['id']}.json"
+            result = json.loads(result_path.read_text())
+            if result.get("profile") != row or len(result.get("rounds", [])) != ROUNDS:
+                parser.error(f"incomplete saved rating: {row['id']}")
+            for path_key, hash_key in (
+                ("policy", "policy_sha256"),
+                ("belief_model", "belief_model_sha256"),
+                ("bidding_model", "bidding_model_sha256"),
+                ("declaration_model", "declaration_model_sha256"),
+            ):
+                path = row.get(path_key)
+                if path and sha256(path) != row.get(hash_key):
+                    parser.error(f"checkpoint changed since rating: {path}")
+    else:
+        args.out.mkdir(parents=True, exist_ok=False)
+        report = dict(
+            **expected,
+            measured_at=datetime.now(timezone.utc).isoformat(),
+            profiles=[],
+            status="running",
+        )
+    declaration_models = {}
+    for index, profile in enumerate(PROFILES):
+        if index < len(report["profiles"]):
+            continue
+        key, label, name, policy, simulations, bidding = profile[:6]
+        declaration = profile[6] if len(profile) > 6 else "heuristic"
+        declaration_path = (
+            (profile[7] if len(profile) > 7 else DECLARER)
+            if declaration == "neural"
+            else None
+        )
+        if declaration_path and declaration_path not in declaration_models:
+            declaration_models[declaration_path] = DeclarationScorer(
+                declaration_path, device=args.device
+            )
+        print(
+            f"[{index + 1}/{len(PROFILES)}] {label}, {bidding}, {declaration}",
+            flush=True,
+        )
         config = MCTSConfig(simulations=simulations, determinizations=20)
         bidder = (
             NeuralBidder(BIDDER, device=args.device, threshold=0.55)
@@ -196,6 +380,8 @@ def main():
                 search_pool=pool,
                 bidding=bidding,
                 bidder=bidder,
+                declaration=declaration,
+                declaration_model=declaration_models.get(declaration_path),
             )
             agents = [
                 candidate,
@@ -211,6 +397,11 @@ def main():
                 label=label,
                 agent=name,
                 bidder=candidate.bidding_label,
+                declarer=(
+                    f"neural ({DECLARER_LABELS[declaration_path]})"
+                    if declaration_path
+                    else candidate.declaration_label
+                ),
                 policy=None if belief else policy,
                 policy_sha256=sha256(policy) if policy and not belief else None,
                 belief_model=belief,
@@ -218,6 +409,10 @@ def main():
                 bidding_model=BIDDER if bidder else None,
                 bidding_model_sha256=sha256(BIDDER) if bidder else None,
                 bidding_threshold=0.55 if bidder else None,
+                declaration_model=declaration_path,
+                declaration_model_sha256=sha256(declaration_path)
+                if declaration_path
+                else None,
                 mcts=asdict(config) if name == "mcts" else None,
                 search_workers=pool.workers if name == "mcts" else None,
                 score=asdict(tournament.seat_scores[0]),

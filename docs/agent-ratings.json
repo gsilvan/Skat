@@ -1,6 +1,5 @@
 {
   "protocol": "play-seat0-random-conservative-v1",
-  "measured_at": "2026-10-15T15:36:22.102487+00:00",
   "rounds": 1000,
   "seed": 42,
   "candidate_seat": 0,
@@ -10,16 +9,18 @@
     "random"
   ],
   "reference_bidding": "conservative",
-  "source_commit": "442fa84d5588206c856d57908d2b4d5a39a1736f",
-  "source_sha256": "faf27b6a39e5316e11865097fa0e215af12e75b8cdf8b28fb6f99a6453815c4b",
+  "source_commit": "1bbe09a0d478fef8d63a0ba7aba8ce8e4024cba3",
+  "source_sha256": "07b98b1baaa3d8d7c1fe9cb00d658293545893c6f7d44ef008bb9af124425ef0",
   "device": "cpu",
-  "torch_version": "2.5.1+cpu",
+  "torch_version": "2.5.1+cu124",
+  "measured_at": "2026-10-18T10:30:10.593021+00:00",
   "profiles": [
     {
       "id": "random",
       "label": "Random (Baseline)",
       "agent": "random",
       "bidder": "conservative",
+      "declarer": "heuristic",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -27,6 +28,8 @@
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -39,13 +42,14 @@
         "game_points": -965
       },
       "passed": 54,
-      "seconds": 39.801988205999805
+      "seconds": 40.35733998999967
     },
     {
       "id": "random-neural",
       "label": "Random",
       "agent": "random",
       "bidder": "neural (0.55)",
+      "declarer": "heuristic",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -53,6 +57,8 @@
       "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
       "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
       "bidding_threshold": 0.55,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -65,13 +71,14 @@
         "game_points": 1808
       },
       "passed": 51,
-      "seconds": 39.781267916000616
+      "seconds": 40.04258163099985
     },
     {
       "id": "mcts-600",
       "label": "MCTS · 600 Simulationen / 20 Welten",
       "agent": "mcts",
       "bidder": "conservative",
+      "declarer": "heuristic",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -79,6 +86,8 @@
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
       "mcts": {
         "simulations": 600,
         "determinizations": 20
@@ -94,13 +103,14 @@
         "game_points": 10381
       },
       "passed": 54,
-      "seconds": 153.62466706800024
+      "seconds": 140.2297871260016
     },
     {
       "id": "mcts-2000",
       "label": "MCTS · 2.000 Simulationen / 20 Welten",
       "agent": "mcts",
       "bidder": "conservative",
+      "declarer": "heuristic",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -108,6 +118,8 @@
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
       "mcts": {
         "simulations": 2000,
         "determinizations": 20
@@ -123,13 +135,14 @@
         "game_points": 9973
       },
       "passed": 54,
-      "seconds": 342.16220285599957
+      "seconds": 313.7749728609997
     },
     {
       "id": "mcts-iss-belief",
       "label": "MCTS · ISS-Handmodell 100k / 600 Simulationen / 20 Welten",
       "agent": "mcts",
       "bidder": "conservative",
+      "declarer": "heuristic",
       "policy": null,
       "policy_sha256": null,
       "belief_model": "trained_models/iss-belief-100k.pt",
@@ -137,6 +150,8 @@
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
       "mcts": {
         "simulations": 600,
         "determinizations": 20
@@ -152,13 +167,14 @@
         "game_points": 10483
       },
       "passed": 54,
-      "seconds": 157.41516178500024
+      "seconds": 145.79399492999983
     },
     {
       "id": "mcts-iss-belief-300k",
       "label": "MCTS · ISS-Handmodell 300k / 600 Simulationen / 20 Welten",
       "agent": "mcts",
       "bidder": "conservative",
+      "declarer": "heuristic",
       "policy": null,
       "policy_sha256": null,
       "belief_model": "trained_models/iss-belief-300k.pt",
@@ -166,6 +182,8 @@
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
       "mcts": {
         "simulations": 600,
         "determinizations": 20
@@ -181,13 +199,14 @@
         "game_points": 10469
       },
       "passed": 54,
-      "seconds": 156.8520141050003
+      "seconds": 144.62814071399953
     },
     {
       "id": "policy-mcts-12",
       "label": "Transformer · MCTS 5k / 12 Epochen",
       "agent": "policy",
       "bidder": "conservative",
+      "declarer": "heuristic",
       "policy": "trained_models/transformer-run-2.pt",
       "policy_sha256": "fbb5ade4ed5de42d5a87ec5a218594d68ce7f63dfe6251f44d5d69d55e5111c8",
       "belief_model": null,
@@ -195,6 +214,8 @@
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -207,13 +228,14 @@
         "game_points": 10037
       },
       "passed": 54,
-      "seconds": 46.85094236200075
+      "seconds": 47.26054803199986
     },
     {
       "id": "policy-mcts-100",
       "label": "Transformer · MCTS 5k / 100 Epochen",
       "agent": "policy",
       "bidder": "conservative",
+      "declarer": "heuristic",
       "policy": "trained_models/transformer-run-2-100epochs.pt",
       "policy_sha256": "6be3b7221bee9c718258926fa0e2cc4af0e231f54de7b10f5305164658127a71",
       "belief_model": null,
@@ -221,6 +243,8 @@
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -233,13 +257,14 @@
         "game_points": 9375
       },
       "passed": 54,
-      "seconds": 46.81678664999981
+      "seconds": 47.02282529199874
     },
     {
       "id": "policy-teacher-2000",
       "label": "Transformer · MCTS 2.000 / 10k / 100 Epochen",
       "agent": "policy",
       "bidder": "conservative",
+      "declarer": "heuristic",
       "policy": "trained_models/transformer-teacher-2000-10k.pt",
       "policy_sha256": "2f6f35c0aa2530737cdefa79be3663b8d16a6e704e0c9b3ffb0b1b7b9cac21d6",
       "belief_model": null,
@@ -247,6 +272,8 @@
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -259,13 +286,14 @@
         "game_points": 10329
       },
       "passed": 54,
-      "seconds": 46.29179958399982
+      "seconds": 47.863784204000694
     },
     {
       "id": "policy-iss",
       "label": "Transformer · ISS 100k / 20 Epochen",
       "agent": "policy",
       "bidder": "conservative",
+      "declarer": "heuristic",
       "policy": "benchmark_runs/iss-run-1/policy.pt",
       "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
       "belief_model": null,
@@ -273,6 +301,8 @@
       "bidding_model": null,
       "bidding_model_sha256": null,
       "bidding_threshold": null,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -285,13 +315,14 @@
         "game_points": 10156
       },
       "passed": 54,
-      "seconds": 46.453491624999515
+      "seconds": 47.668045185000665
     },
     {
       "id": "policy-iss-neural",
       "label": "Transformer · ISS 100k / 20 Epochen",
       "agent": "policy",
       "bidder": "neural (0.55)",
+      "declarer": "heuristic",
       "policy": "benchmark_runs/iss-run-1/policy.pt",
       "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
       "belief_model": null,
@@ -299,6 +330,8 @@
       "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
       "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
       "bidding_threshold": 0.55,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -311,7 +344,367 @@
         "game_points": 13424
       },
       "passed": 51,
-      "seconds": 46.187496139999894
+      "seconds": 47.74428640299993
+    },
+    {
+      "id": "random-neural-declaration",
+      "label": "Random",
+      "agent": "random",
+      "bidder": "conservative",
+      "declarer": "neural (100k)",
+      "policy": null,
+      "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-1/declaration.pt",
+      "declaration_model_sha256": "306a42c8e6b1de74110575bb062313f84a1cd92af50df1ee82a1af1ddb34d680",
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 211,
+        "defence_rounds": 616,
+        "defence_wins": 238,
+        "overbids": 0,
+        "card_points": 54536,
+        "game_points": -870
+      },
+      "passed": 54,
+      "seconds": 49.74468264999996
+    },
+    {
+      "id": "policy-iss-neural-declaration",
+      "label": "Transformer · ISS 100k / 20 Epochen",
+      "agent": "policy",
+      "bidder": "conservative",
+      "declarer": "neural (100k)",
+      "policy": "benchmark_runs/iss-run-1/policy.pt",
+      "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-1/declaration.pt",
+      "declaration_model_sha256": "306a42c8e6b1de74110575bb062313f84a1cd92af50df1ee82a1af1ddb34d680",
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 307,
+        "defence_rounds": 616,
+        "defence_wins": 350,
+        "overbids": 0,
+        "card_points": 67515,
+        "game_points": 9552
+      },
+      "passed": 54,
+      "seconds": 58.55110859300112
+    },
+    {
+      "id": "mcts-600-neural-declaration",
+      "label": "MCTS · 600 Simulationen / 20 Welten",
+      "agent": "mcts",
+      "bidder": "conservative",
+      "declarer": "neural (100k)",
+      "policy": null,
+      "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-1/declaration.pt",
+      "declaration_model_sha256": "306a42c8e6b1de74110575bb062313f84a1cd92af50df1ee82a1af1ddb34d680",
+      "mcts": {
+        "simulations": 600,
+        "determinizations": 20
+      },
+      "search_workers": 4,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 308,
+        "defence_rounds": 616,
+        "defence_wins": 341,
+        "overbids": 0,
+        "card_points": 63562,
+        "game_points": 9245
+      },
+      "passed": 54,
+      "seconds": 149.14500916900033
+    },
+    {
+      "id": "random-neural-declaration-300k",
+      "label": "Random",
+      "agent": "random",
+      "bidder": "conservative",
+      "declarer": "neural (300k)",
+      "policy": null,
+      "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-2/declaration.pt",
+      "declaration_model_sha256": "4e86497860f7ce4e17f0b776e4f984be69deca239abd1d6b7e3c5949f1157bdb",
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 217,
+        "defence_rounds": 616,
+        "defence_wins": 219,
+        "overbids": 0,
+        "card_points": 54019,
+        "game_points": 175
+      },
+      "passed": 54,
+      "seconds": 49.047021935000885
+    },
+    {
+      "id": "policy-iss-neural-declaration-300k",
+      "label": "Transformer · ISS 100k / 20 Epochen",
+      "agent": "policy",
+      "bidder": "conservative",
+      "declarer": "neural (300k)",
+      "policy": "benchmark_runs/iss-run-1/policy.pt",
+      "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-2/declaration.pt",
+      "declaration_model_sha256": "4e86497860f7ce4e17f0b776e4f984be69deca239abd1d6b7e3c5949f1157bdb",
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 310,
+        "defence_rounds": 616,
+        "defence_wins": 339,
+        "overbids": 0,
+        "card_points": 65970,
+        "game_points": 9857
+      },
+      "passed": 54,
+      "seconds": 58.28338102199996
+    },
+    {
+      "id": "mcts-600-neural-declaration-300k",
+      "label": "MCTS · 600 Simulationen / 20 Welten",
+      "agent": "mcts",
+      "bidder": "conservative",
+      "declarer": "neural (300k)",
+      "policy": null,
+      "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-2/declaration.pt",
+      "declaration_model_sha256": "4e86497860f7ce4e17f0b776e4f984be69deca239abd1d6b7e3c5949f1157bdb",
+      "mcts": {
+        "simulations": 600,
+        "determinizations": 20
+      },
+      "search_workers": 4,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 317,
+        "defence_rounds": 616,
+        "defence_wins": 324,
+        "overbids": 0,
+        "card_points": 62734,
+        "game_points": 9755
+      },
+      "passed": 54,
+      "seconds": 147.48017672700007
+    },
+    {
+      "id": "random-neural-declaration-1m",
+      "label": "Random",
+      "agent": "random",
+      "bidder": "conservative",
+      "declarer": "neural (1M/20 Ep.)",
+      "policy": null,
+      "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-3/declaration.pt",
+      "declaration_model_sha256": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 203,
+        "defence_rounds": 616,
+        "defence_wins": 240,
+        "overbids": 0,
+        "card_points": 53241,
+        "game_points": -616
+      },
+      "passed": 54,
+      "seconds": 48.86784410600012
+    },
+    {
+      "id": "policy-iss-neural-declaration-1m",
+      "label": "Transformer · ISS 100k / 20 Epochen",
+      "agent": "policy",
+      "bidder": "conservative",
+      "declarer": "neural (1M/20 Ep.)",
+      "policy": "benchmark_runs/iss-run-1/policy.pt",
+      "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-3/declaration.pt",
+      "declaration_model_sha256": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 314,
+        "defence_rounds": 616,
+        "defence_wins": 326,
+        "overbids": 0,
+        "card_points": 66092,
+        "game_points": 11005
+      },
+      "passed": 54,
+      "seconds": 57.60745990900068
+    },
+    {
+      "id": "mcts-600-neural-declaration-1m",
+      "label": "MCTS · 600 Simulationen / 20 Welten",
+      "agent": "mcts",
+      "bidder": "conservative",
+      "declarer": "neural (1M/20 Ep.)",
+      "policy": null,
+      "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-3/declaration.pt",
+      "declaration_model_sha256": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+      "mcts": {
+        "simulations": 600,
+        "determinizations": 20
+      },
+      "search_workers": 4,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 315,
+        "defence_rounds": 616,
+        "defence_wins": 354,
+        "overbids": 0,
+        "card_points": 63024,
+        "game_points": 9701
+      },
+      "passed": 54,
+      "seconds": 148.1807227090012
+    },
+    {
+      "id": "random-neural-declaration-1m-40",
+      "label": "Random",
+      "agent": "random",
+      "bidder": "conservative",
+      "declarer": "neural (1M/40 Ep.)",
+      "policy": null,
+      "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-4/declaration.pt",
+      "declaration_model_sha256": "45afae968cf1709e1cc68729117e28296b19a35126e1a2ea5403644f4b9b5b94",
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 208,
+        "defence_rounds": 616,
+        "defence_wins": 226,
+        "overbids": 0,
+        "card_points": 52705,
+        "game_points": -453
+      },
+      "passed": 54,
+      "seconds": 49.01879927799928
+    },
+    {
+      "id": "policy-iss-neural-declaration-1m-40",
+      "label": "Transformer · ISS 100k / 20 Epochen",
+      "agent": "policy",
+      "bidder": "conservative",
+      "declarer": "neural (1M/40 Ep.)",
+      "policy": "benchmark_runs/iss-run-1/policy.pt",
+      "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-4/declaration.pt",
+      "declaration_model_sha256": "45afae968cf1709e1cc68729117e28296b19a35126e1a2ea5403644f4b9b5b94",
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 310,
+        "defence_rounds": 616,
+        "defence_wins": 350,
+        "overbids": 0,
+        "card_points": 65379,
+        "game_points": 10243
+      },
+      "passed": 54,
+      "seconds": 57.38502442999925
+    },
+    {
+      "id": "mcts-600-neural-declaration-1m-40",
+      "label": "MCTS · 600 Simulationen / 20 Welten",
+      "agent": "mcts",
+      "bidder": "conservative",
+      "declarer": "neural (1M/40 Ep.)",
+      "policy": null,
+      "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-4/declaration.pt",
+      "declaration_model_sha256": "45afae968cf1709e1cc68729117e28296b19a35126e1a2ea5403644f4b9b5b94",
+      "mcts": {
+        "simulations": 600,
+        "determinizations": 20
+      },
+      "search_workers": 4,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 311,
+        "defence_rounds": 616,
+        "defence_wins": 340,
+        "overbids": 0,
+        "card_points": 62036,
+        "game_points": 9757
+      },
+      "passed": 54,
+      "seconds": 146.40551039800084
     }
   ],
   "status": "complete"

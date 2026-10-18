@@ -3,7 +3,6 @@
 from random import Random
 
 from skat.agents import Agent
-from skat.agents.declaring import HeuristicDeclarer
 from skat.agents.search import (
     SKAT_SLOT,
     PlayoutState,
@@ -17,7 +16,7 @@ from skat.hand import FULL_HAND
 from skat.rules import null_overbid_substitute
 
 
-class MCTSAgent(HeuristicDeclarer, Agent):
+class MCTSAgent(Agent):
     def __init__(
         self,
         simulations=600,

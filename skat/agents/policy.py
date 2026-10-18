@@ -1,13 +1,12 @@
 import torch
 
 from skat.agents import Agent
-from skat.agents.declaring import HeuristicDeclarer
 from skat.agents.distill.checkpoint import load_policy
 from skat.hand import FULL_HAND
 from skat.utils.reproducibility import resolve_device
 
 
-class PolicyAgent(HeuristicDeclarer, Agent):
+class PolicyAgent(Agent):
     def __init__(self, path, device="cpu", seed=None):
         super().__init__(seed)
         self.device = resolve_device(device)

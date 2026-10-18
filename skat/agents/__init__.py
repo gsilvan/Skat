@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from random import Random
 
 from skat.agents.bidding import VALID_BIDS, BiddingStyle, best_game, next_rung, playable
+from skat.agents.declaring import HeuristicDeclarer
 
 
 class Agent(ABC):
@@ -16,6 +17,9 @@ class Agent(ABC):
         self.bidding = BiddingStyle.CONSERVATIVE
         self.neural_bidder = None
         self.last_bidding_probability = None
+        self.declaration_strategy = HeuristicDeclarer()
+        self.declaration_style = "heuristic"
+        self._declaration_choice = None
 
     def set_state(self, state):
         self.state = state
@@ -55,6 +59,25 @@ class Agent(ABC):
         self.last_bidding_probability = None
         return self
 
+    def configure_declaration(self, style="heuristic", model=None):
+        if style == "heuristic":
+            self.declaration_strategy = HeuristicDeclarer()
+        elif style == "neural":
+            if model is None:
+                raise ValueError("neural declaration requires a declaration model")
+            from skat.agents.neural_declaring.inference import NeuralDeclarer
+
+            self.declaration_strategy = NeuralDeclarer(model)
+        else:
+            raise ValueError(f"unknown declaration style: {style}")
+        self.declaration_style = style
+        self._declaration_choice = None
+        return self
+
+    @property
+    def declaration_label(self):
+        return self.declaration_style
+
     def bid(self, current_bid, offer=None):
         if offer is not None:
             return offer if offer <= self.max_bid() else 0
@@ -63,6 +86,7 @@ class Agent(ABC):
     def new_round_event(self):
         self._ceiling = None
         self.last_bidding_probability = None
+        self._declaration_choice = None
 
     def trick_done_event(self, is_terminal):
         pass
@@ -77,14 +101,20 @@ class Agent(ABC):
     def choose_card(self, valid_moves):
         raise NotImplementedError
 
-    @abstractmethod
     def pickup_skat(self, state=None):
-        raise NotImplementedError
+        return self.declaration_strategy.choose_pickup(self.state)
 
-    @abstractmethod
     def press_skat(self):
-        raise NotImplementedError
+        self._declaration_choice = self.declaration_strategy.choose_after_pickup(
+            self.state
+        )
+        return self._declaration_choice.pressed
 
-    @abstractmethod
     def declare_game(self, state=None):
-        raise NotImplementedError
+        if self.state.hand_game:
+            return self.declaration_strategy.choose_hand(self.state)
+        if self._declaration_choice is None:
+            raise ValueError("declare_game requires a prior press_skat decision")
+        game = self._declaration_choice.game
+        self._declaration_choice = None
+        return game

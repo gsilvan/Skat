@@ -1,30 +1,33 @@
-"""Conservative automatic declaration, independent of card-play strategy."""
+"""Interchangeable automatic strategies for pressing and declaring."""
 
 from collections import Counter
-from dataclasses import replace
+from dataclasses import dataclass, replace
 
 from skat.agents.bidding import best_game, covering_game
+from skat.card import Card
+from skat.games import Game
+
+
+@dataclass(frozen=True)
+class DeclarationChoice:
+    pressed: tuple[Card, Card]
+    game: Game
 
 
 class HeuristicDeclarer:
-    def intended_game(self):
-        return best_game(set(self.state.hand))
+    """The original conservative pickup, press and declaration baseline."""
 
-    def pickup_skat(self, state=None):
+    def choose_pickup(self, view):
         return True
 
-    def press_skat(self):
-        game = covering_game(set(self.state.hand), self.state.highest_bid)
-        return press_for_game(self.state.hand, game)
+    def choose_after_pickup(self, view):
+        game = covering_game(set(view.hand), view.highest_bid)
+        return DeclarationChoice(tuple(press_for_game(view.hand, game)), game)
 
-    def declare_game(self, state=None):
-        if self.state.hand_game:
-            game = self.intended_game()
-            game.declaration = replace(game.declaration, hand=True)
-            return game
-        return covering_game(
-            set(self.state.hand) | set(self.state.skat), self.state.highest_bid
-        )
+    def choose_hand(self, view):
+        game = best_game(set(view.hand))
+        game.declaration = replace(game.declaration, hand=True)
+        return game
 
 
 def press_for_game(cards, game):

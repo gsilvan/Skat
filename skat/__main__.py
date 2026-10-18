@@ -38,6 +38,9 @@ def get_args(argv=None):
             p.add_argument("--device", default="cpu")
             p.add_argument("--bidding-model", help="Independent ISS hand classifier")
             p.add_argument("--bidding-threshold", type=float, default=2 / 3)
+            p.add_argument(
+                "--declaration-model", help="Pickup discard/declaration checkpoint"
+            )
         if name in ("play", "collect"):
             p.add_argument("--rounds", type=int, default=33 if name == "play" else 1000)
         if name == "play":
@@ -51,6 +54,11 @@ def get_args(argv=None):
                     f"--bidding{seat}",
                     choices=("conservative", "neural"),
                     default="conservative",
+                )
+                p.add_argument(
+                    f"--declaration{seat}",
+                    choices=("heuristic", "neural"),
+                    default="heuristic",
                 )
             p.add_argument("--verbose", action="store_true")
             p.add_argument(
@@ -74,6 +82,9 @@ def get_args(argv=None):
         if name == "evaluate":
             p.add_argument(
                 "--bidding", choices=("conservative", "neural"), default="conservative"
+            )
+            p.add_argument(
+                "--declaration", choices=("heuristic", "neural"), default="heuristic"
             )
             p.add_argument(
                 "--reference-policy",
@@ -100,14 +111,21 @@ def get_player(
     bidding="conservative",
     bidder=None,
     belief_model=None,
+    declaration="heuristic",
+    declaration_model=None,
 ):
     if bidding == "neural" and bidder is None:
         raise ValueError("neural bidding requires --bidding-model")
     if name == "cli" and bidding != "conservative":
         raise ValueError("human bidding is controlled by stdin")
+    if name == "cli" and declaration != "heuristic":
+        raise ValueError("human declaration is controlled by stdin")
+    if declaration == "neural" and declaration_model is None:
+        raise ValueError("neural declaration requires --declaration-model")
 
     def configured(agent):
-        return agent.configure_bidding(bidding, bidder)
+        agent.configure_bidding(bidding, bidder)
+        return agent.configure_declaration(declaration, declaration_model)
 
     if name == "random":
         from skat.agents.random import RandomAgent
@@ -158,6 +176,13 @@ def main(argv=None):
                     device=args.device,
                     threshold=args.bidding_threshold,
                 )
+            declarer = None
+            if any(getattr(args, f"declaration{i}") == "neural" for i in range(3)):
+                if not args.declaration_model:
+                    raise ValueError("neural declaration requires --declaration-model")
+                from skat.agents.neural_declaring.inference import DeclarationScorer
+
+                declarer = DeclarationScorer(args.declaration_model, device=args.device)
             with SearchPool(
                 args.workers, capacity=mcts.determinizations
             ) as search_pool:
@@ -172,6 +197,8 @@ def main(argv=None):
                         bidding=getattr(args, f"bidding{i}"),
                         bidder=bidder,
                         belief_model=args.belief_model,
+                        declaration=getattr(args, f"declaration{i}"),
+                        declaration_model=declarer,
                     )
                     for i, name in enumerate(args.agents)
                 ]
@@ -230,6 +257,8 @@ def main(argv=None):
                     bidding_model=args.bidding_model,
                     bidding_threshold=args.bidding_threshold,
                     belief_model=args.belief_model,
+                    declaration=args.declaration,
+                    declaration_model=args.declaration_model,
                 )
     except (ValueError, RuntimeError, FileNotFoundError, ImportError) as exc:
         raise SystemExit(str(exc)) from exc

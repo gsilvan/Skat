@@ -13,23 +13,37 @@ Alle Varianten erhalten dieselben Deals; die 1.000 Runden enthalten auch
 eingepasste Blätter. Kartenmodell und Reizer werden getrennt angegeben.
 
 <!-- agent-ratings:start -->
-| Agent / Kartenmodell | Reizer | Siege / gespielt | Als Alleinspieler | Im Gegenspiel | Eingepasst | Punkte / Runde | Δ Punkte zur Baseline |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Transformer · ISS 100k / 20 Epochen | neural (0.55) | 648/949 (68.3%) | 321/333 (96.4%) | 327/616 (53.1%) | 51 | +13.42 | +14.39 |
-| MCTS · ISS-Handmodell 100k / 600 Simulationen / 20 Welten | conservative | 656/946 (69.3%) | 312/330 (94.5%) | 344/616 (55.8%) | 54 | +10.48 | +11.45 |
-| MCTS · ISS-Handmodell 300k / 600 Simulationen / 20 Welten | conservative | 657/946 (69.5%) | 312/330 (94.5%) | 345/616 (56.0%) | 54 | +10.47 | +11.43 |
-| MCTS · 600 Simulationen / 20 Welten | conservative | 651/946 (68.8%) | 313/330 (94.8%) | 338/616 (54.9%) | 54 | +10.38 | +11.35 |
-| Transformer · MCTS 2.000 / 10k / 100 Epochen | conservative | 651/946 (68.8%) | 311/330 (94.2%) | 340/616 (55.2%) | 54 | +10.33 | +11.29 |
-| Transformer · ISS 100k / 20 Epochen | conservative | 648/946 (68.5%) | 302/330 (91.5%) | 346/616 (56.2%) | 54 | +10.16 | +11.12 |
-| Transformer · MCTS 5k / 12 Epochen | conservative | 618/946 (65.3%) | 307/330 (93.0%) | 311/616 (50.5%) | 54 | +10.04 | +11.00 |
-| MCTS · 2.000 Simulationen / 20 Welten | conservative | 643/946 (68.0%) | 312/330 (94.5%) | 331/616 (53.7%) | 54 | +9.97 | +10.94 |
-| Transformer · MCTS 5k / 100 Epochen | conservative | 652/946 (68.9%) | 305/330 (92.4%) | 347/616 (56.3%) | 54 | +9.38 | +10.34 |
-| Random | neural (0.55) | 470/949 (49.5%) | 242/333 (72.7%) | 228/616 (37.0%) | 51 | +1.81 | +2.77 |
-| Random (Baseline) | conservative | 440/946 (46.5%) | 215/330 (65.2%) | 225/616 (36.5%) | 54 | -0.96 | +0.00 |
+| Agent / Kartenmodell | Reizer | Ansager | Siege / gespielt | Als Alleinspieler | Im Gegenspiel | Eingepasst | Punkte / Runde | Δ Punkte zur Baseline |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Transformer · ISS 100k / 20 Epochen | neural (0.55) | heuristic | 648/949 (68.3%) | 321/333 (96.4%) | 327/616 (53.1%) | 51 | +13.42 | +14.39 |
+| Transformer · ISS 100k / 20 Epochen | conservative | neural (1M/20 Ep.) | 640/946 (67.7%) | 314/330 (95.2%) | 326/616 (52.9%) | 54 | +11.01 | +11.97 |
+| MCTS · ISS-Handmodell 100k / 600 Simulationen / 20 Welten | conservative | heuristic | 656/946 (69.3%) | 312/330 (94.5%) | 344/616 (55.8%) | 54 | +10.48 | +11.45 |
+| MCTS · ISS-Handmodell 300k / 600 Simulationen / 20 Welten | conservative | heuristic | 657/946 (69.5%) | 312/330 (94.5%) | 345/616 (56.0%) | 54 | +10.47 | +11.43 |
+| MCTS · 600 Simulationen / 20 Welten | conservative | heuristic | 651/946 (68.8%) | 313/330 (94.8%) | 338/616 (54.9%) | 54 | +10.38 | +11.35 |
+| Transformer · MCTS 2.000 / 10k / 100 Epochen | conservative | heuristic | 651/946 (68.8%) | 311/330 (94.2%) | 340/616 (55.2%) | 54 | +10.33 | +11.29 |
+| Transformer · ISS 100k / 20 Epochen | conservative | neural (1M/40 Ep.) | 660/946 (69.8%) | 310/330 (93.9%) | 350/616 (56.8%) | 54 | +10.24 | +11.21 |
+| Transformer · ISS 100k / 20 Epochen | conservative | heuristic | 648/946 (68.5%) | 302/330 (91.5%) | 346/616 (56.2%) | 54 | +10.16 | +11.12 |
+| Transformer · MCTS 5k / 12 Epochen | conservative | heuristic | 618/946 (65.3%) | 307/330 (93.0%) | 311/616 (50.5%) | 54 | +10.04 | +11.00 |
+| MCTS · 2.000 Simulationen / 20 Welten | conservative | heuristic | 643/946 (68.0%) | 312/330 (94.5%) | 331/616 (53.7%) | 54 | +9.97 | +10.94 |
+| Transformer · ISS 100k / 20 Epochen | conservative | neural (300k) | 649/946 (68.6%) | 310/330 (93.9%) | 339/616 (55.0%) | 54 | +9.86 | +10.82 |
+| MCTS · 600 Simulationen / 20 Welten | conservative | neural (1M/40 Ep.) | 651/946 (68.8%) | 311/330 (94.2%) | 340/616 (55.2%) | 54 | +9.76 | +10.72 |
+| MCTS · 600 Simulationen / 20 Welten | conservative | neural (300k) | 641/946 (67.8%) | 317/330 (96.1%) | 324/616 (52.6%) | 54 | +9.76 | +10.72 |
+| MCTS · 600 Simulationen / 20 Welten | conservative | neural (1M/20 Ep.) | 669/946 (70.7%) | 315/330 (95.5%) | 354/616 (57.5%) | 54 | +9.70 | +10.67 |
+| Transformer · ISS 100k / 20 Epochen | conservative | neural (100k) | 657/946 (69.5%) | 307/330 (93.0%) | 350/616 (56.8%) | 54 | +9.55 | +10.52 |
+| Transformer · MCTS 5k / 100 Epochen | conservative | heuristic | 652/946 (68.9%) | 305/330 (92.4%) | 347/616 (56.3%) | 54 | +9.38 | +10.34 |
+| MCTS · 600 Simulationen / 20 Welten | conservative | neural (100k) | 649/946 (68.6%) | 308/330 (93.3%) | 341/616 (55.4%) | 54 | +9.24 | +10.21 |
+| Random | neural (0.55) | heuristic | 470/949 (49.5%) | 242/333 (72.7%) | 228/616 (37.0%) | 51 | +1.81 | +2.77 |
+| Random | conservative | neural (300k) | 436/946 (46.1%) | 217/330 (65.8%) | 219/616 (35.6%) | 54 | +0.17 | +1.14 |
+| Random | conservative | neural (1M/40 Ep.) | 434/946 (45.9%) | 208/330 (63.0%) | 226/616 (36.7%) | 54 | -0.45 | +0.51 |
+| Random | conservative | neural (1M/20 Ep.) | 443/946 (46.8%) | 203/330 (61.5%) | 240/616 (39.0%) | 54 | -0.62 | +0.35 |
+| Random | conservative | neural (100k) | 449/946 (47.5%) | 211/330 (63.9%) | 238/616 (38.6%) | 54 | -0.87 | +0.09 |
+| Random (Baseline) | conservative | heuristic | 440/946 (46.5%) | 215/330 (65.2%) | 225/616 (36.5%) | 54 | -0.96 | +0.00 |
 <!-- agent-ratings:end -->
 
-`5k` und `10k` bezeichnen die Anzahl der MCTS-Korpusrunden, `100k` die
-ISS-Spiele im Trainingskorpus. Die Epochenzahl beschreibt den Trainingslauf;
+`5k` und `10k` bezeichnen die Anzahl der MCTS-Korpusrunden; `100k`, `300k`
+und `1M` bezeichnen die ISS-Spiele im jeweiligen Trainingskorpus. Die
+Epochenzahl beschreibt den
+Trainingslauf;
 gespielt wird jeweils mit dessen bestem Validierungscheckpoint.
 
 Die Tabelle ist nach offiziellen Punkten pro ausgeteilter Runde sortiert.
@@ -91,6 +105,16 @@ Ohne `--belief-model PATH` nutzt MCTS weiterhin den gleichverteilten Sampler.
 Reizen lässt sich unabhängig vom Kartenagenten mit einem ISS-Handklassifikator
 konfigurieren. Training und Vergleiche stehen in
 [docs/bidding-training.md](docs/bidding-training.md).
+
+Drücken und Ansage können unabhängig von der Kartenstrategie mit
+`--declaration0/1/2 heuristic|neural` gewählt werden. Die Heuristik bleibt
+Standard; für `neural` ist zusätzlich `--declaration-model PATH` erforderlich.
+Das ISS-1M-Ansagemodell gewann mit derselben ISS-Kartenpolicy auf neuen,
+gepaarten Deals 3.245 statt 3.195 Solospiele mit dem 300k-Modell und 3.026
+mit der Heuristik (12.000 ausgeteilte Kandidatenrunden). Training und Bewertung stehen in
+[docs/declaration-training.md](docs/declaration-training.md).
+Ein längerer [40-Epochen-Versuch](docs/declaration-40epoch-experiment.md)
+verbesserte die Vorhersage, aber auf neuen Deals nicht die Solosiege.
 
 ## Vier Arbeitsabläufe
 
