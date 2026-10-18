@@ -17,10 +17,12 @@ eingepasste Blätter. Kartenmodell und Reizer werden getrennt angegeben.
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Transformer · ISS 100k / 20 Epochen | neural (0.55) | heuristic | 648/949 (68.3%) | 321/333 (96.4%) | 327/616 (53.1%) | 51 | +13.42 | +14.39 |
 | Transformer · ISS 100k / 20 Epochen | conservative | neural (1M/20 Ep.) | 640/946 (67.7%) | 314/330 (95.2%) | 326/616 (52.9%) | 54 | +11.01 | +11.97 |
+| Transformer · ISS 100k / 20 Epochen | conservative | neural (1M/20 Ep.) + Hand-NN | 655/946 (69.2%) | 311/330 (94.2%) | 344/616 (55.8%) | 54 | +10.65 | +11.61 |
 | MCTS · ISS-Handmodell 100k / 600 Simulationen / 20 Welten | conservative | heuristic | 656/946 (69.3%) | 312/330 (94.5%) | 344/616 (55.8%) | 54 | +10.48 | +11.45 |
 | MCTS · ISS-Handmodell 300k / 600 Simulationen / 20 Welten | conservative | heuristic | 657/946 (69.5%) | 312/330 (94.5%) | 345/616 (56.0%) | 54 | +10.47 | +11.43 |
 | MCTS · 600 Simulationen / 20 Welten | conservative | heuristic | 651/946 (68.8%) | 313/330 (94.8%) | 338/616 (54.9%) | 54 | +10.38 | +11.35 |
 | Transformer · MCTS 2.000 / 10k / 100 Epochen | conservative | heuristic | 651/946 (68.8%) | 311/330 (94.2%) | 340/616 (55.2%) | 54 | +10.33 | +11.29 |
+| Transformer · ISS 100k / 20 Epochen | conservative | heuristic + Hand-NN | 655/946 (69.2%) | 306/330 (92.7%) | 349/616 (56.7%) | 54 | +10.25 | +11.21 |
 | Transformer · ISS 100k / 20 Epochen | conservative | neural (1M/40 Ep.) | 660/946 (69.8%) | 310/330 (93.9%) | 350/616 (56.8%) | 54 | +10.24 | +11.21 |
 | Transformer · ISS 100k / 20 Epochen | conservative | heuristic | 648/946 (68.5%) | 302/330 (91.5%) | 346/616 (56.2%) | 54 | +10.16 | +11.12 |
 | Transformer · MCTS 5k / 12 Epochen | conservative | heuristic | 618/946 (65.3%) | 307/330 (93.0%) | 311/616 (50.5%) | 54 | +10.04 | +11.00 |
@@ -53,6 +55,11 @@ Runden und geben jeweils den Parteisieg des Kandidaten an. Eine hohe
 Alleinspielerquote kann auch durch selektiveres Reizen entstehen; deshalb
 stehen die Anzahl der Spiele und die Punkte daneben. Kleine Unterschiede in
 diesem einen Lauf belegen keine allgemeine Rangfolge gegen andere Gegner.
+Bei den beiden `Hand-NN`-Profilen verschiebt ein geändertes Spiel auch die
+Zufallszahlen der Random-Gegner in späteren Runden. Ein zusätzlicher
+[gepaarter Vergleich](docs/pickup-training.md) mit je Austeilung neu gesetzten
+Zufallsströmen fand auf 2.000 Deals keine geänderten Siege, aber rund
++0,1 offizielle Punkte pro ausgeteilter Runde.
 
 Einstellungen, Checkpoint-Hashes und ungerundete Ergebnisse stehen in
 [docs/agent-ratings.json](docs/agent-ratings.json). Die Tabelle wird bei neuen

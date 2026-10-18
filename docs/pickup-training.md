@@ -31,14 +31,50 @@ aber acht zuvor gewonnene: 1.461 statt 1.464 Siege. Eine anhand der
 Kalibrierungsmenge vorsichtiger gewählte Schwelle brachte auf der Testmenge
 ebenfalls keinen Gewinn. Dieser Checkpoint liegt unter
 `benchmark_runs/pickup-run-2/pickup.pt`.
+Sein SHA-256-Hash ist
+`85660fcdecb72fb85a3ceb24af779b175719759f5e6003785cd36ff6d2566831`.
 
-Bei sicher gedecktem Reizwert hat die Aufnahme für die reine Siegchance einen
-strukturellen Vorteil: Man kann die zwei aufgenommenen Karten wieder drücken
-und dasselbe Blatt spielen, besitzt aber zusätzlich Information und andere
-Drückmöglichkeiten. Hand kann bei höherem Reizwert durch seinen zusätzlichen
-Spielwert oder für offizielle Punkte interessant sein. Beides ist im aktuellen
-konservativen Reizer selten; deshalb ist die Entscheidung nicht automatisch
-ein Spielstärkegewinn.
+## Spielvergleich
+
+Im festen README-Protokoll (1.000 ausgeteilte Runden, Seed 42, Kandidat an
+Sitz 0) wählte der Klassifikator acht Handspiele mit heuristischem Ansager
+und acht mit dem 1M-Ansager. Die Solosiege betrugen 306 statt 302 mit
+Heuristik und 311 statt 314 mit 1M-Ansager. Die Gesamt-Parteisiege waren
+655 statt 648 beziehungsweise 655 statt 640. Diese kleinen Unterschiede
+sind nicht direkt kausal interpretierbar: Sobald sich ein Spiel ändert,
+verbrauchen die Random-Gegner unterschiedlich viele Zufallszahlen, was ihre
+Spielzüge in späteren Runden verschiebt.
+
+Ein eigenständiger gepaarter Vergleich setzt deshalb die Zufallsströme der
+Gegner **für jede Austeilung** neu. Auf 2.000 neuen Deals mit Seed 43 und
+rotierendem Geber wählte das Modell je 22 Handspiele. Mit heuristischem
+Ansager blieben die Parteisiege bei 1.320 und die Solosiege bei 627; mit
+1M-Ansager blieben es 1.339 und 646. Auf sämtlichen 4.000 gepaarten
+Entscheidungen stimmte der Sieg-/Niederlage-Ausgang der Varianten überein.
+Die offiziellen Kandidatenpunkte stiegen durch den höheren Hand-Spielwert
+um 215 beziehungsweise 196 Punkte insgesamt, also um rund 0,11 bzw.
+0,10 Punkte pro ausgeteilter Runde. Da die Siegquote hier Vorrang hat,
+bleibt `always` die empfohlene Einstellung.
+
+Die vollständigen Runden stehen in
+`benchmark_runs/pickup-paired-2000-seed43.json`. Der reproduzierbare Lauf:
+
+```bash
+.venv/bin/python -m scripts.compare_pickup \
+  --policy benchmark_runs/iss-run-1/policy.pt \
+  --pickup-model benchmark_runs/pickup-run-2/pickup.pt \
+  --declaration-model benchmark_runs/declaration-run-3/declaration.pt \
+  --out benchmark_runs/pickup-paired-2000-seed43.json \
+  --rounds 2000 --seed 43
+```
+
+Wenn derselbe Nicht-Hand-Kontrakt den Reizwert deckt, hat die Aufnahme für
+die reine Siegchance einen strukturellen Vorteil: Man kann die zwei
+aufgenommenen Karten wieder drücken und dasselbe Blatt spielen, besitzt aber
+zusätzlich Information und andere Drückmöglichkeiten. Hand kann bei höherem
+Reizwert durch seinen zusätzlichen Spielwert oder für offizielle Punkte
+interessant sein. Beides ist im aktuellen konservativen Reizer selten;
+deshalb ist die Entscheidung nicht automatisch ein Spielstärkegewinn.
 
 ## Trainingsziel
 

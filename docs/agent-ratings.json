@@ -9,11 +9,11 @@
     "random"
   ],
   "reference_bidding": "conservative",
-  "source_commit": "1bbe09a0d478fef8d63a0ba7aba8ce8e4024cba3",
-  "source_sha256": "07b98b1baaa3d8d7c1fe9cb00d658293545893c6f7d44ef008bb9af124425ef0",
+  "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+  "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
   "device": "cpu",
-  "torch_version": "2.5.1+cu124",
-  "measured_at": "2026-10-18T10:30:10.593021+00:00",
+  "torch_version": "2.14.1",
+  "measured_at": "2026-10-18T12:04:48.676487+00:00",
   "profiles": [
     {
       "id": "random",
@@ -21,6 +21,7 @@
       "agent": "random",
       "bidder": "conservative",
       "declarer": "heuristic",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -30,6 +31,9 @@
       "bidding_threshold": null,
       "declaration_model": null,
       "declaration_model_sha256": null,
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -42,7 +46,7 @@
         "game_points": -965
       },
       "passed": 54,
-      "seconds": 40.35733998999967
+      "seconds": 52.44153510199976
     },
     {
       "id": "random-neural",
@@ -50,6 +54,7 @@
       "agent": "random",
       "bidder": "neural (0.55)",
       "declarer": "heuristic",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -59,6 +64,9 @@
       "bidding_threshold": 0.55,
       "declaration_model": null,
       "declaration_model_sha256": null,
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -71,7 +79,7 @@
         "game_points": 1808
       },
       "passed": 51,
-      "seconds": 40.04258163099985
+      "seconds": 52.521346093999455
     },
     {
       "id": "mcts-600",
@@ -79,6 +87,7 @@
       "agent": "mcts",
       "bidder": "conservative",
       "declarer": "heuristic",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -88,11 +97,14 @@
       "bidding_threshold": null,
       "declaration_model": null,
       "declaration_model_sha256": null,
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": {
         "simulations": 600,
         "determinizations": 20
       },
-      "search_workers": 4,
+      "search_workers": 16,
       "score": {
         "solo_rounds": 330,
         "solo_wins": 313,
@@ -103,7 +115,7 @@
         "game_points": 10381
       },
       "passed": 54,
-      "seconds": 140.2297871260016
+      "seconds": 148.1024582400005
     },
     {
       "id": "mcts-2000",
@@ -111,6 +123,7 @@
       "agent": "mcts",
       "bidder": "conservative",
       "declarer": "heuristic",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -120,11 +133,14 @@
       "bidding_threshold": null,
       "declaration_model": null,
       "declaration_model_sha256": null,
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": {
         "simulations": 2000,
         "determinizations": 20
       },
-      "search_workers": 4,
+      "search_workers": 16,
       "score": {
         "solo_rounds": 330,
         "solo_wins": 312,
@@ -135,7 +151,7 @@
         "game_points": 9973
       },
       "passed": 54,
-      "seconds": 313.7749728609997
+      "seconds": 284.17068759500035
     },
     {
       "id": "mcts-iss-belief",
@@ -143,6 +159,7 @@
       "agent": "mcts",
       "bidder": "conservative",
       "declarer": "heuristic",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": "trained_models/iss-belief-100k.pt",
@@ -152,11 +169,14 @@
       "bidding_threshold": null,
       "declaration_model": null,
       "declaration_model_sha256": null,
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": {
         "simulations": 600,
         "determinizations": 20
       },
-      "search_workers": 4,
+      "search_workers": 16,
       "score": {
         "solo_rounds": 330,
         "solo_wins": 312,
@@ -167,7 +187,7 @@
         "game_points": 10483
       },
       "passed": 54,
-      "seconds": 145.79399492999983
+      "seconds": 152.8713077909997
     },
     {
       "id": "mcts-iss-belief-300k",
@@ -175,6 +195,7 @@
       "agent": "mcts",
       "bidder": "conservative",
       "declarer": "heuristic",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": "trained_models/iss-belief-300k.pt",
@@ -184,11 +205,14 @@
       "bidding_threshold": null,
       "declaration_model": null,
       "declaration_model_sha256": null,
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": {
         "simulations": 600,
         "determinizations": 20
       },
-      "search_workers": 4,
+      "search_workers": 16,
       "score": {
         "solo_rounds": 330,
         "solo_wins": 312,
@@ -199,7 +223,7 @@
         "game_points": 10469
       },
       "passed": 54,
-      "seconds": 144.62814071399953
+      "seconds": 151.62271201100157
     },
     {
       "id": "policy-mcts-12",
@@ -207,6 +231,7 @@
       "agent": "policy",
       "bidder": "conservative",
       "declarer": "heuristic",
+      "pickup": "always",
       "policy": "trained_models/transformer-run-2.pt",
       "policy_sha256": "fbb5ade4ed5de42d5a87ec5a218594d68ce7f63dfe6251f44d5d69d55e5111c8",
       "belief_model": null,
@@ -216,6 +241,9 @@
       "bidding_threshold": null,
       "declaration_model": null,
       "declaration_model_sha256": null,
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -228,7 +256,7 @@
         "game_points": 10037
       },
       "passed": 54,
-      "seconds": 47.26054803199986
+      "seconds": 59.39442803300153
     },
     {
       "id": "policy-mcts-100",
@@ -236,6 +264,7 @@
       "agent": "policy",
       "bidder": "conservative",
       "declarer": "heuristic",
+      "pickup": "always",
       "policy": "trained_models/transformer-run-2-100epochs.pt",
       "policy_sha256": "6be3b7221bee9c718258926fa0e2cc4af0e231f54de7b10f5305164658127a71",
       "belief_model": null,
@@ -245,6 +274,9 @@
       "bidding_threshold": null,
       "declaration_model": null,
       "declaration_model_sha256": null,
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -257,7 +289,7 @@
         "game_points": 9375
       },
       "passed": 54,
-      "seconds": 47.02282529199874
+      "seconds": 59.056544360999396
     },
     {
       "id": "policy-teacher-2000",
@@ -265,6 +297,7 @@
       "agent": "policy",
       "bidder": "conservative",
       "declarer": "heuristic",
+      "pickup": "always",
       "policy": "trained_models/transformer-teacher-2000-10k.pt",
       "policy_sha256": "2f6f35c0aa2530737cdefa79be3663b8d16a6e704e0c9b3ffb0b1b7b9cac21d6",
       "belief_model": null,
@@ -274,6 +307,9 @@
       "bidding_threshold": null,
       "declaration_model": null,
       "declaration_model_sha256": null,
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -286,7 +322,7 @@
         "game_points": 10329
       },
       "passed": 54,
-      "seconds": 47.863784204000694
+      "seconds": 58.92077702200004
     },
     {
       "id": "policy-iss",
@@ -294,6 +330,7 @@
       "agent": "policy",
       "bidder": "conservative",
       "declarer": "heuristic",
+      "pickup": "always",
       "policy": "benchmark_runs/iss-run-1/policy.pt",
       "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
       "belief_model": null,
@@ -303,6 +340,9 @@
       "bidding_threshold": null,
       "declaration_model": null,
       "declaration_model_sha256": null,
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -315,7 +355,7 @@
         "game_points": 10156
       },
       "passed": 54,
-      "seconds": 47.668045185000665
+      "seconds": 59.2923622620001
     },
     {
       "id": "policy-iss-neural",
@@ -323,6 +363,7 @@
       "agent": "policy",
       "bidder": "neural (0.55)",
       "declarer": "heuristic",
+      "pickup": "always",
       "policy": "benchmark_runs/iss-run-1/policy.pt",
       "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
       "belief_model": null,
@@ -332,6 +373,9 @@
       "bidding_threshold": 0.55,
       "declaration_model": null,
       "declaration_model_sha256": null,
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -344,7 +388,7 @@
         "game_points": 13424
       },
       "passed": 51,
-      "seconds": 47.74428640299993
+      "seconds": 59.31927414599886
     },
     {
       "id": "random-neural-declaration",
@@ -352,6 +396,7 @@
       "agent": "random",
       "bidder": "conservative",
       "declarer": "neural (100k)",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -361,6 +406,9 @@
       "bidding_threshold": null,
       "declaration_model": "benchmark_runs/declaration-run-1/declaration.pt",
       "declaration_model_sha256": "306a42c8e6b1de74110575bb062313f84a1cd92af50df1ee82a1af1ddb34d680",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -373,7 +421,7 @@
         "game_points": -870
       },
       "passed": 54,
-      "seconds": 49.74468264999996
+      "seconds": 62.30667809699844
     },
     {
       "id": "policy-iss-neural-declaration",
@@ -381,6 +429,7 @@
       "agent": "policy",
       "bidder": "conservative",
       "declarer": "neural (100k)",
+      "pickup": "always",
       "policy": "benchmark_runs/iss-run-1/policy.pt",
       "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
       "belief_model": null,
@@ -390,6 +439,9 @@
       "bidding_threshold": null,
       "declaration_model": "benchmark_runs/declaration-run-1/declaration.pt",
       "declaration_model_sha256": "306a42c8e6b1de74110575bb062313f84a1cd92af50df1ee82a1af1ddb34d680",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -402,7 +454,7 @@
         "game_points": 9552
       },
       "passed": 54,
-      "seconds": 58.55110859300112
+      "seconds": 70.79618040399873
     },
     {
       "id": "mcts-600-neural-declaration",
@@ -410,6 +462,7 @@
       "agent": "mcts",
       "bidder": "conservative",
       "declarer": "neural (100k)",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -419,11 +472,14 @@
       "bidding_threshold": null,
       "declaration_model": "benchmark_runs/declaration-run-1/declaration.pt",
       "declaration_model_sha256": "306a42c8e6b1de74110575bb062313f84a1cd92af50df1ee82a1af1ddb34d680",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": {
         "simulations": 600,
         "determinizations": 20
       },
-      "search_workers": 4,
+      "search_workers": 16,
       "score": {
         "solo_rounds": 330,
         "solo_wins": 308,
@@ -434,7 +490,7 @@
         "game_points": 9245
       },
       "passed": 54,
-      "seconds": 149.14500916900033
+      "seconds": 160.5559303659993
     },
     {
       "id": "random-neural-declaration-300k",
@@ -442,6 +498,7 @@
       "agent": "random",
       "bidder": "conservative",
       "declarer": "neural (300k)",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -451,6 +508,9 @@
       "bidding_threshold": null,
       "declaration_model": "benchmark_runs/declaration-run-2/declaration.pt",
       "declaration_model_sha256": "4e86497860f7ce4e17f0b776e4f984be69deca239abd1d6b7e3c5949f1157bdb",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -463,7 +523,7 @@
         "game_points": 175
       },
       "passed": 54,
-      "seconds": 49.047021935000885
+      "seconds": 62.013635839000926
     },
     {
       "id": "policy-iss-neural-declaration-300k",
@@ -471,6 +531,7 @@
       "agent": "policy",
       "bidder": "conservative",
       "declarer": "neural (300k)",
+      "pickup": "always",
       "policy": "benchmark_runs/iss-run-1/policy.pt",
       "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
       "belief_model": null,
@@ -480,6 +541,9 @@
       "bidding_threshold": null,
       "declaration_model": "benchmark_runs/declaration-run-2/declaration.pt",
       "declaration_model_sha256": "4e86497860f7ce4e17f0b776e4f984be69deca239abd1d6b7e3c5949f1157bdb",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -492,7 +556,7 @@
         "game_points": 9857
       },
       "passed": 54,
-      "seconds": 58.28338102199996
+      "seconds": 69.87242067100124
     },
     {
       "id": "mcts-600-neural-declaration-300k",
@@ -500,6 +564,7 @@
       "agent": "mcts",
       "bidder": "conservative",
       "declarer": "neural (300k)",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -509,11 +574,14 @@
       "bidding_threshold": null,
       "declaration_model": "benchmark_runs/declaration-run-2/declaration.pt",
       "declaration_model_sha256": "4e86497860f7ce4e17f0b776e4f984be69deca239abd1d6b7e3c5949f1157bdb",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": {
         "simulations": 600,
         "determinizations": 20
       },
-      "search_workers": 4,
+      "search_workers": 16,
       "score": {
         "solo_rounds": 330,
         "solo_wins": 317,
@@ -524,7 +592,7 @@
         "game_points": 9755
       },
       "passed": 54,
-      "seconds": 147.48017672700007
+      "seconds": 159.2340597629991
     },
     {
       "id": "random-neural-declaration-1m",
@@ -532,6 +600,7 @@
       "agent": "random",
       "bidder": "conservative",
       "declarer": "neural (1M/20 Ep.)",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -541,6 +610,9 @@
       "bidding_threshold": null,
       "declaration_model": "benchmark_runs/declaration-run-3/declaration.pt",
       "declaration_model_sha256": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -553,7 +625,7 @@
         "game_points": -616
       },
       "passed": 54,
-      "seconds": 48.86784410600012
+      "seconds": 61.658214528000826
     },
     {
       "id": "policy-iss-neural-declaration-1m",
@@ -561,6 +633,7 @@
       "agent": "policy",
       "bidder": "conservative",
       "declarer": "neural (1M/20 Ep.)",
+      "pickup": "always",
       "policy": "benchmark_runs/iss-run-1/policy.pt",
       "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
       "belief_model": null,
@@ -570,6 +643,9 @@
       "bidding_threshold": null,
       "declaration_model": "benchmark_runs/declaration-run-3/declaration.pt",
       "declaration_model_sha256": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -582,7 +658,7 @@
         "game_points": 11005
       },
       "passed": 54,
-      "seconds": 57.60745990900068
+      "seconds": 70.34423682299894
     },
     {
       "id": "mcts-600-neural-declaration-1m",
@@ -590,6 +666,7 @@
       "agent": "mcts",
       "bidder": "conservative",
       "declarer": "neural (1M/20 Ep.)",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -599,11 +676,14 @@
       "bidding_threshold": null,
       "declaration_model": "benchmark_runs/declaration-run-3/declaration.pt",
       "declaration_model_sha256": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": {
         "simulations": 600,
         "determinizations": 20
       },
-      "search_workers": 4,
+      "search_workers": 16,
       "score": {
         "solo_rounds": 330,
         "solo_wins": 315,
@@ -614,7 +694,7 @@
         "game_points": 9701
       },
       "passed": 54,
-      "seconds": 148.1807227090012
+      "seconds": 158.96630524899956
     },
     {
       "id": "random-neural-declaration-1m-40",
@@ -622,6 +702,7 @@
       "agent": "random",
       "bidder": "conservative",
       "declarer": "neural (1M/40 Ep.)",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -631,6 +712,9 @@
       "bidding_threshold": null,
       "declaration_model": "benchmark_runs/declaration-run-4/declaration.pt",
       "declaration_model_sha256": "45afae968cf1709e1cc68729117e28296b19a35126e1a2ea5403644f4b9b5b94",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -643,7 +727,7 @@
         "game_points": -453
       },
       "passed": 54,
-      "seconds": 49.01879927799928
+      "seconds": 61.134231127998646
     },
     {
       "id": "policy-iss-neural-declaration-1m-40",
@@ -651,6 +735,7 @@
       "agent": "policy",
       "bidder": "conservative",
       "declarer": "neural (1M/40 Ep.)",
+      "pickup": "always",
       "policy": "benchmark_runs/iss-run-1/policy.pt",
       "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
       "belief_model": null,
@@ -660,6 +745,9 @@
       "bidding_threshold": null,
       "declaration_model": "benchmark_runs/declaration-run-4/declaration.pt",
       "declaration_model_sha256": "45afae968cf1709e1cc68729117e28296b19a35126e1a2ea5403644f4b9b5b94",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": null,
       "search_workers": null,
       "score": {
@@ -672,7 +760,7 @@
         "game_points": 10243
       },
       "passed": 54,
-      "seconds": 57.38502442999925
+      "seconds": 69.70441729999948
     },
     {
       "id": "mcts-600-neural-declaration-1m-40",
@@ -680,6 +768,7 @@
       "agent": "mcts",
       "bidder": "conservative",
       "declarer": "neural (1M/40 Ep.)",
+      "pickup": "always",
       "policy": null,
       "policy_sha256": null,
       "belief_model": null,
@@ -689,11 +778,14 @@
       "bidding_threshold": null,
       "declaration_model": "benchmark_runs/declaration-run-4/declaration.pt",
       "declaration_model_sha256": "45afae968cf1709e1cc68729117e28296b19a35126e1a2ea5403644f4b9b5b94",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
       "mcts": {
         "simulations": 600,
         "determinizations": 20
       },
-      "search_workers": 4,
+      "search_workers": 16,
       "score": {
         "solo_rounds": 330,
         "solo_wins": 311,
@@ -704,7 +796,73 @@
         "game_points": 9757
       },
       "passed": 54,
-      "seconds": 146.40551039800084
+      "seconds": 158.29674819100183
+    },
+    {
+      "id": "policy-iss-neural-pickup",
+      "label": "Transformer · ISS 100k / 20 Epochen",
+      "agent": "policy",
+      "bidder": "conservative",
+      "declarer": "heuristic",
+      "pickup": "neural",
+      "policy": "benchmark_runs/iss-run-1/policy.pt",
+      "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
+      "pickup_model": "benchmark_runs/pickup-run-2/pickup.pt",
+      "pickup_model_sha256": "85660fcdecb72fb85a3ceb24af779b175719759f5e6003785cd36ff6d2566831",
+      "pickup_margin": 0.0,
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 306,
+        "defence_rounds": 616,
+        "defence_wins": 349,
+        "overbids": 0,
+        "card_points": 66641,
+        "game_points": 10250
+      },
+      "passed": 54,
+      "seconds": 59.48445695299961
+    },
+    {
+      "id": "policy-iss-neural-declaration-1m-pickup",
+      "label": "Transformer · ISS 100k / 20 Epochen",
+      "agent": "policy",
+      "bidder": "conservative",
+      "declarer": "neural (1M/20 Ep.)",
+      "pickup": "neural",
+      "policy": "benchmark_runs/iss-run-1/policy.pt",
+      "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": null,
+      "bidding_model_sha256": null,
+      "bidding_threshold": null,
+      "declaration_model": "benchmark_runs/declaration-run-3/declaration.pt",
+      "declaration_model_sha256": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+      "pickup_model": "benchmark_runs/pickup-run-2/pickup.pt",
+      "pickup_model_sha256": "85660fcdecb72fb85a3ceb24af779b175719759f5e6003785cd36ff6d2566831",
+      "pickup_margin": 0.0,
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 330,
+        "solo_wins": 311,
+        "defence_rounds": 616,
+        "defence_wins": 344,
+        "overbids": 0,
+        "card_points": 66584,
+        "game_points": 10647
+      },
+      "passed": 54,
+      "seconds": 69.31555998800104
     }
   ],
   "status": "complete"
