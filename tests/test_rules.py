@@ -44,10 +44,14 @@ def test_zero_point_trick_is_not_schwarz():
     "hand,ouvert,value",
     [(False, False, 23), (True, False, 35), (False, True, 46), (True, True, 59)],
 )
-def test_null_variants(hand, ouvert, value):
+@pytest.mark.parametrize("points", [(0, 120), (14, 106), (21, 99)])
+def test_null_variants(hand, ouvert, value, points):
     d = GameDeclaration("null", hand=hand, ouvert=ouvert)
-    assert score(d, points=(0, 120), tricks=(0, 10)).score == value
-    result = score(d, points=(0, 120), tricks=(1, 9))
+    won = score(d, points=points, tricks=(0, 10))
+    assert won.soloist_won is True
+    assert won.score == value
+    assert won.points == points
+    result = score(d, points=points, tricks=(1, 9))
     assert result.soloist_won is False
     assert result.score == -2 * value
 

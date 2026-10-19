@@ -160,7 +160,7 @@ function playerView(player) {
   const node = el('section', `player ${state.nextPlayer === player.seat || state.pending?.seat === player.seat ? 'active-player' : ''}`);
   const meta = el('div', 'player-meta'); meta.append(el('strong', '', player.label));
   meta.append(el('span', '', `Platz ${player.seat + 1} · ${labels[player.kind]}${state.dealer === player.seat ? ' · Geber' : ''}${state.soloist === player.seat ? ' · Alleinspieler' : ''}`));
-  meta.append(el('span', '', `${player.points} Augen · ${player.tricks} Stiche`)); node.append(meta);
+  meta.append(el('span', '', state.declaration?.kind === 'null' ? `${player.tricks} Stiche` : `${player.points} Augen · ${player.tricks} Stiche`)); node.append(meta);
   const hand = el('div', 'hand');
   for (const card of player.hand) {
     const pending = state.pending;
@@ -272,7 +272,8 @@ function render() {
   for (const [index, trick] of (state.history || []).entries()) {
     const row = el('div', 'history-row');
     const summary = el('small', '', `${index + 1}. · `);
-    summary.append(el('strong', '', state.config.seats[trick.winner].label), ` · ${trick.value} Augen`);
+    summary.append(el('strong', '', state.config.seats[trick.winner].label));
+    if (state.declaration?.kind !== 'null') summary.append(` · ${trick.value} Augen`);
     row.append(summary, renderTrick(trick, true)); $('history').append(row);
   }
   renderActions(); renderScores();
@@ -280,7 +281,10 @@ function render() {
   if (!result.hidden) {
     const r = state.result;
     result.append(el('h2', '', state.error ? 'Fehler' : r?.soloist_won == null ? 'Eingepasst' : r.soloist_won ? 'Alleinspieler gewinnt' : 'Gegenpartei gewinnt'));
-    if (r?.soloist != null) result.append(el('p', '', `${state.config.seats[r.soloist].label}: ${r.score} Punkte · Spielwert ${r.game_value} · ${r.points[0]}:${r.points[1]} Augen${r.reason === 'overbid' ? ' · Überreizt' : ''}`));
+    if (r?.soloist != null) {
+      const tally = r.declaration.kind === 'null' ? `${r.tricks[0]}:${r.tricks[1]} Stiche` : `${r.points[0]}:${r.points[1]} Augen`;
+      result.append(el('p', '', `${state.config.seats[r.soloist].label}: ${r.score} Punkte · Spielwert ${r.game_value} · ${tally}${r.reason === 'overbid' ? ' · Überreizt' : ''}`));
+    }
     if (state.error) result.append(el('p', 'error-text', state.error));
     if (['finished', 'passed'].includes(state.status)) {
       const next = button('Nächste Runde', async () => {

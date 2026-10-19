@@ -53,7 +53,16 @@ def action(table, key, pending, value):
 
 
 def play_humans(
-    table, key, session, *, pickup=True, declaration=None, play_action=None
+    table,
+    key,
+    session,
+    *,
+    pickup=True,
+    declaration=None,
+    play_action=None,
+    bid=18,
+    pressed=None,
+    plays=None,
 ):
     seen = set()
     deadline = time.monotonic() + 5
@@ -72,11 +81,11 @@ def play_humans(
         seen.add(pending["id"])
         kind, options = pending["kind"], pending["options"]
         if kind == "bid":
-            value = 18 if pending["seat"] == 0 and 18 in options else 0
+            value = bid if pending["seat"] == 0 and bid in options else 0
         elif kind == "pickup":
             value = pickup
         elif kind == "press":
-            value = options[:2]
+            value = options[:2] if pressed is None else pressed
         elif kind == "declare":
             value = declaration or next(
                 d
@@ -85,6 +94,9 @@ def play_humans(
                 and not d["ouvert"]
                 and not d["schneider_announced"]
             )
+        elif kind == "play" and plays is not None:
+            value = next(plays)
+            assert value in options
         elif kind == "play":
             value = (
                 play_action
@@ -119,6 +131,116 @@ def test_full_human_round_and_next_round_are_scored_once(table):
     assert state["dealer"] == 1
     assert len(state["records"]) == 1
     assert state["scores"][0] == state["records"][0]["result"]["score"]
+
+
+@pytest.mark.parametrize("ouvert,value", [(False, 23), (True, 46)])
+def test_reported_null_deal_wins_despite_points_in_pressed_skat(table, ouvert, value):
+    from dataclasses import asdict
+
+    from skat.hand import FULL_HAND
+
+    code = "SK1-0A0V-S4DR-QR8-GD"
+    cards = {repr(card): card.np_index for card in FULL_HAND}
+    # A legal full replay of the reported deal, in turn order. The defenders
+    # need not repeat the original MCTS moves for the scoring regression.
+    plays = iter(
+        cards[name]
+        for name in (
+            "♣9 ♥7 ♣7 / ♥A ♥J ♣8 / ♣K ♦K ♣Q / ♥K ♥8 ♠Q / ♥Q ♥9 ♠7 / "
+            "♦A ♦X ♦J / ♠8 ♦9 ♠9 / ♠A ♥X ♦Q / ♠X ♣A ♦7 / ♠J ♣J ♦8"
+        )
+        .replace("/", "")
+        .split()
+    )
+    key, session = create(table, config(dealCode=code))
+    state = play_humans(
+        table,
+        key,
+        session,
+        bid=23,
+        pressed=[cards["♣X"], cards["♠K"]],
+        declaration=asdict(GameDeclaration("null", ouvert=ouvert)),
+        plays=plays,
+    )
+    assert next(plays, None) is None
+    assert state["status"] == "finished"
+    assert state["dealCode"] == code
+    assert state["highestBid"] == 23
+    assert len(state["history"]) == 10
+    assert all(trick["winner"] != 0 for trick in state["history"])
+    assert state["players"][0]["tricks"] == 0
+    assert state["players"][0]["points"] == 14  # pressed cards, not trick points
+    result = state["result"]
+    assert result["points"] == (14, 106)
+    assert result["tricks"] == (0, 10)
+    assert result["soloist_won"] is True
+    assert result["game_value"] == result["score"] == value
+    assert state["scores"] == [value, 0, 0]
+    assert state["records"][0]["result"] == result
+
+
+@pytest.mark.parametrize("kind", ["null", "grand", "suit"])
+def test_rendered_tallies_follow_contract(kind):
+    import json
+    import shutil
+    import subprocess
+    from pathlib import Path
+
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Node.js is required for the GUI rendering check")
+    declaration = {
+        "kind": kind,
+        "suit": 0 if kind == "suit" else None,
+        "ouvert": kind == "null",
+    }
+    game_value = {"null": 46, "grand": 24, "suit": 18}[kind]
+    score = game_value if kind == "null" else -2 * game_value
+    state = {
+        "status": "finished",
+        "config": config(),
+        "declaration": declaration,
+        "players": [
+            {
+                "seat": seat,
+                "label": f"Player {seat}",
+                "kind": "human",
+                "points": points,
+                "tricks": (0, 4, 6)[seat],
+                "hand": [],
+                "handCount": 0,
+            }
+            for seat, points in enumerate((14, 47, 59))
+        ],
+        "result": {
+            "soloist": 0,
+            "soloist_won": kind == "null",
+            "score": score,
+            "game_value": game_value,
+            "points": [14, 106],
+            "tricks": [0, 10],
+            "declaration": declaration,
+        },
+        "dealer": 1,
+        "soloist": 0,
+        "roundIndex": 0,
+        "highestBid": 23,
+        "scores": [score, 0, 0],
+        "records": [],
+        "history": [{"winner": 2, "value": 10, "cards": []}],
+    }
+    for seat, player in zip(state["config"]["seats"], state["players"], strict=True):
+        seat["label"] = player["label"]
+    script = Path(__file__).with_name("rendering.cjs")
+    app = Path(__file__).resolve().parents[2] / "skat/web/static/app.js"
+    completed = subprocess.run(
+        [node, str(script), str(app)],
+        input=json.dumps(state),
+        text=True,
+        capture_output=True,
+        timeout=10,
+    )
+    assert completed.returncode == 0, completed.stderr
 
 
 def test_all_pass_and_long_poll_wakes_for_control(table):
