@@ -359,3 +359,35 @@ def test_tiny_policy_checkpoint_plays_without_training(table, tmp_path):
     state = wait(session, lambda s: s["status"] in {"finished", "passed"})
     assert state["error"] is None
     assert state["result"] == state["records"][0]["result"]
+
+
+def test_imported_deal_visibility_original_and_next(table):
+    from skat.deal_code import Deal, decode_deal, encode_deal
+
+    deal = Deal.from_id(2)
+    code = encode_deal(deal)
+    key, session = create(table, config(dealCode=code))
+    state = wait(session, lambda s: s["pending"] is not None)
+    assert state["dealer"] == 2
+    assert state["dealCode"] is None
+    assert "dealCode" not in state["config"]
+    assert session.round.original_deal == deal
+    session.control("reveal", True)
+    assert session.get_snapshot()["dealCode"] == code
+    session.control("reveal", False)
+    assert session.get_snapshot()["dealCode"] is None
+    state = play_humans(table, key, session)
+    assert state["dealCode"] == state["records"][0]["dealCode"] == code
+    session.control("next", round_index=0)
+    state = wait(session, lambda s: s["roundIndex"] == 1 and s["pending"] is not None)
+    assert state["dealer"] == 0 and state["dealCode"] is None
+    assert session.round.original_deal != deal
+    assert decode_deal(state["records"][0]["dealCode"]) == deal
+
+
+@pytest.mark.parametrize(
+    "code", [None, 42, "", "SK2-0000-0000-000-3Y", "SK1-0000-0000-000-00"]
+)
+def test_invalid_deal_code_rejected_before_session_start(table, code):
+    response = table[0].post("/api/sessions", json=config(dealCode=code))
+    assert response.status_code == 400

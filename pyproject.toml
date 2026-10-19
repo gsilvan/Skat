@@ -18,7 +18,7 @@ rocm = [
   "pytorch-triton-rocm>=3.5.1; sys_platform == 'linux'",
   "triton-rocm>=3.6.0; sys_platform == 'linux'",
 ]
-sgf = ["pysgf>=0.9.0"]
+sgf = ["pysgf>=0.9.0,<1"]
 
 [tool.uv]
 conflicts = [[{ extra = "cpu" }, { extra = "cuda" }, { extra = "rocm" }]]

@@ -90,6 +90,7 @@ class FakeRound(Round):
 
     def __init__(self, soloist: int, solo_points: int, overbid: bool = False) -> None:
         self.solo_player_id = soloist
+        self.original_deal = None
         self.solo_points = solo_points
         # drive the real `Round.overbid` rather than stubbing it out
         self.game_value = 36

@@ -125,7 +125,7 @@ class SearchPool:
                         process.terminate()
                     else:
                         _send(process.stdin, None)
-                except (BrokenPipeError, OSError):
+                except BrokenPipeError, OSError:
                     process.terminate()
         deadline = time.monotonic() + 5
         for process in self.processes:

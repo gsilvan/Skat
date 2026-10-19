@@ -270,3 +270,17 @@ def test_evaluation_chunks_preserve_common_deals_and_seats(tmp_path):
 
     combined = {key: value for part in parts for key, value in outcomes(part).items()}
     assert outcomes(whole) == combined
+
+
+def test_play_deal_code_and_argument_conflicts(capsys):
+    from skat.deal_code import Deal, encode_deal
+
+    code = encode_deal(Deal.from_id(2))
+    main(["play", "--deal-code", code, "--workers", "1"])
+    output = capsys.readouterr().out
+    assert code in output and "1 rounds" in output
+    for extra in (["--rounds", "2"], ["--rounds", "0"], ["--iss-file", "missing.sgf"]):
+        with pytest.raises(SystemExit):
+            main(["play", "--deal-code", code, *extra])
+    with pytest.raises(SystemExit):
+        main(["play", "--deal-code", "bad"])

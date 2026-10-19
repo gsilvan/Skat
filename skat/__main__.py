@@ -44,8 +44,11 @@ def get_args(argv=None):
             p.add_argument("--pickup-model", help="Pre-skat Hand/pickup checkpoint")
             p.add_argument("--pickup-margin", type=float, default=0.0)
         if name in ("play", "collect"):
-            p.add_argument("--rounds", type=int, default=33 if name == "play" else 1000)
+            p.add_argument(
+                "--rounds", type=int, default=None if name == "play" else 1000
+            )
         if name == "play":
+            p.add_argument("--deal-code", help="Replay an original deal (SK1 code)")
             for seat in range(3):
                 p.add_argument(
                     f"--policy{seat}",
@@ -177,8 +180,15 @@ def main(argv=None):
         mcts, training = load_config(args.config)
         if args.command == "play":
             from skat.agents.search.parallel import SearchPool
+            from skat.deal_code import decode_deal
             from skat.game import Tournament
 
+            deal = decode_deal(args.deal_code) if args.deal_code is not None else None
+            if deal is not None and (args.iss_file or args.rounds not in (None, 1)):
+                raise ValueError(
+                    "--deal-code requires one round and excludes --iss-file"
+                )
+            rounds = args.rounds if args.rounds is not None else (1 if deal else 33)
             bidder = None
             if any(getattr(args, f"bidding{i}") == "neural" for i in range(3)):
                 if not args.bidding_model:
@@ -227,8 +237,10 @@ def main(argv=None):
                     for i, name in enumerate(args.agents)
                 ]
                 tournament = Tournament(
-                    args.rounds,
+                    rounds,
                     agents,
+                    initial_cards=deal.initial_cards if deal else None,
+                    dealer=deal.dealer if deal else 0,
                     seed=args.seed,
                     verbose=args.verbose,
                     iss_file=args.iss_file,

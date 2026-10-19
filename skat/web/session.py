@@ -9,6 +9,7 @@ from dataclasses import asdict
 
 from skat.__main__ import get_player
 from skat.config import MCTSConfig
+from skat.deal_code import decode_deal
 from skat.game import Round
 from skat.utils.reproducibility import stage_seed
 
@@ -57,6 +58,8 @@ def validate_config(value):
     if not isinstance(value, dict):
         raise ValueError("Konfiguration muss ein Objekt sein")
     config = copy.deepcopy(value)
+    if "dealCode" in config:
+        decode_deal(config["dealCode"])
     seats = config.get("seats")
     if not isinstance(seats, list) or len(seats) != 3:
         raise ValueError("Genau drei Sitzplätze erforderlich")
@@ -122,6 +125,13 @@ def validate_config(value):
 class GameSession:
     def __init__(self, config):
         self.config = validate_config(config)
+        self.imported_deal = (
+            decode_deal(self.config.pop("dealCode"))
+            if "dealCode" in self.config
+            else None
+        )
+        if self.imported_deal is not None:
+            self.config["dealer"] = self.imported_deal.dealer
         self.id = uuid.uuid4().hex
         self.changed = threading.Condition(threading.RLock())
         self.status = "created"
@@ -261,6 +271,9 @@ class GameSession:
                     self.round = Round(
                         dealer=(self.config["dealer"] + self.round_index) % 3,
                         agents=self.agents,
+                        initial_cards=self.imported_deal.initial_cards
+                        if self.imported_deal is not None and self.round_index == 0
+                        else None,
                         seed=stage_seed(
                             self.config["seed"], f"web-deal-{self.round_index}"
                         ),
@@ -276,6 +289,7 @@ class GameSession:
                         {
                             "round": self.round_index + 1,
                             "dealer": self.round.dealer,
+                            "dealCode": self.round.deal_code,
                             "result": result,
                         }
                     )

@@ -52,6 +52,7 @@ def snapshot(session, *, reveal=False):
     ]
     skat_visible = reveal or finished or (solo in humans and round_.skat_known)
     return {
+        "dealCode": round_.deal_code if reveal or finished else None,
         "players": players,
         "dealer": round_.dealer,
         "phase": round_.phase.name.lower(),

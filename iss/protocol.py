@@ -14,6 +14,7 @@ from datetime import datetime
 import numpy as np
 
 import iss
+from skat.deal_code import Deal, encode_deal
 from skat.game import Round
 from skat.rules import GameDeclaration
 
@@ -77,6 +78,14 @@ class Record:
     overbid: bool
 
     @property
+    def deal_id(self):
+        return Deal(self.original[:3], self.original[3], 2).id
+
+    @property
+    def deal_code(self):
+        return encode_deal(Deal(self.original[:3], self.original[3], 2))
+
+    @property
     def deal_hash(self):
         # Reordering cards within hands or rotating seats cannot escape grouping.
         blocks = [tuple(sorted(c.np_index for c in h)) for h in self.original[:3]]
@@ -88,6 +97,7 @@ class Record:
     def metadata(self):
         return dict(
             id=self.identifier,
+            deal_code=self.deal_code,
             session=self.session,
             date=self.date,
             players=self.players,
@@ -146,7 +156,7 @@ def parse_record(line):
         tokens = prop("MV").replace("|", ".").split()
     except RejectedRecord:
         raise
-    except (ValueError, KeyError, IndexError, TypeError, AttributeError, ParseError):
+    except ValueError, KeyError, IndexError, TypeError, AttributeError, ParseError:
         reject("malformed_sgf_or_metadata")
     if len(tokens) < 4 or len(tokens) % 2 or tokens[0] != "w":
         reject("malformed_moves")

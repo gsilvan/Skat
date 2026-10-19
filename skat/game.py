@@ -11,6 +11,7 @@ from tqdm import tqdm
 from skat.agents.bidding import VALID_BIDS
 from skat.agents.random import RandomAgent
 from skat.card import Card
+from skat.deal_code import Deal, encode_deal
 from skat.deck import Deck
 from skat.games import Game
 from skat.hand import FULL_HAND, Hand, HandOrder
@@ -87,6 +88,7 @@ class Tournament:
         initial_cards=None,
         iss_file=None,
         progress=False,
+        dealer=0,
     ):
         if rounds < 0:
             raise ValueError("rounds must be nonnegative")
@@ -103,7 +105,9 @@ class Tournament:
         self.seat_scores = [SeatScore() for _ in range(3)]
         self.round_records = []
         self.passed = 0
-        self.dealer = 0
+        if type(dealer) is not int or dealer not in range(3):
+            raise ValueError("invalid dealer")
+        self.dealer = dealer
         self.verbose = verbose
         self.seed = seed
         self.rng = Random(seed)
@@ -125,6 +129,7 @@ class Tournament:
             {
                 "round": round_index,
                 "seed": seed,
+                "deal_code": round_.deal_code,
                 "result": asdict(result) if result is not None else None,
             }
         )
@@ -209,6 +214,8 @@ class Tournament:
                     **kwargs,
                 )
                 self.record(round_, round_.start(), i, seed)
+                if round_.deal_code is not None:
+                    tqdm.write(f"round {i + 1}: {round_.deal_code}")
                 if self.verbose:
                     tqdm.write(f"round {i + 1}: {round_.result}")
                 if not self.hold_position:
@@ -265,6 +272,7 @@ class Round:
                 or set(flat) != set(FULL_HAND)
             ):
                 raise ValueError("initial_cards must partition the pack as 10/10/10/2")
+        self.original_deal = None
         self.skat = []
         self.original_solo_cards = ()
         self.trick_history = TrickHistory()
@@ -461,9 +469,23 @@ class Round:
             for p, cards in zip(self.player, self.initial_cards[:3]):
                 p.hand = Hand(cards)
             self.skat = list(self.initial_cards[3])
+        if not self.replay and self.original_deal is None:
+            self.original_deal = Deal(
+                tuple(tuple(p.hand) for p in self.player), tuple(self.skat), self.dealer
+            )
         for p in self.player:
             p.hand.sort(HandOrder("♦♥♠♣", "789QKXA", "♦♥♠♣", "J"))
         self._refresh()
+
+    @property
+    def deal_id(self):
+        return self.original_deal.id if self.original_deal is not None else None
+
+    @property
+    def deal_code(self):
+        return (
+            encode_deal(self.original_deal) if self.original_deal is not None else None
+        )
 
     def observer_points(self, player_id):
         counts = [

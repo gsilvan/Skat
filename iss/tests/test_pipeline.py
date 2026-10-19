@@ -267,3 +267,16 @@ def test_deal_grouping_is_invariant_to_seat_rotation_and_card_order():
     )
     rotated = replace(game, original=tuple(tuple(reversed(h)) for h in original))
     assert rotated.deal_hash == game.deal_hash
+
+
+@pytest.mark.parametrize("line", fixture_lines())
+def test_original_iss_deal_code(line):
+    from skat.deal_code import decode_deal
+
+    record = parse_record(line)
+    deal = decode_deal(record.deal_code)
+    assert deal.dealer == 2 and deal.id == record.deal_id
+    assert [set(hand) for hand in deal.initial_cards] == [
+        set(hand) for hand in record.original
+    ]
+    assert record.metadata["deal_code"] == record.deal_code

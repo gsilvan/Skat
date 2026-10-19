@@ -409,3 +409,39 @@ Datensammlung, längeres Training und Spielstärkebenchmarks laufen ausschließl
 über die separaten CLI-Befehle. Ohne Torch-Extra überspringen die Tests die KI-Pipeline. SGF-Tests sind ohne Parser
 optional. Die Engine bildet drei aktive Sitze ab. Physische Gebefehler,
 Schiedsrichterverfahren, Ramsch, Kontra/Re und Bockrunden sind nicht enthalten.
+
+### Austeilungen teilen und erneut spielen
+
+Jede neue Austeilung erhält einen portablen Code, den `play` nach Rundenende
+auch bei eingepassten Runden ausgibt:
+
+```bash
+uv run python -m skat play --deal-code SK1-7ARA-7PRN-ZXZ-HY --agents cli random random --workers 1
+```
+
+Der Code bestimmt die ursprünglichen zehn Karten je festem Spielerplatz, die
+zwei Skatkarten und den Geber. Er startet genau eine Runde ab dem Reizen;
+`--rounds` darf dabei nur `1` sein und `--iss-file` ist ausgeschlossen.
+Agenten und deren Zufallsseed bleiben wählbar. Identische Spielzüge oder
+Ergebnisse werden durch den Code nicht garantiert.
+
+Im Webinterface kann der Code im Startformular eingegeben werden. Nach
+Rundenende oder im Modus „Alle Karten“ lässt er sich kopieren, als Link teilen
+oder zum erneuten Spielen verwenden. Ein Link mit `/#deal=CODE` füllt nur das
+Startformular aus. „Nächste Runde“ erzeugt eine neue Austeilung. Während einer
+verdeckten Runde liefert die API keinen Code, da er alle Karten verraten würde.
+
+Version `SK1` nummeriert alle 8.259.883.225.513.920 Austeilungen einschließlich
+Geber eindeutig mit einem 53-Bit-Integer (0 bis 8.259.883.225.513.919).
+`skat.deal_code.Deal.id` liefert diese Zahl, `Deal.from_id()` rekonstruiert sie.
+Kombinationsränge folgen der lexikografischen Ordnung mit Kartenfolge
+Karo/Herz/Pik/Kreuz und je `7,8,9,J,Q,K,X,A`. Reihenfolgen innerhalb der Hände
+und des Skats sind bedeutungslos; Spielerplätze sind fest.
+
+`encode_deal()` und `decode_deal()` verwenden `SK1-XXXX-XXXX-XXX-CC`: elf
+Crockford-Base32-Ziffern für die ID und zwei Prüfzeichen (untere zehn CRC32-Bits
+über ASCII `SK1` plus die elf Nutzzeichen). Führende Nullen bleiben erhalten.
+Kleinbuchstaben, optionale Bindestriche und `O=0`, `I=L=1` werden akzeptiert.
+Version, Prüfsumme und Wertebereich werden geprüft; Codes werden als Text
+übertragen. Die Prüfsumme erkennt viele Tippfehler, ist aber kein Schutz gegen
+absichtliche Veränderungen.

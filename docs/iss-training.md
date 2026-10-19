@@ -119,3 +119,22 @@ zeitliche Testsplit einmal ausgewertet. `.training.json` enthält Verlauf,
 Datenherkunft, Hashes und Loss/Übereinstimmung nach Partei und Spielart.
 Einzelne Expertenzüge können mehrere gleichwertige Alternativen haben; erst
 Gewinnraten und gepaarte Intervalle gegen feste Referenzen belegen Spielstärke.
+
+### Austeilungscodes für ISS
+
+Der strikte Parser in `iss.protocol` bewahrt die ursprünglichen 32 Karten aus
+`MV[w ...]` in `Record.original` auf. `Record.deal_id` und `Record.deal_code`
+verwenden diese Karten; `metadata` enthält zusätzlich `deal_code`.
+ISS-Plätze 0/1/2 entsprechen Vorhand/Mittelhand/Hinterhand, daher ist der Geber
+im Austeilungscode Platz 2. Eine absolute Tischposition lässt sich daraus nicht
+ableiten. Der bestehende rotationsunabhängige `deal_hash` bleibt für die
+Datengruppierung unverändert.
+
+Ein solcher Code lässt sich mit `python -m skat play --deal-code CODE` ab dem
+Reizen erneut spielen. Er reproduziert keine historischen Entscheidungen.
+Der ältere ISS-Import und das reine Karten-Replay verwenden dagegen bereits
+gedrückte Hände. Aus diesen allein wird kein ursprünglicher Austeilungscode
+erzeugt; dafür werden die Rohdaten beziehungsweise `Record.original` benötigt.
+
+Die optionale SGF-Abhängigkeit bleibt auf `pysgf>=0.9.0,<1` begrenzt: Version
+1.0 entfernt die vom vorhandenen Import verwendete `SGF`-API.

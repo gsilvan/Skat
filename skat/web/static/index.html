@@ -20,6 +20,8 @@
     <section id="setup" class="panel">
       <h1>Neue Partie</h1>
       <form id="setup-form">
+        <label>Austeilungscode (optional)<input id="deal-code" type="text" placeholder="SK1-XXXX-XXXX-XXX-CC" spellcheck="false" autocomplete="off"></label>
+        <small>Gleiche Startkarten und gleicher Geber; Entscheidungen werden neu gespielt.</small>
         <div id="seats" class="seat-configs"></div>
         <details class="advanced"><summary>Suche und Ausführung</summary><div class="field-grid">
           <label>Seed<input id="seed" type="number" value="42" min="0" max="4294967295" required></label>
@@ -35,7 +37,7 @@
     </section>
     <section id="game" hidden>
       <div class="game-toolbar panel">
-        <div><h1 id="round-title">Runde 1</h1><div id="contract"></div></div>
+        <div><h1 id="round-title">Runde 1</h1><div id="contract"></div><div id="deal-tools"></div></div>
         <div class="controls"><button id="pause">Pause</button><button id="step">Ein Schritt</button>
           <label class="inline">Tempo <input id="speed" type="range" min="0" max="1500" step="50" value="450"><output id="speed-label">450 ms</output></label>
           <label class="inline"><input id="reveal" type="checkbox">Alle Karten</label>

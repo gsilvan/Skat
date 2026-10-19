@@ -116,7 +116,45 @@ function getConfig() {
   for (const key of ['seed', 'dealer', 'simulations', 'determinizations']) config[key] = Number($(key).value);
   config.workers = $('workers').value ? Number($('workers').value) : null;
   config.device = $('device').value;
+  if ($('deal-code').value.trim()) config.dealCode = $('deal-code').value.trim();
   return config;
+}
+function updateDealInput() {
+  const code = $('deal-code').value.trim().toUpperCase().replaceAll('-', '');
+  $('dealer').disabled = Boolean(code);
+  const body = code.slice(3).replaceAll('O', '0').replace(/[IL]/g, '1');
+  const alphabet = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+  if (code.startsWith('SK1') && body.length === 13 && [...body].every(c => alphabet.includes(c))) {
+    let dealer = 0;
+    for (const char of body.slice(0, 11)) dealer = (dealer * 32 + alphabet.indexOf(char)) % 3;
+    $('dealer').value = String(dealer);
+  }
+}
+$('deal-code').addEventListener('input', updateDealInput);
+async function copyDealText(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch {
+    const fallback = el('textarea'); fallback.value = text; fallback.readOnly = true;
+    $('deal-tools').append(fallback); fallback.focus(); fallback.select();
+  }
+}
+async function prepareDeal(code) {
+  const config = state.config;
+  try { await api(`/api/sessions/${state.id}`, 'DELETE'); }
+  catch (error) { if (error.status !== 404) { showError(error); return; } }
+  generation++; state = null; busy = false; selected = []; pendingId = null;
+  save('skat.session', null); save('skat.config', JSON.stringify(config));
+  setupSeats(); $('deal-code').value = code; updateDealInput();
+  $('game').hidden = true; $('setup').hidden = false; clearError();
+}
+function dealTools(code) {
+  const node = el('div', 'controls');
+  if (!code) return node;
+  node.append(el('code', '', code),
+    button('Code kopieren', () => copyDealText(code)),
+    button('Link kopieren', () => copyDealText(`${location.origin}/#deal=${encodeURIComponent(code)}`)),
+    button('Erneut spielen', () => prepareDeal(code)));
+  return node;
 }
 function playerView(player) {
   const node = el('section', `player ${state.nextPlayer === player.seat || state.pending?.seat === player.seat ? 'active-player' : ''}`);
@@ -195,7 +233,7 @@ function renderScores() {
   for (const record of state.records) {
     const row = el('tr'); row.append(el('td', '', record.round));
     for (let i = 0; i < 3; i++) row.append(el('td', '', record.result.soloist === i ? record.result.score : '–'));
-    row.append(el('td', '', record.result.soloist_won === null ? 'Eingepasst' : `${declarationName(record.result.declaration)} · ${record.result.soloist_won ? 'gewonnen' : 'verloren'}`)); body.append(row);
+    row.append(el('td', '', record.result.soloist_won === null ? 'Eingepasst' : `${declarationName(record.result.declaration)} · ${record.result.soloist_won ? 'gewonnen' : 'verloren'}`)); row.lastElementChild.append(dealTools(record.dealCode)); body.append(row);
   }
   table.append(body); const foot = el('tfoot'), total = el('tr'); total.append(el('th', '', 'Summe'));
   for (const score of state.scores) total.append(el('th', '', score)); total.append(el('th')); foot.append(total); table.append(foot);
@@ -204,6 +242,7 @@ function render() {
   if (!state) return;
   $('setup').hidden = true; $('game').hidden = false;
   if (pendingId !== state.pending?.id) { pendingId = state.pending?.id; selected = []; busy = false; }
+  $('deal-tools').replaceChildren(dealTools(state.dealCode));
   $('round-title').textContent = `Runde ${state.roundIndex + 1}`;
   $('contract').textContent = `${declarationName(state.declaration)} · Reizwert ${state.highestBid || 0}`;
   $('pause').textContent = state.paused ? 'Weiter' : 'Pause';
@@ -281,7 +320,7 @@ $('exit').addEventListener('click', async () => {
   const id = state?.id;
   if (id) { try { await api(`/api/sessions/${id}`, 'DELETE'); } catch (error) { if (error.status !== 404) { showError(error); return; } } }
   generation++; state = null; busy = false; selected = []; pendingId = null;
-  save('skat.session', null); $('game').hidden = true; $('setup').hidden = false; clearError(); $('connection').textContent = 'Lokal';
+  save('skat.session', null); $('deal-code').value = ''; updateDealInput(); $('game').hidden = true; $('setup').hidden = false; clearError(); $('connection').textContent = 'Lokal';
 });
 for (const [id, command] of [['pause', () => state.paused ? 'resume' : 'pause'], ['step', () => 'step']]) $(id).addEventListener('click', () => control(command()).catch(() => {}));
 $('speed').addEventListener('change', event => control('speed', Number(event.target.value)).catch(() => {}));
@@ -295,6 +334,12 @@ async function init() {
     appConfig = await api('/api/config');
     for (const path of appConfig.checkpoints) { const option = el('option'); option.value = path; $('checkpoints').append(option); }
     setupSeats(); deckNote();
+    const shared = new URLSearchParams(location.hash.slice(1)).get('deal');
+    if (shared !== null) {
+      $('deal-code').value = shared; updateDealInput();
+      history.replaceState(null, '', location.pathname + location.search);
+      return;
+    }
     const id = read('skat.session');
     if (id) {
       try { state = await api(`/api/sessions/${id}`); render(); poll(id, ++generation); }
