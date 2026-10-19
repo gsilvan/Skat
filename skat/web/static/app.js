@@ -156,13 +156,23 @@ function dealTools(code) {
     button('Erneut spielen', () => prepareDeal(code)));
   return node;
 }
+function sortedHand(cards, declaration) {
+  const suits = ['♣', '♠', '♦', '♥'];
+  const isNull = declaration?.kind === 'null';
+  const ranks = isNull ? 'AKQJX987' : 'AXKQJ987';
+  const trump = declaration?.kind === 'suit' ? ['♦', '♥', '♠', '♣'][declaration.suit] : null;
+  const group = card => isNull ? 0 : card.rank === 'J' ? 0 : card.suit === trump ? 1 : 2;
+  return [...cards].sort((a, b) => group(a) - group(b)
+    || suits.indexOf(a.suit) - suits.indexOf(b.suit)
+    || ranks.indexOf(a.rank) - ranks.indexOf(b.rank));
+}
 function playerView(player) {
   const node = el('section', `player ${state.nextPlayer === player.seat || state.pending?.seat === player.seat ? 'active-player' : ''}`);
   const meta = el('div', 'player-meta'); meta.append(el('strong', '', player.label));
   meta.append(el('span', '', `Platz ${player.seat + 1} · ${labels[player.kind]}${state.dealer === player.seat ? ' · Geber' : ''}${state.soloist === player.seat ? ' · Alleinspieler' : ''}`));
   meta.append(el('span', '', state.declaration?.kind === 'null' ? `${player.tricks} Stiche` : `${player.points} Augen · ${player.tricks} Stiche`)); node.append(meta);
   const hand = el('div', 'hand');
-  for (const card of player.hand) {
+  for (const card of sortedHand(player.hand, state.declaration)) {
     const pending = state.pending;
     const legal = !busy && pending?.seat === player.seat && ['play', 'press'].includes(pending.kind) && pending.options.includes(card.id);
     hand.append(cardView(card, {legal, chosen: selected.includes(card.id), onClick: legal ? () => {
