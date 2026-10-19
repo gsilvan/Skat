@@ -6,7 +6,7 @@ authors = [
   { name = "Silvan Gümüsdere", email = "silvan@trollbox.org"},
 ]
 readme = "README.md"
-requires-python = ">=3.12.3"
+requires-python = ">=3.14.8"
 dependencies = ["numpy>=2.2.0", "tqdm>=4.67.1"]
 
 [project.optional-dependencies]
