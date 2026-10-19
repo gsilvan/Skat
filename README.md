@@ -114,6 +114,10 @@ Eine eigenständige Policy aus dem ISS-Archiv ist in
 [docs/iss-training.md](docs/iss-training.md) beschrieben, einschließlich
 automatischem Audit, Training, Evaluation und Partien.
 
+Der [ISS-Live-Client](docs/iss-live-client.md) verbindet den Agenten auch mit
+einem bestehenden ISS-Tisch. Er ist vollständig in Python geschrieben und
+kann die Kartenpolicy sowie Reiz-, Ansage- und Pickup-Modelle kombinieren.
+
 Ein optionales ISS-Modell zur Vorhersage versteckter Hände und zur Gewichtung
 der MCTS-Suchwelten steht in [docs/belief-sampling.md](docs/belief-sampling.md).
 Ohne `--belief-model PATH` nutzt MCTS weiterhin den gleichverteilten Sampler.
