@@ -178,9 +178,18 @@ function playerView(player) {
 function renderTrick(trick, compact = false) {
   const node = el('div', compact ? 'history-cards' : 'trick-cards');
   for (const turn of trick?.cards || []) {
-    const item = el('div', 'turn'); item.append(cardView(turn.card, {compact}));
-    if (!compact) item.append(el('small', '', state.config.seats[turn.seat].label));
-    else item.title = state.config.seats[turn.seat].label;
+    const winner = trick.cards.length === 3 && turn.seat === trick.winner;
+    const item = el('div', winner ? 'turn trick-winner' : 'turn');
+    const card = cardView(turn.card, {compact});
+    if (winner) {
+      card.title = `${cardLabel(turn.card)} · ${state.config.seats[turn.seat].label} · Stich gewonnen`;
+      card.setAttribute('aria-label', card.title);
+    }
+    const name = el('small', '', state.config.seats[turn.seat].label);
+    if (compact) {
+      name.title = state.config.seats[turn.seat].label;
+      item.append(name, card);
+    } else item.append(card, name);
     node.append(item);
   }
   return node;
@@ -261,7 +270,10 @@ function render() {
   $('history').replaceChildren();
   if (!state.history?.length) $('history').append(el('p', 'muted', 'Noch keine Stiche.'));
   for (const [index, trick] of (state.history || []).entries()) {
-    const row = el('div', 'history-row'); row.append(el('small', '', `${index + 1}. · ${state.config.seats[trick.winner].label} · ${trick.value} Augen`), renderTrick(trick, true)); $('history').append(row);
+    const row = el('div', 'history-row');
+    const summary = el('small', '', `${index + 1}. · `);
+    summary.append(el('strong', '', state.config.seats[trick.winner].label), ` · ${trick.value} Augen`);
+    row.append(summary, renderTrick(trick, true)); $('history').append(row);
   }
   renderActions(); renderScores();
   const result = $('result'); result.hidden = !terminal.has(state.status); result.replaceChildren();
