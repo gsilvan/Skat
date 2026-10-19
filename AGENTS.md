@@ -27,10 +27,10 @@ The stable core implements official digital Skat (ISkO November 2022). The
 ## Commands
 
 - `uv sync`: engine and development tools; Torch is optional.
-- `uv sync --extra ai`: additionally install policy training/inference dependencies.
+- `uv sync --extra cpu`, `--extra cuda` or `--extra rocm`: choose one Torch backend for policy training/inference.
 - `uv sync --extra sgf`: additionally install raw ISS SGF parsing support.
 - `uv run pytest`: core tests; AI tests skip when Torch is absent.
-- `uv run --extra ai pytest`: all tests.
+- `uv run --extra cpu pytest`: all tests.
 - `uv run ruff check --select F,E9,I .`: errors, unused imports and import order.
 - `uv run ruff format --check .`: formatting.
 - `uv run python -m skat play --rounds 33`
@@ -39,8 +39,8 @@ The stable core implements official digital Skat (ISkO November 2022). The
 - `uv run python -m skat collect --rounds 1000 --out data/run-1`: all available CPU workers.
 - `play`, `collect` and `evaluate` use all available CPUs by default; add
   `--workers 1` for serial execution or `--workers N` to limit CPU use.
-- `uv run --extra ai python -m skat train --data data/run-1 --out trained_models/policy.pt`
-- `uv run --extra ai python -m skat evaluate --policy trained_models/policy.pt --out benchmark_runs/run-1.json`
+- `uv run --extra cpu python -m skat train --data data/run-1 --out trained_models/policy.pt`
+- `uv run --extra cpu python -m skat evaluate --policy trained_models/policy.pt --out benchmark_runs/run-1.json`
 - `evaluate --reference-policy PATH` fixes the model on the two reference seats
   while rotating the candidate. `--opponent-policy` remains a compatible alias.
 

@@ -10,8 +10,17 @@ requires-python = ">=3.12.3"
 dependencies = ["numpy>=2.2.0", "tqdm>=4.67.1"]
 
 [project.optional-dependencies]
-ai = ["torch>=2.5.1"]
+cpu = ["torch>=2.10.0"]
+cuda = ["torch>=2.10.0; sys_platform == 'linux' or sys_platform == 'win32'"]
+rocm = [
+  "torch>=2.10.0; sys_platform == 'linux'",
+  "pytorch-triton-rocm>=3.5.1; sys_platform == 'linux'",
+  "triton-rocm>=3.6.0; sys_platform == 'linux'",
+]
 sgf = ["pysgf>=0.9.0"]
+
+[tool.uv]
+conflicts = [[{ extra = "cpu" }, { extra = "cuda" }, { extra = "rocm" }]]
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.9"]
@@ -21,7 +30,21 @@ name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
+[[tool.uv.index]]
+name = "pytorch-cuda"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-rocm"
+url = "https://download.pytorch.org/whl/rocm7.2"
+explicit = true
+
 [tool.uv.sources]
 torch = [
-  { index = "pytorch-cpu", marker = "platform_system != 'Darwin'"},
+  { index = "pytorch-cpu", extra = "cpu", marker = "sys_platform != 'darwin'" },
+  { index = "pytorch-cuda", extra = "cuda", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+  { index = "pytorch-rocm", extra = "rocm", marker = "sys_platform == 'linux'" },
 ]
+pytorch-triton-rocm = { index = "pytorch-rocm", extra = "rocm" }
+triton-rocm = { index = "pytorch-rocm", extra = "rocm" }

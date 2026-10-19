@@ -88,14 +88,23 @@ Python >= 3.12.3 und [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv sync                         # Engine + Tests, ohne Torch
-uv sync --extra ai              # zusätzlich Policy-Training und Inferenz
+uv sync --extra cpu             # CPU-Torch
+uv sync --extra cuda            # Linux/Windows: CUDA 13.0
+uv sync --extra rocm            # Linux: ROCm 7.2
 uv sync --extra sgf             # zusätzlich rohe ISS-SGF-Dateien lesen
-uv sync --extra ai --extra sgf  # beides
+uv sync --extra cpu --extra sgf # CPU-Torch und SGF-Import
 ```
 
 Die normale Installation braucht keine KI-Checkpoints. MCTS läuft ebenfalls ohne
-Torch. Auf Linux/Windows installiert das AI-Extra standardmäßig CPU-Torch;
-GPU-Training benötigt einen passenden CUDA/ROCm-Build im verwendeten Interpreter.
+Torch. Für Policy-Training und Inferenz genau eines der Extras `cpu`, `cuda`
+oder `rocm` wählen. `cpu` installiert auf Linux/Windows CPU-Torch, `cuda` den
+CUDA-13.0-Build auf Linux/Windows und `rocm` den ROCm-7.2-Build auf Linux.
+`sgf` lässt sich mit jedem davon kombinieren.
+`uv sync --extra cpu` verwendet die im Projekt gesperrte CPU-Version und ersetzt
+kein systemweit installiertes ROCm-Torch. Wer bereits ein GPU-Torch im
+System-Python hat, startet Training und Inferenz mit diesem `python` statt mit
+`uv run`. `pysgf` wird nur zum Einlesen roher ISS-SGF-Dateien benötigt;
+vorbereitete Korpora und die Spiel-Engine brauchen es nicht.
 
 Ein dokumentierter Trainingslauf mit **2.000 MCTS-Simulationen, 10.000 Runden
 und 100 Epochen** steht in [docs/teacher-training.md](docs/teacher-training.md),
@@ -142,21 +151,21 @@ uv run python -m skat play --agents cli mcts random
 uv run python -m skat collect --rounds 1000 --seed 1 --out data/run-1
 
 # Transformer auf MCTS-Besuchszahlen; ISS-Korpora verwenden aufgezeichnete Karten
-uv run --extra ai python -m skat train \
+uv run --extra cpu python -m skat train \
   --data data/run-1 --out trained_models/policy.pt --seed 1
 
 # Ein Modell dient allen drei Sitzen
-uv run --extra ai python -m skat play \
+uv run --extra cpu python -m skat play \
   --agents policy random random --policy trained_models/policy.pt
 
 # Verschiedene Modelle an Sitz 0 und 1, MCTS an Sitz 2
-uv run --extra ai python -m skat play \
+uv run --extra cpu python -m skat play \
   --agents policy policy mcts \
   --policy0 trained_models/transformer-run-2-100epochs.pt \
   --policy1 trained_models/transformer-run-2.pt
 
 # 1000 gemeinsame Deals, alle drei Sitze, Random- und Policy-Gegnergruppen
-uv run --extra ai python -m skat evaluate \
+uv run --extra cpu python -m skat evaluate \
   --policy trained_models/policy.pt --deals 1000 --seed 7 \
   --out benchmark_runs/comparison.json
 ```
@@ -271,7 +280,7 @@ fortsetzt; die konservative Reizgrenze und die passende Spielansage bleiben
 erhalten. So kann man den Reizer unabhängig vom Kartenagenten pro Sitz setzen:
 
 ```bash
-uv run --extra ai python -m skat play \
+uv run --extra cpu python -m skat play \
   --agents policy random random \
   --policy trained_models/policy.pt \
   --bidding0 neural \
@@ -326,13 +335,13 @@ für bisherige Aufrufe gültig.
 
 ```bash
 uv run pytest
-uv run --extra ai pytest
+uv run --extra cpu pytest
 uv run ruff check --select F,E9,I .
 uv run ruff format --check .
 ```
 
 Die Tests enthalten nur einen winzigen Trainingsdurchlauf zur Funktionsprüfung.
 Datensammlung, längeres Training und Spielstärkebenchmarks laufen ausschließlich
-über die separaten CLI-Befehle. Ohne AI-Extra überspringen die Tests die KI-Pipeline. SGF-Tests sind ohne Parser
+über die separaten CLI-Befehle. Ohne Torch-Extra überspringen die Tests die KI-Pipeline. SGF-Tests sind ohne Parser
 optional. Die Engine bildet drei aktive Sitze ab. Physische Gebefehler,
 Schiedsrichterverfahren, Ramsch, Kontra/Re und Bockrunden sind nicht enthalten.

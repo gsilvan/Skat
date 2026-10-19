@@ -44,7 +44,7 @@ python -m skat.agents.neural_declaring import \
 ```
 
 Der Import benötigt die optionale SGF-Abhängigkeit (`uv sync --extra sgf`),
-Training und Inferenz benötigen Torch (`uv sync --extra ai`). Der Checkpoint
+Training und Inferenz benötigen Torch (`uv sync --extra cpu`). Der Checkpoint
 speichert Modell-, Regel-, Merkmals- und Zielversion sowie den Hash der Policy,
 mit der die Gegenproben gespielt wurden. Kalibrierung und Test nutzen getrennte
 Audit-Gruppen. Da die Labels mit einer festgelegten Kartenpolicy entstehen,

@@ -63,6 +63,7 @@ def test_weighted_sampler_rejects_impossible_worlds():
 
 def test_iss_labels_exclude_visible_cards_and_model_trains(tmp_path):
     pytest.importorskip("torch")
+    pytest.importorskip("pysgf")
     from skat.agents.belief.inference import BeliefSampler
     from skat.agents.belief.train import train
     from skat.agents.mcts import MCTSAgent
@@ -125,6 +126,7 @@ def test_iss_labels_exclude_visible_cards_and_model_trains(tmp_path):
 
 
 def test_iss_features_match_unseen_cards_without_future_information():
+    pytest.importorskip("pysgf")
     record = parse_record(
         Path("iss/tests/fixtures/card-games.sgf").read_text().splitlines()[12]
     )
