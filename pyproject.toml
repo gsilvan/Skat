@@ -10,6 +10,7 @@ requires-python = ">=3.14.8"
 dependencies = ["numpy>=2.2.0", "tqdm>=4.67.1"]
 
 [project.optional-dependencies]
+web = ["flask>=3.1,<4"]
 cpu = ["torch>=2.10.0"]
 cuda = ["torch>=2.10.0; sys_platform == 'linux' or sys_platform == 'win32'"]
 rocm = [

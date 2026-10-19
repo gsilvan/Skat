@@ -159,3 +159,6 @@ web/node_modules/
 web/dist/
 web/public/cards/*.png
 !web/public/cards/.gitkeep
+
+# Downloaded Skatstube card images: local use only, never redistribute.
+skat/web/static/cards/*.png

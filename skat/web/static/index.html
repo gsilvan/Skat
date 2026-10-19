@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skat</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script type="module" src="/static/app.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <strong class="app-name">Skat</strong><span id="connection" role="status">Lokal</span>
+    <details class="settings"><summary>Einstellungen</summary><div class="settings-body">
+      <label>Kartenblatt<select id="deck"><option value="fr">Französisch</option><option value="de">Deutsch</option><option value="by">Bayerisch</option></select></label>
+      <small id="deck-note"></small>
+    </div></details>
+  </header>
+  <div id="error" class="error" role="alert" hidden></div>
+  <main>
+    <section id="setup" class="panel">
+      <h1>Neue Partie</h1>
+      <form id="setup-form">
+        <div id="seats" class="seat-configs"></div>
+        <details class="advanced"><summary>Suche und Ausführung</summary><div class="field-grid">
+          <label>Seed<input id="seed" type="number" value="42" min="0" max="4294967295" required></label>
+          <label>Erster Geber<select id="dealer"><option value="0">Platz 1</option><option value="1">Platz 2</option><option value="2">Platz 3</option></select></label>
+          <label>Simulationen<input id="simulations" type="number" value="600" min="1" max="1000000" required></label>
+          <label>Welten<input id="determinizations" type="number" value="20" min="1" required></label>
+          <label>CPU-Worker<input id="workers" type="number" min="1" max="1024" placeholder="Automatisch"></label>
+          <label>Gerät<select id="device"><option value="cpu">CPU</option><option value="cuda">CUDA / ROCm</option><option value="auto">Automatisch</option></select></label>
+        </div></details>
+        <div class="form-footer"><button type="submit" class="primary">Partie starten</button><span>Ein Browser · drei Plätze · offizielle Wertung</span></div>
+      </form>
+      <datalist id="checkpoints"></datalist>
+    </section>
+    <section id="game" hidden>
+      <div class="game-toolbar panel">
+        <div><h1 id="round-title">Runde 1</h1><div id="contract"></div></div>
+        <div class="controls"><button id="pause">Pause</button><button id="step">Ein Schritt</button>
+          <label class="inline">Tempo <input id="speed" type="range" min="0" max="1500" step="50" value="450"><output id="speed-label">450 ms</output></label>
+          <label class="inline"><input id="reveal" type="checkbox">Alle Karten</label>
+          <button id="exit">Neue Partie</button>
+        </div>
+      </div>
+      <div class="game-layout">
+        <section class="table panel" aria-label="Spieltisch">
+          <div id="players-top" class="players-top"></div>
+          <div class="center-table">
+            <div id="status" role="status"></div>
+            <div id="trick" class="trick"></div>
+            <div id="skat" class="skat"></div>
+          </div>
+          <div id="player-bottom"></div>
+        </section>
+        <aside class="panel history-panel"><h2>Stiche</h2><div id="history"></div></aside>
+      </div>
+      <section class="panel action-panel" id="actions" aria-label="Deine Entscheidung"></section>
+      <section id="result" class="panel" hidden></section>
+      <section class="panel"><h2>Punkteliste</h2><div class="score-scroll"><table id="scores"></table></div></section>
+    </section>
+  </main>
+  <footer>Skat · ISkO November 2022</footer>
+</body>
+</html>

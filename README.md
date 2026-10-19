@@ -84,13 +84,14 @@ Abschluss.
 
 ## Installation
 
-Python >= 3.12.3 und [uv](https://docs.astral.sh/uv/):
+Python >= 3.14.8 und [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv sync                         # Engine + Tests, ohne Torch
 uv sync --extra cpu             # CPU-Torch
 uv sync --extra cuda            # Linux/Windows: CUDA 13.0
 uv sync --extra rocm            # Linux: ROCm 7.2
+uv sync --extra web             # lokales Webinterface (Flask)
 uv sync --extra sgf             # zusätzlich rohe ISS-SGF-Dateien lesen
 uv sync --extra cpu --extra sgf # CPU-Torch und SGF-Import
 ```
@@ -137,6 +138,67 @@ Vor der Skataufnahme kann ein eigener Hand-Klassifikator mit
 Gewinnchance von Handspiel und Skataufnahme anhand der ursprünglichen zehn
 Karten und des Reizwerts. Standard bleibt Skataufnahme; Daten, Grenzen und
 Bewertung stehen in [docs/pickup-training.md](docs/pickup-training.md).
+
+## Webinterface
+
+```bash
+uv run --extra web python -m skat.web
+# Im Browser: http://127.0.0.1:5000
+# Anderer Port: ... python -m skat.web --port 5050
+```
+
+Die Oberfläche braucht keinen Node-Build. Drei Plätze lassen sich mit Menschen,
+Random, MCTS oder Policy-Agenten besetzen. Menschen teilen sich denselben
+Browser und sehen ihre Hände gemeinsam. Ohne Mensch kann man Bots beobachten:
+Pause, Einzelschritt, Tempo und „Alle Karten“ stehen am Spieltisch bereit.
+„Alle Karten“ erweitert nur die Anzeige; Bots erhalten weiter ihre normale,
+eingeschränkte Sicht. Der letzte Stich bleibt bis zum nächsten Ausspiel sichtbar.
+
+Reizen, Drücken, Hand/Ouvert und Schneider-/Schwarz-Ansagen werden von der
+aktuellen Engine verarbeitet. Unter „Weitere Aktionen“ stehen Aufgeben,
+Abkürzen und offenes Gegenspiel bereit. „Nächste Runde“ wechselt den Geber und
+behält die Konfiguration. Die Punkteliste verbucht die offiziellen Spielpunkte
+(`RoundResult.score`) beim Alleinspieler; Gegenspiel und eingepasste Runden zählen null.
+
+Modelle und Strategien stehen in der Platzkonfiguration. Policy, neuronales
+Reizen, neuronale Ansagen/Skataufnahme und der optionale MCTS-Belief-Sampler
+verwenden die bestehenden Modellprüfungen. Alte Checkpoints können deshalb
+abgelehnt werden; die Pfadvorschläge sind keine Kompatibilitätsgarantie.
+Für neuronale Modelle das passende Torch-Extra zusätzlich aktivieren:
+
+```bash
+uv run --extra web --extra cpu python -m skat.web
+# Alternativ --extra cuda oder --extra rocm statt --extra cpu
+```
+
+MCTS und Random brauchen kein Torch. Suchbudget und CPU-Worker sind unter
+„Suche und Ausführung“ einstellbar; leere Workerzahl nutzt die verfügbaren CPUs.
+MCTS-Plätze teilen sich einen persistenten Suchpool pro Partie. Beim Beenden
+wird eine laufende Entscheidung noch fertig berechnet, danach werden die
+Worker geschlossen.
+
+### Kartenbilder lokal laden
+
+```bash
+uv run python -m scripts.fetch_web_cards
+```
+
+Das Skript lädt die gewünschten Skatstube-Sprites für
+[Französisch](https://www.skatstube.de/images/redesign/cards/fr/g3@2x.png),
+[Deutsch](https://www.skatstube.de/images/redesign/cards/de/g3@2x.png) und
+[Bayerisch](https://www.skatstube.de/images/redesign/cards/by/g3@2x.png)
+nach `skat/web/static/cards/`. **Diese PNGs sind per `.gitignore`
+ausgeschlossen und dürfen nicht committed werden.** Ohne Download gibt es
+lesbare Ersatzkarten. Nach einem Download die Seite neu laden; unter
+„Einstellungen“ lässt sich das Blatt wechseln. Die Auswahl bleibt im Browser
+gespeichert.
+
+Der Server bindet ausschließlich an `127.0.0.1` und läuft als einzelner Prozess
+mit Threads. Ein Neuladen im selben Browser nimmt die Partie wieder auf.
+Partie und Punkteliste liegen im Serverspeicher und gehen beim Serverneustart
+verloren. „Neue Partie“ beendet die aktuelle Partie und öffnet die Konfiguration.
+Ungenutzte Sitzungen werden beim Erstellen einer neuen Partie nach einer Stunde
+entfernt. Es gibt keine Konten oder Netzwerk-Mehrspielerfunktion.
 
 ## Vier Arbeitsabläufe
 
@@ -336,6 +398,8 @@ für bisherige Aufrufe gültig.
 ```bash
 uv run pytest
 uv run --extra cpu pytest
+uv run --extra web pytest tests/web
+uv run --extra web --extra cpu pytest  # inklusive Web- und KI-Tests
 uv run ruff check --select F,E9,I .
 uv run ruff format --check .
 ```
