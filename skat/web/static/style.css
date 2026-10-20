@@ -36,6 +36,8 @@ main { max-width: 1460px; margin: 1.5rem auto; padding: 0 1.25rem; }
 .form-footer { display: flex; gap: 1rem; align-items: center; margin-top: .75rem; color: #65707d; }
 .game-toolbar { display: flex; gap: 1rem; justify-content: space-between; align-items: center; flex-wrap: wrap; }
 .game-toolbar h1 { margin-bottom: .4rem; }
+#contract { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem; margin-bottom: .4rem; }
+.contract-name { font-size: 1.2rem; font-weight: 750; color: #243d58; }
 .controls { display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; }
 .inline { display: flex; align-items: center; gap: .4rem; }
 .inline input[type=range] { width: 80px; }
@@ -44,9 +46,11 @@ output { min-width: 50px; font-variant-numeric: tabular-nums; }
 .table { min-width: 0; background: #fafbfc; padding: 1rem; }
 .players-top { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .player { min-width: 0; border: 1px solid #d1d7de; border-radius: 4px; background: white; padding: .8rem; }
+.soloist-player { border-color: #bc9752; background: #fffaf0; }
 .active-player { border-color: #426a91; box-shadow: inset 3px 0 #426a91; }
 .player-meta { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: .7rem; row-gap: .25rem; margin-bottom: .7rem; font-size: .85rem; }
 .player-meta strong { font-size: 1rem; }
+.player-meta .soloist-badge { font-size: .85rem; font-weight: 750; color: #634719; background: #f5e6c5; border-radius: 4px; padding: .2rem .45rem; }
 .player-meta span { color: #596675; }
 .hand { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px; min-height: 77px; }
 .card { --card-width: 65px; width: var(--card-width); height: calc(var(--card-width) * 1.5); flex: 0 0 auto; border: 1px solid #89929c; border-radius: 4px; background-color: #fff; padding: 0; position: relative; display: flex; align-items: center; justify-content: center; color: #15191f; }

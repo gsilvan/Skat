@@ -167,9 +167,11 @@ function sortedHand(cards, declaration) {
     || ranks.indexOf(a.rank) - ranks.indexOf(b.rank));
 }
 function playerView(player) {
-  const node = el('section', `player ${state.nextPlayer === player.seat || state.pending?.seat === player.seat ? 'active-player' : ''}`);
+  const isSoloist = state.soloist === player.seat;
+  const node = el('section', `player ${isSoloist ? 'soloist-player' : ''} ${state.nextPlayer === player.seat || state.pending?.seat === player.seat ? 'active-player' : ''}`);
   const meta = el('div', 'player-meta'); meta.append(el('strong', '', player.label));
-  meta.append(el('span', '', `Platz ${player.seat + 1} · ${labels[player.kind]}${state.dealer === player.seat ? ' · Geber' : ''}${state.soloist === player.seat ? ' · Alleinspieler' : ''}`));
+  if (isSoloist) meta.append(el('strong', 'soloist-badge', 'Alleinspieler'));
+  meta.append(el('span', '', `Platz ${player.seat + 1} · ${labels[player.kind]}${state.dealer === player.seat ? ' · Geber' : ''}`));
   meta.append(el('span', '', state.declaration?.kind === 'null' ? `${player.tricks} Stiche` : `${player.points} Augen · ${player.tricks} Stiche`)); node.append(meta);
   const hand = el('div', 'hand');
   for (const card of sortedHand(player.hand, state.declaration)) {
@@ -263,7 +265,9 @@ function render() {
   if (pendingId !== state.pending?.id) { pendingId = state.pending?.id; selected = []; busy = false; }
   $('deal-tools').replaceChildren(dealTools(state.dealCode));
   $('round-title').textContent = `Runde ${state.roundIndex + 1}`;
-  $('contract').textContent = `${declarationName(state.declaration)} · Reizwert ${state.highestBid || 0}`;
+  $('contract').replaceChildren(
+    el(state.declaration ? 'strong' : 'span', state.declaration ? 'contract-name' : 'muted', declarationName(state.declaration)),
+    el('span', 'muted', ` · Reizwert ${state.highestBid || 0}`));
   $('pause').textContent = state.paused ? 'Weiter' : 'Pause';
   $('pause').disabled = $('step').disabled = terminal.has(state.status);
   $('speed').value = state.speedMs; $('speed-label').value = `${state.speedMs} ms`; $('reveal').checked = state.reveal;
