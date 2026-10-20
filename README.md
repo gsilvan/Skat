@@ -164,6 +164,11 @@ Modelle und Strategien stehen in der Platzkonfiguration. Policy, neuronales
 Reizen, neuronale Ansagen/Skataufnahme und der optionale MCTS-Belief-Sampler
 verwenden die bestehenden Modellprüfungen. Alte Checkpoints können deshalb
 abgelehnt werden; die Pfadvorschläge sind keine Kompatibilitätsgarantie.
+Die Schnellauswahl pro Platz füllt mit „Beste gemessen“ die führende Kombination
+der Ratingtabelle aus; „Alles neuronal“ aktiviert zusätzlich neuronale Ansage
+und Skataufnahme. Beide Presets setzen Modellpfade und Schwellen gemeinsam und
+lassen sich anschließend anpassen. Fehlen die benötigten Modelldateien lokal,
+ist der jeweilige Button deaktiviert.
 Für neuronale Modelle das passende Torch-Extra zusätzlich aktivieren:
 
 ```bash

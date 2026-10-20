@@ -3,6 +3,25 @@ const labels = {human: 'Mensch', random: 'Random', mcts: 'MCTS', policy: 'Policy
 const suitNames = ['Karo', 'Herz', 'Pik', 'Kreuz'];
 const kindNames = {bid: 'reizt', pickup: 'entscheidet über den Skat', press: 'drückt', declare: 'sagt an', play: 'wählt eine Karte', confirm_concession: 'prüft die Aufgabe', confirm_claim: 'prüft die Abkürzung'};
 const terminal = new Set(['finished', 'passed', 'error', 'stopped']);
+const bestPolicySettings = {
+  kind: 'policy', policy: 'benchmark_runs/iss-run-1/policy.pt',
+  bidding: 'neural', biddingModel: 'benchmark_runs/bidding-run-1/bidding.pt', biddingThreshold: 0.55,
+  declaration: 'heuristic', declarationModel: '', pickup: 'always', pickupModel: '', pickupMargin: 0, beliefModel: '',
+};
+const seatPresets = [
+  {
+    label: 'Beste gemessen',
+    description: 'ISS-Policy mit neuronalem Reizen, heuristischer Ansage und Standard-Skataufnahme.',
+    settings: bestPolicySettings,
+  },
+  {
+    label: 'Alles neuronal',
+    description: 'ISS-Policy mit neuronalem Reizen, neuronaler Ansage und neuronaler Skataufnahme.',
+    settings: {...bestPolicySettings,
+      declaration: 'neural', declarationModel: 'benchmark_runs/declaration-run-3/declaration.pt',
+      pickup: 'neural', pickupModel: 'benchmark_runs/pickup-run-2/pickup.pt'},
+  },
+];
 let state = null, appConfig = null, busy = false, selected = [], pendingId = null, generation = 0;
 let deck = read('skat.deck') || 'fr';
 if (!['fr', 'de', 'by'].includes(deck)) deck = 'fr';
@@ -71,6 +90,9 @@ function setupSeats() {
     const article = el('fieldset', 'seat-config');
     article.append(el('legend', '', `Platz ${i + 1}`));
     article.append(field('Name', input('label', defaults.label || (i === 0 ? 'Du' : `Bot ${i}`))));
+    const shortcuts = el('div', 'seat-presets');
+    shortcuts.append(el('small', 'muted', 'Schnellauswahl'));
+    article.append(shortcuts);
     const kind = select('kind', Object.entries(labels), defaults.kind || (i === 0 ? 'human' : 'random'));
     article.append(field('Spieler', kind));
     const options = el('div', 'bot-options');
@@ -102,7 +124,22 @@ function setupSeats() {
       for (const control of options.querySelectorAll('input, select')) control.disabled = kind.value === 'human';
       policy.required = kind.value === 'policy';
     };
-    kind.addEventListener('change', update); update(); $('seats').append(article);
+    kind.addEventListener('change', update);
+    for (const preset of seatPresets) {
+      const apply = button(preset.label, () => {
+        const controls = [...article.querySelectorAll('[name]')];
+        for (const control of controls) {
+          if (Object.hasOwn(preset.settings, control.name)) control.value = String(preset.settings[control.name]);
+        }
+        for (const control of controls.filter(node => node.tagName === 'SELECT')) control.dispatchEvent(new Event('change'));
+      });
+      const models = Object.entries(preset.settings).filter(([key, path]) => path && (key === 'policy' || key.endsWith('Model')));
+      const missing = appConfig?.checkpoints && models.some(([, path]) => !appConfig.checkpoints.includes(path));
+      apply.disabled = Boolean(missing);
+      apply.title = missing ? 'Benötigte Modelle sind lokal nicht vorhanden.' : preset.description;
+      shortcuts.append(apply);
+    }
+    update(); $('seats').append(article);
   }
   if (stored) for (const key of ['seed', 'dealer', 'simulations', 'determinizations', 'workers', 'device']) if (stored[key] != null) $(key).value = stored[key];
 }

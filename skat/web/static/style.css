@@ -30,6 +30,9 @@ main { max-width: 1460px; margin: 1.5rem auto; padding: 0 1.25rem; }
 .seat-config { min-width: 0; border: 1px solid #d1d7de; border-radius: 4px; padding: 1rem; }
 .seat-config legend { font-weight: 600; padding: 0 .4rem; }
 .seat-config label { margin-bottom: .85rem; }
+.seat-presets { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .85rem; }
+.seat-presets small { flex-basis: 100%; }
+.seat-presets button { font-size: .85rem; padding: .4rem .55rem; }
 .advanced { padding: .75rem 0; }
 .advanced > summary { margin-bottom: .6rem; }
 .field-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
