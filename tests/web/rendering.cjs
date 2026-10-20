@@ -111,7 +111,7 @@ const controls = seat => Object.fromEntries(seat.querySelectorAll('[name]').map(
 const controlsBefore = seats.map(seat => JSON.stringify(controls(seat), (key, value) => key === 'listeners' ? undefined : value));
 const firstBot = seats[1];
 const buttons = firstBot.querySelectorAll('button');
-assert.deepEqual(buttons.map(button => button.textContent), ['Beste gemessen', 'Alles neuronal']);
+assert.deepEqual(buttons.map(button => button.textContent), ['Beste Policy gegen Random', 'Alles neuronal']);
 assert(buttons.every(button => !button.disabled));
 for (const button of [buttons[1], buttons[0]]) {
   const allNeural = button === buttons[1];

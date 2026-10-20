@@ -170,6 +170,8 @@ class SummaryTest(unittest.TestCase):
         tournament.record(FakeRound(0, 70), True)
         summary = tournament.summary()
         self.assertEqual(3, summary.count("RandomAgent"))
+        self.assertIn("declarer", summary)
+        self.assertIn("pickup", summary)
         self.assertIn("1/1 (100%)", summary)  # the soloist
         self.assertIn("0/1 (0%)", summary)  # the two defenders
 

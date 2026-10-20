@@ -16,6 +16,10 @@ eingepasste Blätter. Kartenmodell und Reizer werden getrennt angegeben.
 | Agent / Kartenmodell | Reizer | Ansager | Siege / gespielt | Als Alleinspieler | Im Gegenspiel | Eingepasst | Punkte / Runde | Δ Punkte zur Baseline |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Transformer · ISS 100k / 20 Epochen | neural (0.55) | heuristic | 648/949 (68.3%) | 321/333 (96.4%) | 327/616 (53.1%) | 51 | +13.42 | +14.39 |
+| Transformer · ISS 100k / 20 Epochen | neural (0.55) | heuristic + Hand-NN | 649/949 (68.4%) | 321/333 (96.4%) | 328/616 (53.2%) | 51 | +13.40 | +14.36 |
+| Transformer · ISS 100k / 20 Epochen | neural (0.55) | neural (1M/20 Ep.) + Hand-NN | 652/949 (68.7%) | 321/333 (96.4%) | 331/616 (53.7%) | 51 | +12.49 | +13.45 |
+| Transformer · ISS 100k / 20 Epochen | neural (0.55) | neural (1M/20 Ep.) | 650/949 (68.5%) | 320/333 (96.1%) | 330/616 (53.6%) | 51 | +12.39 | +13.35 |
+| MCTS · 600 Simulationen / 20 Welten | neural (0.55) | neural (1M/20 Ep.) + Hand-NN | 642/949 (67.7%) | 324/333 (97.3%) | 318/616 (51.6%) | 51 | +11.89 | +12.86 |
 | Transformer · ISS 100k / 20 Epochen | conservative | neural (1M/20 Ep.) | 640/946 (67.7%) | 314/330 (95.2%) | 326/616 (52.9%) | 54 | +11.01 | +11.97 |
 | Transformer · ISS 100k / 20 Epochen | conservative | neural (1M/20 Ep.) + Hand-NN | 655/946 (69.2%) | 311/330 (94.2%) | 344/616 (55.8%) | 54 | +10.65 | +11.61 |
 | MCTS · ISS-Handmodell 100k / 600 Simulationen / 20 Welten | conservative | heuristic | 656/946 (69.3%) | 312/330 (94.5%) | 344/616 (55.8%) | 54 | +10.48 | +11.45 |
@@ -60,6 +64,12 @@ Zufallszahlen der Random-Gegner in späteren Runden. Ein zusätzlicher
 [gepaarter Vergleich](docs/pickup-training.md) mit je Austeilung neu gesetzten
 Zufallsströmen fand auf 2.000 Deals keine geänderten Siege, aber rund
 +0,1 offizielle Punkte pro ausgeteilter Runde.
+
+Für starke Gegner und die vollständige neuronale Konfiguration gibt es einen
+separaten [gepaarten Preset-Benchmark](docs/preset-benchmark.md): identische
+Austeilungen an allen drei Sitzen, feste Referenzpaare, getrennte Gegenproben
+für Ansage und Skataufnahme sowie Konfidenzintervalle über ganze Austeilungen.
+Diese Ergebnisse werden nicht in die Random-Tabelle gemischt.
 
 Einstellungen, Checkpoint-Hashes und ungerundete Ergebnisse stehen in
 [docs/agent-ratings.json](docs/agent-ratings.json). Die Tabelle wird bei neuen
@@ -164,8 +174,8 @@ Modelle und Strategien stehen in der Platzkonfiguration. Policy, neuronales
 Reizen, neuronale Ansagen/Skataufnahme und der optionale MCTS-Belief-Sampler
 verwenden die bestehenden Modellprüfungen. Alte Checkpoints können deshalb
 abgelehnt werden; die Pfadvorschläge sind keine Kompatibilitätsgarantie.
-Die Schnellauswahl pro Platz füllt mit „Beste gemessen“ die führende Kombination
-der Ratingtabelle aus; „Alles neuronal“ aktiviert zusätzlich neuronale Ansage
+Die Schnellauswahl pro Platz füllt mit „Beste Policy gegen Random“ die führende
+Policy-Kombination der Ratingtabelle aus; „Alles neuronal“ aktiviert zusätzlich neuronale Ansage
 und Skataufnahme. Beide Presets setzen Modellpfade und Schwellen gemeinsam und
 lassen sich anschließend anpassen. Fehlen die benötigten Modelldateien lokal,
 ist der jeweilige Button deaktiviert.

@@ -155,16 +155,20 @@ class Tournament:
 
         bidders = [agent.bidding_label for agent in self.agents]
         bidder_width = max(16, *(len(label) for label in bidders))
+        declarers = [agent.declaration_label for agent in self.agents]
+        declarer_width = max(9, *(len(label) for label in declarers))
         lines = [
             f"{self.rounds} rounds, {self.rounds - self.passed} played, {self.passed} passed out",
             f"soloists won {self.scores[0]}, defenders won {self.scores[1]}",
             f"{'seat':>4} {'agent':14} {'bidder':{bidder_width}} "
+            f"{'declarer':{declarer_width}} {'pickup':7} "
             f"{'as soloist':14} {'on defence':14} {'overbid':>7} {'game pts':>8}",
         ]
         for seat, score in enumerate(self.seat_scores):
             lines.append(
                 f"{seat:4} {type(self.agents[seat]).__name__:14} "
                 f"{bidders[seat]:{bidder_width}} "
+                f"{declarers[seat]:{declarer_width}} {self.agents[seat].pickup_style:7} "
                 f"{rate(score.solo_wins, score.solo_rounds):14} "
                 f"{rate(score.defence_wins, score.defence_rounds):14} "
                 f"{score.overbids:7} {score.game_points:8}"

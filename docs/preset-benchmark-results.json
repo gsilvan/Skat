@@ -1,0 +1,3731 @@
+{
+  "policy_preparation": {
+    "manifest": {
+      "protocol": "paired-presets-fixed-panels-v1",
+      "measured_at": "2026-10-20T10:54:03.239373+00:00",
+      "source_commit": "a6c09138c055d0f046c22f2495b5d86c9ce0fcf4",
+      "source_sha256": "1a24dfa1f4f0c49c899bf894e7ab414d81109889cc89ae0a66daec3fb7fadfa8",
+      "rules_schema": "skat-isko-2022-v1",
+      "observation_schema": "skat-public-contract-v3",
+      "torch_version": "2.14.1+cpu",
+      "python_version": "3.14.8",
+      "numpy_version": "2.5.4",
+      "candidates": [
+        "best",
+        "declaration",
+        "pickup",
+        "all-neural"
+      ],
+      "panels": [
+        "random",
+        "best",
+        "all-neural"
+      ],
+      "profiles": {
+        "declaration": {
+          "agent": "policy",
+          "bidding": "neural",
+          "declaration": "neural",
+          "pickup": "always"
+        },
+        "all-neural": {
+          "agent": "policy",
+          "bidding": "neural",
+          "declaration": "neural",
+          "pickup": "neural"
+        },
+        "best": {
+          "agent": "policy",
+          "bidding": "neural",
+          "declaration": "heuristic",
+          "pickup": "always"
+        },
+        "pickup": {
+          "agent": "policy",
+          "bidding": "neural",
+          "declaration": "heuristic",
+          "pickup": "neural"
+        },
+        "random": {
+          "agent": "random",
+          "bidding": "conservative",
+          "declaration": "heuristic",
+          "pickup": "always"
+        }
+      },
+      "models": {
+        "policy": "benchmark_runs/iss-run-1/policy.pt",
+        "bidding": "benchmark_runs/bidding-run-1/bidding.pt",
+        "declaration": "benchmark_runs/declaration-run-3/declaration.pt",
+        "pickup": "benchmark_runs/pickup-run-2/pickup.pt"
+      },
+      "checkpoint_sha256": {
+        "policy": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+        "bidding": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+        "declaration": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+        "pickup": "85660fcdecb72fb85a3ceb24af779b175719759f5e6003785cd36ff6d2566831"
+      },
+      "seeds": [
+        20261020,
+        20261021
+      ],
+      "deals_per_seed": 1000,
+      "workers": 16,
+      "device": "cpu",
+      "bidding_threshold": 0.55,
+      "pickup_margin": 0.0,
+      "mcts": {
+        "simulations": 600,
+        "determinizations": 20
+      },
+      "rng_scheme": "sha256-preset-deal-and-seat-v1",
+      "bootstrap": "2000-resamples-complete-deals-including-all-seats",
+      "primary_comparison": "all-neural minus best, separately for each fixed reference panel"
+    },
+    "status": "complete",
+    "panels": {
+      "random": {
+        "summary": {
+          "best": {
+            "wins": 3861,
+            "played": 5702,
+            "passed": 298,
+            "win_rate": 0.6771308312872676,
+            "soloist": {
+              "wins": 1807,
+              "played": 1918
+            },
+            "defence": {
+              "wins": 2054,
+              "played": 3784
+            },
+            "official_points": 74140,
+            "points_per_deal": 12.356666666666667,
+            "soloist_fraction": 0.31966666666666665,
+            "overbids": 0,
+            "seconds": 1097.661244589899,
+            "rounds_per_second": 5.466167298492606,
+            "hand_games": 0,
+            "relative_points_per_deal": 19.53925,
+            "by_seed": {
+              "20261020": {
+                "wins": 1942,
+                "played": 2859,
+                "passed": 141,
+                "win_rate": 0.6792584819867087,
+                "soloist": {
+                  "wins": 898,
+                  "played": 947
+                },
+                "defence": {
+                  "wins": 1044,
+                  "played": 1912
+                },
+                "official_points": 35676,
+                "points_per_deal": 11.892,
+                "soloist_fraction": 0.31566666666666665,
+                "overbids": 0,
+                "seconds": 551.2723823269735,
+                "rounds_per_second": 5.4419559117703535
+              },
+              "20261021": {
+                "wins": 1919,
+                "played": 2843,
+                "passed": 157,
+                "win_rate": 0.6749912064720366,
+                "soloist": {
+                  "wins": 909,
+                  "played": 971
+                },
+                "defence": {
+                  "wins": 1010,
+                  "played": 1872
+                },
+                "official_points": 38464,
+                "points_per_deal": 12.821333333333333,
+                "soloist_fraction": 0.32366666666666666,
+                "overbids": 0,
+                "seconds": 546.3888622629256,
+                "rounds_per_second": 5.4905950819992775
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 1262,
+                "played": 1902,
+                "passed": 98,
+                "win_rate": 0.6635120925341745,
+                "wilson_interval": [
+                  0.6419659777074999,
+                  0.6843990255540514
+                ],
+                "soloist": {
+                  "wins": 570,
+                  "played": 613
+                },
+                "defence": {
+                  "wins": 692,
+                  "played": 1289
+                },
+                "official_points": 22712,
+                "points_per_deal": 11.356,
+                "soloist_fraction": 0.3065,
+                "overbids": 0,
+                "seconds": 367.99571967593874,
+                "rounds_per_second": 5.434845823101483
+              },
+              "1": {
+                "wins": 1312,
+                "played": 1903,
+                "passed": 97,
+                "win_rate": 0.6894377299001576,
+                "wilson_interval": [
+                  0.6682833334772317,
+                  0.7098288285397917
+                ],
+                "soloist": {
+                  "wins": 625,
+                  "played": 662
+                },
+                "defence": {
+                  "wins": 687,
+                  "played": 1241
+                },
+                "official_points": 25899,
+                "points_per_deal": 12.9495,
+                "soloist_fraction": 0.331,
+                "overbids": 0,
+                "seconds": 366.86438068098323,
+                "rounds_per_second": 5.451605839431857
+              },
+              "2": {
+                "wins": 1287,
+                "played": 1897,
+                "passed": 103,
+                "win_rate": 0.6784396415392725,
+                "wilson_interval": [
+                  0.6570783035702324,
+                  0.6990797266412275
+                ],
+                "soloist": {
+                  "wins": 612,
+                  "played": 643
+                },
+                "defence": {
+                  "wins": 675,
+                  "played": 1254
+                },
+                "official_points": 25529,
+                "points_per_deal": 12.7645,
+                "soloist_fraction": 0.3215,
+                "overbids": 0,
+                "seconds": 362.8011442329771,
+                "rounds_per_second": 5.512661775718315
+              }
+            }
+          },
+          "declaration": {
+            "wins": 3911,
+            "played": 5702,
+            "passed": 298,
+            "win_rate": 0.6858996843212908,
+            "soloist": {
+              "wins": 1857,
+              "played": 1918
+            },
+            "defence": {
+              "wins": 2054,
+              "played": 3784
+            },
+            "official_points": 73471,
+            "points_per_deal": 12.245166666666666,
+            "soloist_fraction": 0.31966666666666665,
+            "overbids": 0,
+            "seconds": 1349.8186133310173,
+            "rounds_per_second": 4.445041682447606,
+            "hand_games": 0,
+            "relative_points_per_deal": 19.42775,
+            "by_seed": {
+              "20261020": {
+                "wins": 1964,
+                "played": 2859,
+                "passed": 141,
+                "win_rate": 0.6869534802378454,
+                "soloist": {
+                  "wins": 920,
+                  "played": 947
+                },
+                "defence": {
+                  "wins": 1044,
+                  "played": 1912
+                },
+                "official_points": 36685,
+                "points_per_deal": 12.228333333333333,
+                "soloist_fraction": 0.31566666666666665,
+                "overbids": 0,
+                "seconds": 674.7719225330111,
+                "rounds_per_second": 4.445946696682885
+              },
+              "20261021": {
+                "wins": 1947,
+                "played": 2843,
+                "passed": 157,
+                "win_rate": 0.6848399577910658,
+                "soloist": {
+                  "wins": 937,
+                  "played": 971
+                },
+                "defence": {
+                  "wins": 1010,
+                  "played": 1872
+                },
+                "official_points": 36786,
+                "points_per_deal": 12.262,
+                "soloist_fraction": 0.32366666666666666,
+                "overbids": 0,
+                "seconds": 675.0466907980062,
+                "rounds_per_second": 4.444137036585649
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 1281,
+                "played": 1902,
+                "passed": 98,
+                "win_rate": 0.6735015772870663,
+                "wilson_interval": [
+                  0.6520955324721213,
+                  0.694208168737885
+                ],
+                "soloist": {
+                  "wins": 589,
+                  "played": 613
+                },
+                "defence": {
+                  "wins": 692,
+                  "played": 1289
+                },
+                "official_points": 22931,
+                "points_per_deal": 11.4655,
+                "soloist_fraction": 0.3065,
+                "overbids": 0,
+                "seconds": 447.27652117299476,
+                "rounds_per_second": 4.471506786797004
+              },
+              "1": {
+                "wins": 1329,
+                "played": 1903,
+                "passed": 97,
+                "win_rate": 0.698370993168681,
+                "wilson_interval": [
+                  0.6773669399983218,
+                  0.7185757539307387
+                ],
+                "soloist": {
+                  "wins": 642,
+                  "played": 662
+                },
+                "defence": {
+                  "wins": 687,
+                  "played": 1241
+                },
+                "official_points": 25082,
+                "points_per_deal": 12.541,
+                "soloist_fraction": 0.331,
+                "overbids": 0,
+                "seconds": 456.9378124290306,
+                "rounds_per_second": 4.376963222562437
+              },
+              "2": {
+                "wins": 1301,
+                "played": 1897,
+                "passed": 103,
+                "win_rate": 0.6858197153400105,
+                "wilson_interval": [
+                  0.6645729521844905,
+                  0.7063153953769266
+                ],
+                "soloist": {
+                  "wins": 626,
+                  "played": 643
+                },
+                "defence": {
+                  "wins": 675,
+                  "played": 1254
+                },
+                "official_points": 25458,
+                "points_per_deal": 12.729,
+                "soloist_fraction": 0.3215,
+                "overbids": 0,
+                "seconds": 445.60427972899197,
+                "rounds_per_second": 4.4882872337230735
+              }
+            }
+          },
+          "pickup": {
+            "wins": 3860,
+            "played": 5702,
+            "passed": 298,
+            "win_rate": 0.6769554542265872,
+            "soloist": {
+              "wins": 1806,
+              "played": 1918
+            },
+            "defence": {
+              "wins": 2054,
+              "played": 3784
+            },
+            "official_points": 74403,
+            "points_per_deal": 12.4005,
+            "soloist_fraction": 0.31966666666666665,
+            "overbids": 0,
+            "seconds": 1072.2637904000348,
+            "rounds_per_second": 5.595637989194384,
+            "hand_games": 54,
+            "relative_points_per_deal": 19.583083333333335,
+            "by_seed": {
+              "20261020": {
+                "wins": 1942,
+                "played": 2859,
+                "passed": 141,
+                "win_rate": 0.6792584819867087,
+                "soloist": {
+                  "wins": 898,
+                  "played": 947
+                },
+                "defence": {
+                  "wins": 1044,
+                  "played": 1912
+                },
+                "official_points": 35928,
+                "points_per_deal": 11.976,
+                "soloist_fraction": 0.31566666666666665,
+                "overbids": 0,
+                "seconds": 539.6729736900143,
+                "rounds_per_second": 5.558922062536314
+              },
+              "20261021": {
+                "wins": 1918,
+                "played": 2843,
+                "passed": 157,
+                "win_rate": 0.6746394653534998,
+                "soloist": {
+                  "wins": 908,
+                  "played": 971
+                },
+                "defence": {
+                  "wins": 1010,
+                  "played": 1872
+                },
+                "official_points": 38475,
+                "points_per_deal": 12.825,
+                "soloist_fraction": 0.32366666666666666,
+                "overbids": 0,
+                "seconds": 532.5908167100206,
+                "rounds_per_second": 5.632842147996345
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 1262,
+                "played": 1902,
+                "passed": 98,
+                "win_rate": 0.6635120925341745,
+                "wilson_interval": [
+                  0.6419659777074999,
+                  0.6843990255540514
+                ],
+                "soloist": {
+                  "wins": 570,
+                  "played": 613
+                },
+                "defence": {
+                  "wins": 692,
+                  "played": 1289
+                },
+                "official_points": 22813,
+                "points_per_deal": 11.4065,
+                "soloist_fraction": 0.3065,
+                "overbids": 0,
+                "seconds": 355.6044676230431,
+                "rounds_per_second": 5.624226302241205
+              },
+              "1": {
+                "wins": 1312,
+                "played": 1903,
+                "passed": 97,
+                "win_rate": 0.6894377299001576,
+                "wilson_interval": [
+                  0.6682833334772317,
+                  0.7098288285397917
+                ],
+                "soloist": {
+                  "wins": 625,
+                  "played": 662
+                },
+                "defence": {
+                  "wins": 687,
+                  "played": 1241
+                },
+                "official_points": 26165,
+                "points_per_deal": 13.0825,
+                "soloist_fraction": 0.331,
+                "overbids": 0,
+                "seconds": 357.68260333301805,
+                "rounds_per_second": 5.5915495508119895
+              },
+              "2": {
+                "wins": 1286,
+                "played": 1897,
+                "passed": 103,
+                "win_rate": 0.6779124934106484,
+                "wilson_interval": [
+                  0.656543202139652,
+                  0.6985626625468111
+                ],
+                "soloist": {
+                  "wins": 611,
+                  "played": 643
+                },
+                "defence": {
+                  "wins": 675,
+                  "played": 1254
+                },
+                "official_points": 25425,
+                "points_per_deal": 12.7125,
+                "soloist_fraction": 0.3215,
+                "overbids": 0,
+                "seconds": 358.9767194439737,
+                "rounds_per_second": 5.571391936217592
+              }
+            }
+          },
+          "all-neural": {
+            "wins": 3910,
+            "played": 5702,
+            "passed": 298,
+            "win_rate": 0.6857243072606103,
+            "soloist": {
+              "wins": 1856,
+              "played": 1918
+            },
+            "defence": {
+              "wins": 2054,
+              "played": 3784
+            },
+            "official_points": 73904,
+            "points_per_deal": 12.317333333333334,
+            "soloist_fraction": 0.31966666666666665,
+            "overbids": 0,
+            "seconds": 1349.5828385150817,
+            "rounds_per_second": 4.445818240102755,
+            "hand_games": 54,
+            "relative_points_per_deal": 19.499916666666667,
+            "by_seed": {
+              "20261020": {
+                "wins": 1964,
+                "played": 2859,
+                "passed": 141,
+                "win_rate": 0.6869534802378454,
+                "soloist": {
+                  "wins": 920,
+                  "played": 947
+                },
+                "defence": {
+                  "wins": 1044,
+                  "played": 1912
+                },
+                "official_points": 37014,
+                "points_per_deal": 12.338,
+                "soloist_fraction": 0.31566666666666665,
+                "overbids": 0,
+                "seconds": 673.2940586930617,
+                "rounds_per_second": 4.455705439943035
+              },
+              "20261021": {
+                "wins": 1946,
+                "played": 2843,
+                "passed": 157,
+                "win_rate": 0.684488216672529,
+                "soloist": {
+                  "wins": 936,
+                  "played": 971
+                },
+                "defence": {
+                  "wins": 1010,
+                  "played": 1872
+                },
+                "official_points": 36890,
+                "points_per_deal": 12.296666666666667,
+                "soloist_fraction": 0.32366666666666666,
+                "overbids": 0,
+                "seconds": 676.2887798220199,
+                "rounds_per_second": 4.4359748224560445
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 1281,
+                "played": 1902,
+                "passed": 98,
+                "win_rate": 0.6735015772870663,
+                "wilson_interval": [
+                  0.6520955324721213,
+                  0.694208168737885
+                ],
+                "soloist": {
+                  "wins": 589,
+                  "played": 613
+                },
+                "defence": {
+                  "wins": 692,
+                  "played": 1289
+                },
+                "official_points": 23054,
+                "points_per_deal": 11.527,
+                "soloist_fraction": 0.3065,
+                "overbids": 0,
+                "seconds": 447.44342791407144,
+                "rounds_per_second": 4.469838811408549
+              },
+              "1": {
+                "wins": 1329,
+                "played": 1903,
+                "passed": 97,
+                "win_rate": 0.698370993168681,
+                "wilson_interval": [
+                  0.6773669399983218,
+                  0.7185757539307387
+                ],
+                "soloist": {
+                  "wins": 642,
+                  "played": 662
+                },
+                "defence": {
+                  "wins": 687,
+                  "played": 1241
+                },
+                "official_points": 25504,
+                "points_per_deal": 12.752,
+                "soloist_fraction": 0.331,
+                "overbids": 0,
+                "seconds": 455.7411814089992,
+                "rounds_per_second": 4.388455732301105
+              },
+              "2": {
+                "wins": 1300,
+                "played": 1897,
+                "passed": 103,
+                "win_rate": 0.6852925672113864,
+                "wilson_interval": [
+                  0.6640374190383722,
+                  0.705798762998048
+                ],
+                "soloist": {
+                  "wins": 625,
+                  "played": 643
+                },
+                "defence": {
+                  "wins": 675,
+                  "played": 1254
+                },
+                "official_points": 25346,
+                "points_per_deal": 12.673,
+                "soloist_fraction": 0.3215,
+                "overbids": 0,
+                "seconds": 446.39822919201106,
+                "rounds_per_second": 4.480304511108918
+              }
+            }
+          }
+        },
+        "differences_from_best": {
+          "declaration": {
+            "official_points": {
+              "delta": -0.1115,
+              "interval_95": [
+                -0.6490666666666667,
+                0.43021249999999983
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "relative_points": {
+              "delta": -0.1115,
+              "interval_95": [
+                -0.6490666666666667,
+                0.43021249999999983
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "party_win": {
+              "delta": 0.008333333333333331,
+              "interval_95": [
+                0.005166666666666666,
+                0.0115
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            }
+          },
+          "pickup": {
+            "official_points": {
+              "delta": 0.04383333333333333,
+              "interval_95": [
+                -0.038504166666666666,
+                0.0975
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "relative_points": {
+              "delta": 0.04383333333333333,
+              "interval_95": [
+                -0.038504166666666666,
+                0.0975
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "party_win": {
+              "delta": -0.00016666666666666666,
+              "interval_95": [
+                -0.0005,
+                0.0
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            }
+          },
+          "all-neural": {
+            "official_points": {
+              "delta": -0.0393333333333334,
+              "interval_95": [
+                -0.6079958333333332,
+                0.4965124999999999
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "relative_points": {
+              "delta": -0.0393333333333334,
+              "interval_95": [
+                -0.6079958333333332,
+                0.4965124999999999
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "party_win": {
+              "delta": 0.008166666666666666,
+              "interval_95": [
+                0.005,
+                0.011333333333333332
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            }
+          },
+          "all-neural-minus-declaration": {
+            "official_points": {
+              "delta": 0.07216666666666666,
+              "interval_95": [
+                -0.017349999999999997,
+                0.14700833333333327
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "relative_points": {
+              "delta": 0.07216666666666666,
+              "interval_95": [
+                -0.017349999999999997,
+                0.14700833333333327
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "party_win": {
+              "delta": -0.00016666666666666666,
+              "interval_95": [
+                -0.0005,
+                0.0
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            }
+          }
+        }
+      },
+      "best": {
+        "summary": {
+          "best": {
+            "wins": 2421,
+            "played": 5913,
+            "passed": 87,
+            "win_rate": 0.4094368340943683,
+            "soloist": {
+              "wins": 1521,
+              "played": 1971
+            },
+            "defence": {
+              "wins": 900,
+              "played": 3942
+            },
+            "official_points": 26486,
+            "points_per_deal": 4.414333333333333,
+            "soloist_fraction": 0.3285,
+            "overbids": 0,
+            "seconds": 1469.1747056310232,
+            "rounds_per_second": 4.083925469859589,
+            "hand_games": 0,
+            "relative_points_per_deal": 0.0,
+            "by_seed": {
+              "20261020": {
+                "wins": 1194,
+                "played": 2940,
+                "passed": 60,
+                "win_rate": 0.4061224489795918,
+                "soloist": {
+                  "wins": 766,
+                  "played": 980
+                },
+                "defence": {
+                  "wins": 428,
+                  "played": 1960
+                },
+                "official_points": 12911,
+                "points_per_deal": 4.3036666666666665,
+                "soloist_fraction": 0.32666666666666666,
+                "overbids": 0,
+                "seconds": 732.5548000640429,
+                "rounds_per_second": 4.095256764050591
+              },
+              "20261021": {
+                "wins": 1227,
+                "played": 2973,
+                "passed": 27,
+                "win_rate": 0.4127144298688194,
+                "soloist": {
+                  "wins": 755,
+                  "played": 991
+                },
+                "defence": {
+                  "wins": 472,
+                  "played": 1982
+                },
+                "official_points": 13575,
+                "points_per_deal": 4.525,
+                "soloist_fraction": 0.3303333333333333,
+                "overbids": 0,
+                "seconds": 736.6199055669804,
+                "rounds_per_second": 4.072656708470135
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 800,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.4058853373921867,
+                "wilson_interval": [
+                  0.3844092228833178,
+                  0.4277276087491533
+                ],
+                "soloist": {
+                  "wins": 496,
+                  "played": 642
+                },
+                "defence": {
+                  "wins": 304,
+                  "played": 1329
+                },
+                "official_points": 8267,
+                "points_per_deal": 4.1335,
+                "soloist_fraction": 0.321,
+                "overbids": 0,
+                "seconds": 489.8284503320283,
+                "rounds_per_second": 4.083062138682038
+              },
+              "1": {
+                "wins": 808,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.40994419076610855,
+                "wilson_interval": [
+                  0.3884267034376127,
+                  0.4318120438117868
+                ],
+                "soloist": {
+                  "wins": 516,
+                  "played": 674
+                },
+                "defence": {
+                  "wins": 292,
+                  "played": 1297
+                },
+                "official_points": 9581,
+                "points_per_deal": 4.7905,
+                "soloist_fraction": 0.337,
+                "overbids": 0,
+                "seconds": 490.6966056189922,
+                "rounds_per_second": 4.075838261561007
+              },
+              "2": {
+                "wins": 813,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.4124809741248097,
+                "wilson_interval": [
+                  0.3909384030271348,
+                  0.434364041482845
+                ],
+                "soloist": {
+                  "wins": 509,
+                  "played": 655
+                },
+                "defence": {
+                  "wins": 304,
+                  "played": 1316
+                },
+                "official_points": 8638,
+                "points_per_deal": 4.319,
+                "soloist_fraction": 0.3275,
+                "overbids": 0,
+                "seconds": 488.64964968000277,
+                "rounds_per_second": 4.092911969362345
+              }
+            }
+          },
+          "declaration": {
+            "wins": 2580,
+            "played": 5913,
+            "passed": 87,
+            "win_rate": 0.4363267376966007,
+            "soloist": {
+              "wins": 1680,
+              "played": 1971
+            },
+            "defence": {
+              "wins": 900,
+              "played": 3942
+            },
+            "official_points": 43125,
+            "points_per_deal": 7.1875,
+            "soloist_fraction": 0.3285,
+            "overbids": 0,
+            "seconds": 1765.9927477540004,
+            "rounds_per_second": 3.3975224460184412,
+            "hand_games": 0,
+            "relative_points_per_deal": 2.7731666666666666,
+            "by_seed": {
+              "20261020": {
+                "wins": 1266,
+                "played": 2940,
+                "passed": 60,
+                "win_rate": 0.4306122448979592,
+                "soloist": {
+                  "wins": 838,
+                  "played": 980
+                },
+                "defence": {
+                  "wins": 428,
+                  "played": 1960
+                },
+                "official_points": 21268,
+                "points_per_deal": 7.089333333333333,
+                "soloist_fraction": 0.32666666666666666,
+                "overbids": 0,
+                "seconds": 876.8939441250204,
+                "rounds_per_second": 3.421166288237343
+              },
+              "20261021": {
+                "wins": 1314,
+                "played": 2973,
+                "passed": 27,
+                "win_rate": 0.4419778002018164,
+                "soloist": {
+                  "wins": 842,
+                  "played": 991
+                },
+                "defence": {
+                  "wins": 472,
+                  "played": 1982
+                },
+                "official_points": 21857,
+                "points_per_deal": 7.285666666666667,
+                "soloist_fraction": 0.3303333333333333,
+                "overbids": 0,
+                "seconds": 889.09880362898,
+                "rounds_per_second": 3.374203168146312
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 855,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.4337899543378995,
+                "wilson_interval": [
+                  0.41205996631082226,
+                  0.45577753518803193
+                ],
+                "soloist": {
+                  "wins": 551,
+                  "played": 642
+                },
+                "defence": {
+                  "wins": 304,
+                  "played": 1329
+                },
+                "official_points": 14736,
+                "points_per_deal": 7.368,
+                "soloist_fraction": 0.321,
+                "overbids": 0,
+                "seconds": 586.6106954029892,
+                "rounds_per_second": 3.409416186361965
+              },
+              "1": {
+                "wins": 857,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.43480466768138,
+                "wilson_interval": [
+                  0.4130667850237864,
+                  0.4567961953793
+                ],
+                "soloist": {
+                  "wins": 565,
+                  "played": 674
+                },
+                "defence": {
+                  "wins": 292,
+                  "played": 1297
+                },
+                "official_points": 13553,
+                "points_per_deal": 6.7765,
+                "soloist_fraction": 0.337,
+                "overbids": 0,
+                "seconds": 590.604016156989,
+                "rounds_per_second": 3.3863636976494553
+              },
+              "2": {
+                "wins": 868,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.44038559107052255,
+                "wilson_interval": [
+                  0.418605948462081,
+                  0.46239716591428204
+                ],
+                "soloist": {
+                  "wins": 564,
+                  "played": 655
+                },
+                "defence": {
+                  "wins": 304,
+                  "played": 1316
+                },
+                "official_points": 14836,
+                "points_per_deal": 7.418,
+                "soloist_fraction": 0.3275,
+                "overbids": 0,
+                "seconds": 588.7780361940222,
+                "rounds_per_second": 3.3968658425650453
+              }
+            }
+          },
+          "pickup": {
+            "wins": 2418,
+            "played": 5913,
+            "passed": 87,
+            "win_rate": 0.4089294774226281,
+            "soloist": {
+              "wins": 1518,
+              "played": 1971
+            },
+            "defence": {
+              "wins": 900,
+              "played": 3942
+            },
+            "official_points": 26716,
+            "points_per_deal": 4.4526666666666666,
+            "soloist_fraction": 0.3285,
+            "overbids": 0,
+            "seconds": 1471.235290826995,
+            "rounds_per_second": 4.078205598662159,
+            "hand_games": 60,
+            "relative_points_per_deal": 0.03833333333333333,
+            "by_seed": {
+              "20261020": {
+                "wins": 1192,
+                "played": 2940,
+                "passed": 60,
+                "win_rate": 0.4054421768707483,
+                "soloist": {
+                  "wins": 764,
+                  "played": 980
+                },
+                "defence": {
+                  "wins": 428,
+                  "played": 1960
+                },
+                "official_points": 13002,
+                "points_per_deal": 4.334,
+                "soloist_fraction": 0.32666666666666666,
+                "overbids": 0,
+                "seconds": 736.0602016870071,
+                "rounds_per_second": 4.075753577117979
+              },
+              "20261021": {
+                "wins": 1226,
+                "played": 2973,
+                "passed": 27,
+                "win_rate": 0.4123780692902792,
+                "soloist": {
+                  "wins": 754,
+                  "played": 991
+                },
+                "defence": {
+                  "wins": 472,
+                  "played": 1982
+                },
+                "official_points": 13714,
+                "points_per_deal": 4.5713333333333335,
+                "soloist_fraction": 0.3303333333333333,
+                "overbids": 0,
+                "seconds": 735.1750891399879,
+                "rounds_per_second": 4.080660572312668
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 798,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.4048706240487062,
+                "wilson_interval": [
+                  0.38340509166111525,
+                  0.4267062610671237
+                ],
+                "soloist": {
+                  "wins": 494,
+                  "played": 642
+                },
+                "defence": {
+                  "wins": 304,
+                  "played": 1329
+                },
+                "official_points": 8172,
+                "points_per_deal": 4.086,
+                "soloist_fraction": 0.321,
+                "overbids": 0,
+                "seconds": 491.77122373599923,
+                "rounds_per_second": 4.066931742784676
+              },
+              "1": {
+                "wins": 807,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.4094368340943683,
+                "wilson_interval": [
+                  0.38792443489342404,
+                  0.43130157290385945
+                ],
+                "soloist": {
+                  "wins": 515,
+                  "played": 674
+                },
+                "defence": {
+                  "wins": 292,
+                  "played": 1297
+                },
+                "official_points": 9714,
+                "points_per_deal": 4.857,
+                "soloist_fraction": 0.337,
+                "overbids": 0,
+                "seconds": 489.49584322499686,
+                "rounds_per_second": 4.0858365350422385
+              },
+              "2": {
+                "wins": 813,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.4124809741248097,
+                "wilson_interval": [
+                  0.3909384030271348,
+                  0.434364041482845
+                ],
+                "soloist": {
+                  "wins": 509,
+                  "played": 655
+                },
+                "defence": {
+                  "wins": 304,
+                  "played": 1316
+                },
+                "official_points": 8830,
+                "points_per_deal": 4.415,
+                "soloist_fraction": 0.3275,
+                "overbids": 0,
+                "seconds": 489.9682238659989,
+                "rounds_per_second": 4.081897361056171
+              }
+            }
+          },
+          "all-neural": {
+            "wins": 2580,
+            "played": 5913,
+            "passed": 87,
+            "win_rate": 0.4363267376966007,
+            "soloist": {
+              "wins": 1680,
+              "played": 1971
+            },
+            "defence": {
+              "wins": 900,
+              "played": 3942
+            },
+            "official_points": 43711,
+            "points_per_deal": 7.285166666666667,
+            "soloist_fraction": 0.3285,
+            "overbids": 0,
+            "seconds": 1738.4119652529844,
+            "rounds_per_second": 3.4514258529777453,
+            "hand_games": 60,
+            "relative_points_per_deal": 2.870833333333333,
+            "by_seed": {
+              "20261020": {
+                "wins": 1266,
+                "played": 2940,
+                "passed": 60,
+                "win_rate": 0.4306122448979592,
+                "soloist": {
+                  "wins": 838,
+                  "played": 980
+                },
+                "defence": {
+                  "wins": 428,
+                  "played": 1960
+                },
+                "official_points": 21582,
+                "points_per_deal": 7.194,
+                "soloist_fraction": 0.32666666666666666,
+                "overbids": 0,
+                "seconds": 860.1885218310217,
+                "rounds_per_second": 3.4876075695756956
+              },
+              "20261021": {
+                "wins": 1314,
+                "played": 2973,
+                "passed": 27,
+                "win_rate": 0.4419778002018164,
+                "soloist": {
+                  "wins": 842,
+                  "played": 991
+                },
+                "defence": {
+                  "wins": 472,
+                  "played": 1982
+                },
+                "official_points": 22129,
+                "points_per_deal": 7.376333333333333,
+                "soloist_fraction": 0.3303333333333333,
+                "overbids": 0,
+                "seconds": 878.2234434219627,
+                "rounds_per_second": 3.4159871527804127
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 856,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.43429731100963975,
+                "wilson_interval": [
+                  0.41256336403687244,
+                  0.45628687691409786
+                ],
+                "soloist": {
+                  "wins": 552,
+                  "played": 642
+                },
+                "defence": {
+                  "wins": 304,
+                  "played": 1329
+                },
+                "official_points": 14897,
+                "points_per_deal": 7.4485,
+                "soloist_fraction": 0.321,
+                "overbids": 0,
+                "seconds": 574.4987528509864,
+                "rounds_per_second": 3.481295633932839
+              },
+              "1": {
+                "wins": 856,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.43429731100963975,
+                "wilson_interval": [
+                  0.41256336403687244,
+                  0.45628687691409786
+                ],
+                "soloist": {
+                  "wins": 564,
+                  "played": 674
+                },
+                "defence": {
+                  "wins": 292,
+                  "played": 1297
+                },
+                "official_points": 13794,
+                "points_per_deal": 6.897,
+                "soloist_fraction": 0.337,
+                "overbids": 0,
+                "seconds": 583.2691996780031,
+                "rounds_per_second": 3.4289484188503536
+              },
+              "2": {
+                "wins": 868,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.44038559107052255,
+                "wilson_interval": [
+                  0.418605948462081,
+                  0.46239716591428204
+                ],
+                "soloist": {
+                  "wins": 564,
+                  "played": 655
+                },
+                "defence": {
+                  "wins": 304,
+                  "played": 1316
+                },
+                "official_points": 15020,
+                "points_per_deal": 7.51,
+                "soloist_fraction": 0.3275,
+                "overbids": 0,
+                "seconds": 580.6440127239948,
+                "rounds_per_second": 3.4444512578668167
+              }
+            }
+          }
+        },
+        "differences_from_best": {
+          "declaration": {
+            "official_points": {
+              "delta": 2.773166666666667,
+              "interval_95": [
+                1.9987333333333335,
+                3.5888500000000003
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "relative_points": {
+              "delta": 2.773166666666667,
+              "interval_95": [
+                1.9987333333333335,
+                3.5888500000000003
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "party_win": {
+              "delta": 0.0265,
+              "interval_95": [
+                0.020833333333333332,
+                0.03216666666666666
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            }
+          },
+          "pickup": {
+            "official_points": {
+              "delta": 0.03833333333333334,
+              "interval_95": [
+                -0.03500833333333332,
+                0.0955
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "relative_points": {
+              "delta": 0.03833333333333334,
+              "interval_95": [
+                -0.03500833333333332,
+                0.0955
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "party_win": {
+              "delta": -0.0005,
+              "interval_95": [
+                -0.0011666666666666665,
+                0.0
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            }
+          },
+          "all-neural": {
+            "official_points": {
+              "delta": 2.870833333333333,
+              "interval_95": [
+                2.099041666666667,
+                3.678237499999999
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "relative_points": {
+              "delta": 2.870833333333333,
+              "interval_95": [
+                2.099041666666667,
+                3.678237499999999
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "party_win": {
+              "delta": 0.0265,
+              "interval_95": [
+                0.020999999999999998,
+                0.03233333333333333
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            }
+          },
+          "all-neural-minus-declaration": {
+            "official_points": {
+              "delta": 0.09766666666666665,
+              "interval_95": [
+                0.03265833333333333,
+                0.1733416666666666
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "relative_points": {
+              "delta": 0.09766666666666665,
+              "interval_95": [
+                0.03265833333333333,
+                0.1733416666666666
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "party_win": {
+              "delta": 0.0,
+              "interval_95": [
+                -0.0005,
+                0.0005
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            }
+          }
+        }
+      },
+      "all-neural": {
+        "summary": {
+          "best": {
+            "wins": 2103,
+            "played": 5913,
+            "passed": 87,
+            "win_rate": 0.3556570268899036,
+            "soloist": {
+              "wins": 1521,
+              "played": 1971
+            },
+            "defence": {
+              "wins": 582,
+              "played": 3942
+            },
+            "official_points": 26486,
+            "points_per_deal": 4.414333333333333,
+            "soloist_fraction": 0.3285,
+            "overbids": 0,
+            "seconds": 2015.9220742009693,
+            "rounds_per_second": 2.9763055213223755,
+            "hand_games": 0,
+            "relative_points_per_deal": -2.870833333333333,
+            "by_seed": {
+              "20261020": {
+                "wins": 1050,
+                "played": 2940,
+                "passed": 60,
+                "win_rate": 0.35714285714285715,
+                "soloist": {
+                  "wins": 766,
+                  "played": 980
+                },
+                "defence": {
+                  "wins": 284,
+                  "played": 1960
+                },
+                "official_points": 12911,
+                "points_per_deal": 4.3036666666666665,
+                "soloist_fraction": 0.32666666666666666,
+                "overbids": 0,
+                "seconds": 995.9341615149406,
+                "rounds_per_second": 3.0122473110437586
+              },
+              "20261021": {
+                "wins": 1053,
+                "played": 2973,
+                "passed": 27,
+                "win_rate": 0.35418768920282545,
+                "soloist": {
+                  "wins": 755,
+                  "played": 991
+                },
+                "defence": {
+                  "wins": 298,
+                  "played": 1982
+                },
+                "official_points": 13575,
+                "points_per_deal": 4.525,
+                "soloist_fraction": 0.3303333333333333,
+                "overbids": 0,
+                "seconds": 1019.9879126860287,
+                "rounds_per_second": 2.941211324847784
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 697,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.35362760020294265,
+                "wilson_interval": [
+                  0.33282391578054243,
+                  0.3750007522839746
+                ],
+                "soloist": {
+                  "wins": 496,
+                  "played": 642
+                },
+                "defence": {
+                  "wins": 201,
+                  "played": 1329
+                },
+                "official_points": 8267,
+                "points_per_deal": 4.1335,
+                "soloist_fraction": 0.321,
+                "overbids": 0,
+                "seconds": 673.4041877200034,
+                "rounds_per_second": 2.9699845003512
+              },
+              "1": {
+                "wins": 697,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.35362760020294265,
+                "wilson_interval": [
+                  0.33282391578054243,
+                  0.3750007522839746
+                ],
+                "soloist": {
+                  "wins": 516,
+                  "played": 674
+                },
+                "defence": {
+                  "wins": 181,
+                  "played": 1297
+                },
+                "official_points": 9581,
+                "points_per_deal": 4.7905,
+                "soloist_fraction": 0.337,
+                "overbids": 0,
+                "seconds": 668.9216360919927,
+                "rounds_per_second": 2.9898868448694524
+              },
+              "2": {
+                "wins": 709,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.35971588026382545,
+                "wilson_interval": [
+                  0.3388201677397683,
+                  0.38115737375014147
+                ],
+                "soloist": {
+                  "wins": 509,
+                  "played": 655
+                },
+                "defence": {
+                  "wins": 200,
+                  "played": 1316
+                },
+                "official_points": 8638,
+                "points_per_deal": 4.319,
+                "soloist_fraction": 0.3275,
+                "overbids": 0,
+                "seconds": 673.5962503889732,
+                "rounds_per_second": 2.969137667920635
+              }
+            }
+          },
+          "declaration": {
+            "wins": 2262,
+            "played": 5913,
+            "passed": 87,
+            "win_rate": 0.38254693049213595,
+            "soloist": {
+              "wins": 1680,
+              "played": 1971
+            },
+            "defence": {
+              "wins": 582,
+              "played": 3942
+            },
+            "official_points": 43125,
+            "points_per_deal": 7.1875,
+            "soloist_fraction": 0.3285,
+            "overbids": 0,
+            "seconds": 2300.065097391034,
+            "rounds_per_second": 2.6086218197936244,
+            "hand_games": 0,
+            "relative_points_per_deal": -0.09766666666666667,
+            "by_seed": {
+              "20261020": {
+                "wins": 1122,
+                "played": 2940,
+                "passed": 60,
+                "win_rate": 0.3816326530612245,
+                "soloist": {
+                  "wins": 838,
+                  "played": 980
+                },
+                "defence": {
+                  "wins": 284,
+                  "played": 1960
+                },
+                "official_points": 21268,
+                "points_per_deal": 7.089333333333333,
+                "soloist_fraction": 0.32666666666666666,
+                "overbids": 0,
+                "seconds": 1140.6796285599921,
+                "rounds_per_second": 2.6300110257840204
+              },
+              "20261021": {
+                "wins": 1140,
+                "played": 2973,
+                "passed": 27,
+                "win_rate": 0.3834510595358224,
+                "soloist": {
+                  "wins": 842,
+                  "played": 991
+                },
+                "defence": {
+                  "wins": 298,
+                  "played": 1982
+                },
+                "official_points": 21857,
+                "points_per_deal": 7.285666666666667,
+                "soloist_fraction": 0.3303333333333333,
+                "overbids": 0,
+                "seconds": 1159.385468831042,
+                "rounds_per_second": 2.5875777130661897
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 752,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.3815322171486555,
+                "wilson_interval": [
+                  0.36033676228320527,
+                  0.403188575647695
+                ],
+                "soloist": {
+                  "wins": 551,
+                  "played": 642
+                },
+                "defence": {
+                  "wins": 201,
+                  "played": 1329
+                },
+                "official_points": 14736,
+                "points_per_deal": 7.368,
+                "soloist_fraction": 0.321,
+                "overbids": 0,
+                "seconds": 763.5619479590005,
+                "rounds_per_second": 2.619302867758138
+              },
+              "1": {
+                "wins": 746,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.3784880771182141,
+                "wilson_interval": [
+                  0.3573316677153956,
+                  0.40011723350280826
+                ],
+                "soloist": {
+                  "wins": 565,
+                  "played": 674
+                },
+                "defence": {
+                  "wins": 181,
+                  "played": 1297
+                },
+                "official_points": 13553,
+                "points_per_deal": 6.7765,
+                "soloist_fraction": 0.337,
+                "overbids": 0,
+                "seconds": 769.4719278730172,
+                "rounds_per_second": 2.5991851392531267
+              },
+              "2": {
+                "wins": 764,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.3876204972095383,
+                "wilson_interval": [
+                  0.366349616071348,
+                  0.409328595284945
+                ],
+                "soloist": {
+                  "wins": 564,
+                  "played": 655
+                },
+                "defence": {
+                  "wins": 200,
+                  "played": 1316
+                },
+                "official_points": 14836,
+                "points_per_deal": 7.418,
+                "soloist_fraction": 0.3275,
+                "overbids": 0,
+                "seconds": 767.0312215590166,
+                "rounds_per_second": 2.607455790306597
+              }
+            }
+          },
+          "pickup": {
+            "wins": 2100,
+            "played": 5913,
+            "passed": 87,
+            "win_rate": 0.35514967021816335,
+            "soloist": {
+              "wins": 1518,
+              "played": 1971
+            },
+            "defence": {
+              "wins": 582,
+              "played": 3942
+            },
+            "official_points": 26716,
+            "points_per_deal": 4.4526666666666666,
+            "soloist_fraction": 0.3285,
+            "overbids": 0,
+            "seconds": 2025.66380480698,
+            "rounds_per_second": 2.961992007638071,
+            "hand_games": 60,
+            "relative_points_per_deal": -2.8325,
+            "by_seed": {
+              "20261020": {
+                "wins": 1048,
+                "played": 2940,
+                "passed": 60,
+                "win_rate": 0.3564625850340136,
+                "soloist": {
+                  "wins": 764,
+                  "played": 980
+                },
+                "defence": {
+                  "wins": 284,
+                  "played": 1960
+                },
+                "official_points": 13002,
+                "points_per_deal": 4.334,
+                "soloist_fraction": 0.32666666666666666,
+                "overbids": 0,
+                "seconds": 1003.3585327760229,
+                "rounds_per_second": 2.9899581276294205
+              },
+              "20261021": {
+                "wins": 1052,
+                "played": 2973,
+                "passed": 27,
+                "win_rate": 0.35385132862428526,
+                "soloist": {
+                  "wins": 754,
+                  "played": 991
+                },
+                "defence": {
+                  "wins": 298,
+                  "played": 1982
+                },
+                "official_points": 13714,
+                "points_per_deal": 4.5713333333333335,
+                "soloist_fraction": 0.3303333333333333,
+                "overbids": 0,
+                "seconds": 1022.305272030957,
+                "rounds_per_second": 2.9345441934776164
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 695,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.3526128868594622,
+                "wilson_interval": [
+                  0.33182490210416427,
+                  0.3739742870561207
+                ],
+                "soloist": {
+                  "wins": 494,
+                  "played": 642
+                },
+                "defence": {
+                  "wins": 201,
+                  "played": 1329
+                },
+                "official_points": 8172,
+                "points_per_deal": 4.086,
+                "soloist_fraction": 0.321,
+                "overbids": 0,
+                "seconds": 675.0561553429288,
+                "rounds_per_second": 2.9627164853922396
+              },
+              "1": {
+                "wins": 696,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.3531202435312024,
+                "wilson_interval": [
+                  0.33232439597228386,
+                  0.3744875326401171
+                ],
+                "soloist": {
+                  "wins": 515,
+                  "played": 674
+                },
+                "defence": {
+                  "wins": 181,
+                  "played": 1297
+                },
+                "official_points": 9714,
+                "points_per_deal": 4.857,
+                "soloist_fraction": 0.337,
+                "overbids": 0,
+                "seconds": 674.7602316330103,
+                "rounds_per_second": 2.9640158181221374
+              },
+              "2": {
+                "wins": 709,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.35971588026382545,
+                "wilson_interval": [
+                  0.3388201677397683,
+                  0.38115737375014147
+                ],
+                "soloist": {
+                  "wins": 509,
+                  "played": 655
+                },
+                "defence": {
+                  "wins": 200,
+                  "played": 1316
+                },
+                "official_points": 8830,
+                "points_per_deal": 4.415,
+                "soloist_fraction": 0.3275,
+                "overbids": 0,
+                "seconds": 675.8474178310407,
+                "rounds_per_second": 2.959247823152877
+              }
+            }
+          },
+          "all-neural": {
+            "wins": 2262,
+            "played": 5913,
+            "passed": 87,
+            "win_rate": 0.38254693049213595,
+            "soloist": {
+              "wins": 1680,
+              "played": 1971
+            },
+            "defence": {
+              "wins": 582,
+              "played": 3942
+            },
+            "official_points": 43711,
+            "points_per_deal": 7.285166666666667,
+            "soloist_fraction": 0.3285,
+            "overbids": 0,
+            "seconds": 2309.3304137560754,
+            "rounds_per_second": 2.598155709663535,
+            "hand_games": 60,
+            "relative_points_per_deal": 0.0,
+            "by_seed": {
+              "20261020": {
+                "wins": 1122,
+                "played": 2940,
+                "passed": 60,
+                "win_rate": 0.3816326530612245,
+                "soloist": {
+                  "wins": 838,
+                  "played": 980
+                },
+                "defence": {
+                  "wins": 284,
+                  "played": 1960
+                },
+                "official_points": 21582,
+                "points_per_deal": 7.194,
+                "soloist_fraction": 0.32666666666666666,
+                "overbids": 0,
+                "seconds": 1143.4402276099809,
+                "rounds_per_second": 2.6236614101557376
+              },
+              "20261021": {
+                "wins": 1140,
+                "played": 2973,
+                "passed": 27,
+                "win_rate": 0.3834510595358224,
+                "soloist": {
+                  "wins": 842,
+                  "played": 991
+                },
+                "defence": {
+                  "wins": 298,
+                  "played": 1982
+                },
+                "official_points": 22129,
+                "points_per_deal": 7.376333333333333,
+                "soloist_fraction": 0.3303333333333333,
+                "overbids": 0,
+                "seconds": 1165.8901861460945,
+                "rounds_per_second": 2.5731411376886557
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 753,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.3820395738203957,
+                "wilson_interval": [
+                  0.3608376979718161,
+                  0.4037003794112002
+                ],
+                "soloist": {
+                  "wins": 552,
+                  "played": 642
+                },
+                "defence": {
+                  "wins": 201,
+                  "played": 1329
+                },
+                "official_points": 14897,
+                "points_per_deal": 7.4485,
+                "soloist_fraction": 0.321,
+                "overbids": 0,
+                "seconds": 766.2183993190429,
+                "rounds_per_second": 2.610221839853297
+              },
+              "1": {
+                "wins": 745,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.37798072044647385,
+                "wilson_interval": [
+                  0.3568309053935553,
+                  0.3996052563725326
+                ],
+                "soloist": {
+                  "wins": 564,
+                  "played": 674
+                },
+                "defence": {
+                  "wins": 181,
+                  "played": 1297
+                },
+                "official_points": 13794,
+                "points_per_deal": 6.897,
+                "soloist_fraction": 0.337,
+                "overbids": 0,
+                "seconds": 771.3113776629671,
+                "rounds_per_second": 2.5929865135140298
+              },
+              "2": {
+                "wins": 764,
+                "played": 1971,
+                "passed": 29,
+                "win_rate": 0.3876204972095383,
+                "wilson_interval": [
+                  0.366349616071348,
+                  0.409328595284945
+                ],
+                "soloist": {
+                  "wins": 564,
+                  "played": 655
+                },
+                "defence": {
+                  "wins": 200,
+                  "played": 1316
+                },
+                "official_points": 15020,
+                "points_per_deal": 7.51,
+                "soloist_fraction": 0.3275,
+                "overbids": 0,
+                "seconds": 771.8006367740654,
+                "rounds_per_second": 2.591342770018307
+              }
+            }
+          }
+        },
+        "differences_from_best": {
+          "declaration": {
+            "official_points": {
+              "delta": 2.773166666666667,
+              "interval_95": [
+                1.9987333333333335,
+                3.5888500000000003
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "relative_points": {
+              "delta": 2.773166666666667,
+              "interval_95": [
+                1.9987333333333335,
+                3.5888500000000003
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "party_win": {
+              "delta": 0.0265,
+              "interval_95": [
+                0.020833333333333332,
+                0.03216666666666666
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            }
+          },
+          "pickup": {
+            "official_points": {
+              "delta": 0.03833333333333334,
+              "interval_95": [
+                -0.03500833333333332,
+                0.0955
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "relative_points": {
+              "delta": 0.03833333333333334,
+              "interval_95": [
+                -0.03500833333333332,
+                0.0955
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "party_win": {
+              "delta": -0.0005,
+              "interval_95": [
+                -0.0011666666666666665,
+                0.0
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            }
+          },
+          "all-neural": {
+            "official_points": {
+              "delta": 2.870833333333333,
+              "interval_95": [
+                2.099041666666667,
+                3.678237499999999
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "relative_points": {
+              "delta": 2.870833333333333,
+              "interval_95": [
+                2.099041666666667,
+                3.678237499999999
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "party_win": {
+              "delta": 0.0265,
+              "interval_95": [
+                0.020999999999999998,
+                0.03233333333333333
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            }
+          },
+          "all-neural-minus-declaration": {
+            "official_points": {
+              "delta": 0.09766666666666665,
+              "interval_95": [
+                0.03265833333333333,
+                0.1733416666666666
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "relative_points": {
+              "delta": 0.09766666666666665,
+              "interval_95": [
+                0.03265833333333333,
+                0.1733416666666666
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            },
+            "party_win": {
+              "delta": 0.0,
+              "interval_95": [
+                -0.0005,
+                0.0005
+              ],
+              "rounds": 6000,
+              "independent_deals": 2000
+            }
+          }
+        }
+      }
+    },
+    "mixed_tables": {
+      "all-neural-vs-two-best": {
+        "candidate_points_per_round": 7.285166666666667,
+        "reference_points_per_round": 4.414333333333333,
+        "candidate_minus_average_reference": {
+          "delta": 2.870833333333333,
+          "interval_95": [
+            2.099041666666667,
+            3.678237499999999
+          ],
+          "rounds": 6000,
+          "independent_deals": 2000
+        }
+      },
+      "best-vs-two-all-neural": {
+        "candidate_points_per_round": 4.414333333333333,
+        "reference_points_per_round": 7.285166666666667,
+        "candidate_minus_average_reference": {
+          "delta": -2.870833333333333,
+          "interval_95": [
+            -3.6782374999999994,
+            -2.0990416666666682
+          ],
+          "rounds": 6000,
+          "independent_deals": 2000
+        }
+      }
+    },
+    "actual_rounds": 72000,
+    "independent_deals": 2000,
+    "diagnostics": {
+      "unique_deals": 2000,
+      "same_deal_for_every_profile_panel_and_seat": true,
+      "own_contracts_against_best": {
+        "best": {
+          "suit": {
+            "games": 1593,
+            "wins": 1255,
+            "points": 21398
+          },
+          "grand": {
+            "games": 378,
+            "wins": 266,
+            "points": 5088
+          },
+          "null": {
+            "games": 0,
+            "wins": 0,
+            "points": 0
+          }
+        },
+        "declaration": {
+          "suit": {
+            "games": 1752,
+            "wins": 1522,
+            "points": 38241
+          },
+          "grand": {
+            "games": 153,
+            "wins": 126,
+            "points": 5712
+          },
+          "null": {
+            "games": 66,
+            "wins": 32,
+            "points": -828
+          }
+        },
+        "pickup": {
+          "suit": {
+            "games": 1593,
+            "wins": 1252,
+            "points": 21580
+          },
+          "grand": {
+            "games": 378,
+            "wins": 266,
+            "points": 5136
+          },
+          "null": {
+            "games": 0,
+            "wins": 0,
+            "points": 0
+          }
+        },
+        "all-neural": {
+          "suit": {
+            "games": 1751,
+            "wins": 1521,
+            "points": 38586
+          },
+          "grand": {
+            "games": 155,
+            "wins": 128,
+            "points": 5976
+          },
+          "null": {
+            "games": 65,
+            "wins": 31,
+            "points": -851
+          }
+        }
+      },
+      "defence_groups_with_identical_results_across_preparation_variants": 11668,
+      "passed_groups_with_identical_results_across_preparation_variants": 472,
+      "source_snapshot_reconstructed_and_verified": true,
+      "checkpoint_hashes_verified_after_run": true
+    },
+    "artifacts": {
+      "directory": "benchmark_runs/presets-paired-20261020",
+      "raw_outcomes": {
+        "worker-0.jsonl": "19a0334ed2f9b9b554b4e1c918d9b2bd4cb63b24e254257f45ba6334de2cb38c",
+        "worker-1.jsonl": "f07bf791c52d038561241b0f971544fd9ce13a3f8b8bf7c2b0a60ede53145ada",
+        "worker-10.jsonl": "ce08dc1ccfe16bf87058b23ee76f499eccb0ed1559aa1b5f0fadffab89d14bd0",
+        "worker-11.jsonl": "fd1f795ad285edadeb919dde83235bb5b623fe3f4803548f82860adf554c5e10",
+        "worker-12.jsonl": "89a0886c7c6500061a5f9fdf8c1c6b3b9e64e0a2bbc03f2ade622eaffbe0cc41",
+        "worker-13.jsonl": "cc334086c51efa3570c8c6ab89088a0667c974580e9ea060e4f181835a52fbc6",
+        "worker-14.jsonl": "1a450277f18431666e717b5b77d1a3237cb1f43ef54079d9098173c0b7225e28",
+        "worker-15.jsonl": "79015ed1b290bccf82f776cca0ba6d2196835e07717e2bbb3d7f9ed14d5afdac",
+        "worker-2.jsonl": "19993c64aac6dbf73ba839bb7cd67f3492374e25dd9cbd75c503130243099f56",
+        "worker-3.jsonl": "a027b8f7e5037bb45be7cb907c273f69d9abfe60ea45d720ccf213cd638be46b",
+        "worker-4.jsonl": "b431397ca89532593fe2e4198b069ec23511e9ecce9a951c8ce2d12b4e2b4420",
+        "worker-5.jsonl": "f3d7126d4eb0f66d11ce4c95b19c6e912e47135d7568d0ee1c703c8e53a98b5a",
+        "worker-6.jsonl": "91c67a11bd7fbf759e00ff90085f8b04d695eb3fea62c3e8cd7ceefbf61ed8a8",
+        "worker-7.jsonl": "8a4a8aebbe6ac344c8a72d460b94a1ac6a700f67246c5d69855c181de2cf62f1",
+        "worker-8.jsonl": "74910a970e85ba95f936e3b81fc50a29443f9744a9a7afe3698d4b36c74d5760",
+        "worker-9.jsonl": "f0b28c41dfabd4f2bd40f45ad6949d456fa76b5f0e2dedaf238fe8bd9e2ee738"
+      },
+      "archived_benchmark_source": "benchmark-source.py",
+      "archived_benchmark_source_sha256": "55411542603a37fb975cf45031c5ace3716176d428ebe0ea209a666f66f522cb"
+    }
+  },
+  "card_play": {
+    "manifest": {
+      "protocol": "paired-presets-fixed-panels-v1",
+      "measured_at": "2026-10-20T10:58:23.700360+00:00",
+      "source_commit": "a6c09138c055d0f046c22f2495b5d86c9ce0fcf4",
+      "source_sha256": "ab35f1243578dabb75c0a9d1840c6e9fbcb36079f79aaa9cba141a934fdcb60d",
+      "rules_schema": "skat-isko-2022-v1",
+      "observation_schema": "skat-public-contract-v3",
+      "torch_version": "2.14.1+cpu",
+      "python_version": "3.14.8",
+      "numpy_version": "2.5.4",
+      "candidates": [
+        "best",
+        "all-neural",
+        "mcts"
+      ],
+      "panels": [
+        "all-neural"
+      ],
+      "profiles": {
+        "all-neural": {
+          "agent": "policy",
+          "bidding": "neural",
+          "declaration": "neural",
+          "pickup": "neural"
+        },
+        "mcts": {
+          "agent": "mcts",
+          "bidding": "neural",
+          "declaration": "neural",
+          "pickup": "neural"
+        },
+        "best": {
+          "agent": "policy",
+          "bidding": "neural",
+          "declaration": "heuristic",
+          "pickup": "always"
+        }
+      },
+      "models": {
+        "policy": "benchmark_runs/iss-run-1/policy.pt",
+        "bidding": "benchmark_runs/bidding-run-1/bidding.pt",
+        "declaration": "benchmark_runs/declaration-run-3/declaration.pt",
+        "pickup": "benchmark_runs/pickup-run-2/pickup.pt"
+      },
+      "checkpoint_sha256": {
+        "policy": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+        "bidding": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+        "declaration": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+        "pickup": "85660fcdecb72fb85a3ceb24af779b175719759f5e6003785cd36ff6d2566831"
+      },
+      "seeds": [
+        20261022,
+        20261023
+      ],
+      "deals_per_seed": 500,
+      "workers": 4,
+      "device": "cpu",
+      "bidding_threshold": 0.55,
+      "pickup_margin": 0.0,
+      "mcts": {
+        "simulations": 600,
+        "determinizations": 20
+      },
+      "rng_scheme": "sha256-preset-deal-and-seat-v1",
+      "bootstrap": "2000-resamples-complete-deals-including-all-seats",
+      "primary_comparison": "all-neural minus best, separately for each fixed reference panel"
+    },
+    "status": "complete",
+    "panels": {
+      "all-neural": {
+        "summary": {
+          "best": {
+            "wins": 1021,
+            "played": 2949,
+            "passed": 51,
+            "win_rate": 0.34621905730756186,
+            "soloist": {
+              "wins": 761,
+              "played": 983
+            },
+            "defence": {
+              "wins": 260,
+              "played": 1966
+            },
+            "official_points": 13760,
+            "points_per_deal": 4.586666666666667,
+            "soloist_fraction": 0.32766666666666666,
+            "overbids": 0,
+            "seconds": 872.3857156830181,
+            "rounds_per_second": 3.438845852320273,
+            "hand_games": 0,
+            "relative_points_per_deal": -3.247,
+            "by_seed": {
+              "20261022": {
+                "wins": 503,
+                "played": 1482,
+                "passed": 18,
+                "win_rate": 0.33940620782726044,
+                "soloist": {
+                  "wins": 373,
+                  "played": 494
+                },
+                "defence": {
+                  "wins": 130,
+                  "played": 988
+                },
+                "official_points": 5905,
+                "points_per_deal": 3.9366666666666665,
+                "soloist_fraction": 0.3293333333333333,
+                "overbids": 0,
+                "seconds": 440.47245336397464,
+                "rounds_per_second": 3.4054342979775587
+              },
+              "20261023": {
+                "wins": 518,
+                "played": 1467,
+                "passed": 33,
+                "win_rate": 0.35310156782549423,
+                "soloist": {
+                  "wins": 388,
+                  "played": 489
+                },
+                "defence": {
+                  "wins": 130,
+                  "played": 978
+                },
+                "official_points": 7855,
+                "points_per_deal": 5.236666666666666,
+                "soloist_fraction": 0.326,
+                "overbids": 0,
+                "seconds": 431.9132623190435,
+                "rounds_per_second": 3.472919520799497
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 330,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.335707019328586,
+                "wilson_interval": [
+                  0.3068755959297426,
+                  0.36581756982249164
+                ],
+                "soloist": {
+                  "wins": 246,
+                  "played": 320
+                },
+                "defence": {
+                  "wins": 84,
+                  "played": 663
+                },
+                "official_points": 4182,
+                "points_per_deal": 4.182,
+                "soloist_fraction": 0.32,
+                "overbids": 0,
+                "seconds": 291.5690406210215,
+                "rounds_per_second": 3.4297194169520555
+              },
+              "1": {
+                "wins": 323,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.3285859613428281,
+                "wilson_interval": [
+                  0.2999399527226397,
+                  0.3585665390993508
+                ],
+                "soloist": {
+                  "wins": 240,
+                  "played": 314
+                },
+                "defence": {
+                  "wins": 83,
+                  "played": 669
+                },
+                "official_points": 4628,
+                "points_per_deal": 4.628,
+                "soloist_fraction": 0.314,
+                "overbids": 0,
+                "seconds": 294.1416260919741,
+                "rounds_per_second": 3.399722824974502
+              },
+              "2": {
+                "wins": 368,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.3743641912512716,
+                "wilson_interval": [
+                  0.3446539428092776,
+                  0.40505259570713686
+                ],
+                "soloist": {
+                  "wins": 275,
+                  "played": 349
+                },
+                "defence": {
+                  "wins": 93,
+                  "played": 634
+                },
+                "official_points": 4950,
+                "points_per_deal": 4.95,
+                "soloist_fraction": 0.349,
+                "overbids": 0,
+                "seconds": 286.67504897002254,
+                "rounds_per_second": 3.4882700939368094
+              }
+            }
+          },
+          "all-neural": {
+            "wins": 1113,
+            "played": 2949,
+            "passed": 51,
+            "win_rate": 0.37741607324516785,
+            "soloist": {
+              "wins": 853,
+              "played": 983
+            },
+            "defence": {
+              "wins": 260,
+              "played": 1966
+            },
+            "official_points": 23501,
+            "points_per_deal": 7.833666666666667,
+            "soloist_fraction": 0.32766666666666666,
+            "overbids": 0,
+            "seconds": 994.8577205040165,
+            "rounds_per_second": 3.0155065776442234,
+            "hand_games": 46,
+            "relative_points_per_deal": 0.0,
+            "by_seed": {
+              "20261022": {
+                "wins": 559,
+                "played": 1482,
+                "passed": 18,
+                "win_rate": 0.37719298245614036,
+                "soloist": {
+                  "wins": 429,
+                  "played": 494
+                },
+                "defence": {
+                  "wins": 130,
+                  "played": 988
+                },
+                "official_points": 11603,
+                "points_per_deal": 7.735333333333333,
+                "soloist_fraction": 0.3293333333333333,
+                "overbids": 0,
+                "seconds": 499.09228776503187,
+                "rounds_per_second": 3.0054561786901153
+              },
+              "20261023": {
+                "wins": 554,
+                "played": 1467,
+                "passed": 33,
+                "win_rate": 0.3776414451261077,
+                "soloist": {
+                  "wins": 424,
+                  "played": 489
+                },
+                "defence": {
+                  "wins": 130,
+                  "played": 978
+                },
+                "official_points": 11898,
+                "points_per_deal": 7.932,
+                "soloist_fraction": 0.326,
+                "overbids": 0,
+                "seconds": 495.7654327389846,
+                "rounds_per_second": 3.025624420228053
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 358,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.3641912512716175,
+                "wilson_interval": [
+                  0.33469184326881635,
+                  0.3947480182043927
+                ],
+                "soloist": {
+                  "wins": 274,
+                  "played": 320
+                },
+                "defence": {
+                  "wins": 84,
+                  "played": 663
+                },
+                "official_points": 7845,
+                "points_per_deal": 7.845,
+                "soloist_fraction": 0.32,
+                "overbids": 0,
+                "seconds": 331.06893516999116,
+                "rounds_per_second": 3.0205189728433397
+              },
+              "1": {
+                "wins": 350,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.3560528992878942,
+                "wilson_interval": [
+                  0.3267325379165883,
+                  0.38649398192205653
+                ],
+                "soloist": {
+                  "wins": 267,
+                  "played": 314
+                },
+                "defence": {
+                  "wins": 83,
+                  "played": 669
+                },
+                "official_points": 7303,
+                "points_per_deal": 7.303,
+                "soloist_fraction": 0.314,
+                "overbids": 0,
+                "seconds": 330.82627835001404,
+                "rounds_per_second": 3.0227344846590465
+              },
+              "2": {
+                "wins": 405,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.41200406917599186,
+                "wilson_interval": [
+                  0.38163538706947264,
+                  0.4430578565068014
+                ],
+                "soloist": {
+                  "wins": 312,
+                  "played": 349
+                },
+                "defence": {
+                  "wins": 93,
+                  "played": 634
+                },
+                "official_points": 8353,
+                "points_per_deal": 8.353,
+                "soloist_fraction": 0.349,
+                "overbids": 0,
+                "seconds": 332.96250698401127,
+                "rounds_per_second": 3.0033411541078396
+              }
+            }
+          },
+          "mcts": {
+            "wins": 1059,
+            "played": 2949,
+            "passed": 51,
+            "win_rate": 0.35910478128179046,
+            "soloist": {
+              "wins": 816,
+              "played": 983
+            },
+            "defence": {
+              "wins": 243,
+              "played": 1966
+            },
+            "official_points": 17810,
+            "points_per_deal": 5.9366666666666665,
+            "soloist_fraction": 0.32766666666666666,
+            "overbids": 0,
+            "seconds": 3472.0605475510183,
+            "rounds_per_second": 0.8640402317050659,
+            "hand_games": 46,
+            "relative_points_per_deal": -2.4848333333333334,
+            "by_seed": {
+              "20261022": {
+                "wins": 520,
+                "played": 1482,
+                "passed": 18,
+                "win_rate": 0.3508771929824561,
+                "soloist": {
+                  "wins": 413,
+                  "played": 494
+                },
+                "defence": {
+                  "wins": 107,
+                  "played": 988
+                },
+                "official_points": 8698,
+                "points_per_deal": 5.798666666666667,
+                "soloist_fraction": 0.3293333333333333,
+                "overbids": 0,
+                "seconds": 1730.7270587940184,
+                "rounds_per_second": 0.8666877844073285
+              },
+              "20261023": {
+                "wins": 539,
+                "played": 1467,
+                "passed": 33,
+                "win_rate": 0.3674164962508521,
+                "soloist": {
+                  "wins": 403,
+                  "played": 489
+                },
+                "defence": {
+                  "wins": 136,
+                  "played": 978
+                },
+                "official_points": 9112,
+                "points_per_deal": 6.074666666666666,
+                "soloist_fraction": 0.326,
+                "overbids": 0,
+                "seconds": 1741.333488757,
+                "rounds_per_second": 0.8614088051971774
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 341,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.34689725330620547,
+                "wilson_interval": [
+                  0.31778952626983153,
+                  0.3771969842299285
+                ],
+                "soloist": {
+                  "wins": 261,
+                  "played": 320
+                },
+                "defence": {
+                  "wins": 80,
+                  "played": 663
+                },
+                "official_points": 5850,
+                "points_per_deal": 5.85,
+                "soloist_fraction": 0.32,
+                "overbids": 0,
+                "seconds": 1170.9572750080115,
+                "rounds_per_second": 0.8540021240255399
+              },
+              "1": {
+                "wins": 338,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.34384537131230924,
+                "wilson_interval": [
+                  0.31481119396235036,
+                  0.374095313424448
+                ],
+                "soloist": {
+                  "wins": 261,
+                  "played": 314
+                },
+                "defence": {
+                  "wins": 77,
+                  "played": 669
+                },
+                "official_points": 5620,
+                "points_per_deal": 5.62,
+                "soloist_fraction": 0.314,
+                "overbids": 0,
+                "seconds": 1161.4718592120153,
+                "rounds_per_second": 0.860976520497394
+              },
+              "2": {
+                "wins": 380,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.38657171922685657,
+                "wilson_interval": [
+                  0.35662716292566277,
+                  0.417399388042598
+                ],
+                "soloist": {
+                  "wins": 294,
+                  "played": 349
+                },
+                "defence": {
+                  "wins": 86,
+                  "played": 634
+                },
+                "official_points": 6340,
+                "points_per_deal": 6.34,
+                "soloist_fraction": 0.349,
+                "overbids": 0,
+                "seconds": 1139.6314133309916,
+                "rounds_per_second": 0.877476689658047
+              }
+            }
+          }
+        },
+        "differences_from_best": {
+          "all-neural": {
+            "official_points": {
+              "delta": 3.247,
+              "interval_95": [
+                2.0299166666666664,
+                4.489725
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            },
+            "relative_points": {
+              "delta": 3.247,
+              "interval_95": [
+                2.0299166666666664,
+                4.489725
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            },
+            "party_win": {
+              "delta": 0.03066666666666666,
+              "interval_95": [
+                0.022333333333333334,
+                0.03834166666666663
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            }
+          },
+          "mcts": {
+            "official_points": {
+              "delta": 1.35,
+              "interval_95": [
+                0.038958333333333386,
+                2.6840749999999995
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            },
+            "relative_points": {
+              "delta": 0.7621666666666665,
+              "interval_95": [
+                -0.6390833333333336,
+                2.1878541666666664
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            },
+            "party_win": {
+              "delta": 0.012666666666666665,
+              "interval_95": [
+                -0.0019999999999999987,
+                0.027666666666666666
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            }
+          },
+          "all-neural-minus-mcts": {
+            "official_points": {
+              "delta": 1.897,
+              "interval_95": [
+                1.2031166666666668,
+                2.590141666666666
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            },
+            "relative_points": {
+              "delta": 2.484833333333333,
+              "interval_95": [
+                1.7815666666666665,
+                3.1958375000000006
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            },
+            "party_win": {
+              "delta": 0.018,
+              "interval_95": [
+                0.007333333333333333,
+                0.028666666666666663
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            }
+          }
+        }
+      }
+    },
+    "mixed_tables": {
+      "best-vs-two-all-neural": {
+        "candidate_points_per_round": 4.586666666666667,
+        "reference_points_per_round": 7.833666666666667,
+        "candidate_minus_average_reference": {
+          "delta": -3.247,
+          "interval_95": [
+            -4.489725000000001,
+            -2.029916666666667
+          ],
+          "rounds": 3000,
+          "independent_deals": 1000
+        }
+      }
+    },
+    "actual_rounds": 9000,
+    "independent_deals": 1000,
+    "diagnostics": {
+      "unique_deals": 1000,
+      "groups_with_identical_soloist_and_declaration_between_policy_and_mcts": 3000,
+      "source_snapshot_reconstructed_and_verified": true,
+      "checkpoint_hashes_verified_after_run": true
+    },
+    "artifacts": {
+      "directory": "benchmark_runs/presets-mcts-20261020",
+      "raw_outcomes": {
+        "worker-0.jsonl": "cc81174792b564fceb4f37ef27e6a6d59485ce100d46af3d05471b1e44621e27",
+        "worker-1.jsonl": "0f9a061af9f470ee02e358c9b340f3fcbc11e25fbcf1c72ead066ed95ac80dec",
+        "worker-2.jsonl": "9b90bb262ab63fea99681ffe9f63a8ec49f101bd8e4236023f986eb86f9fdeca",
+        "worker-3.jsonl": "0a0497c3fbbe0a65b37a49bc0f5afe85c06554c5e7039a223d6c9b78831650cd"
+      },
+      "archived_benchmark_source": "benchmark-source.py",
+      "archived_benchmark_source_sha256": "9c8d42c5c97fa91dcea9affc3952e5bad6183f1515817cff7ab9638b1e17a1f3"
+    }
+  },
+  "vs_mcts_neural": {
+    "manifest": {
+      "protocol": "paired-presets-fixed-panels-v1",
+      "measured_at": "2026-10-20T11:05:41.960352+00:00",
+      "source_commit": "a6c09138c055d0f046c22f2495b5d86c9ce0fcf4",
+      "source_sha256": "ab35f1243578dabb75c0a9d1840c6e9fbcb36079f79aaa9cba141a934fdcb60d",
+      "rules_schema": "skat-isko-2022-v1",
+      "observation_schema": "skat-public-contract-v3",
+      "torch_version": "2.14.1+cpu",
+      "python_version": "3.14.8",
+      "numpy_version": "2.5.4",
+      "candidates": [
+        "best",
+        "all-neural"
+      ],
+      "panels": [
+        "mcts"
+      ],
+      "profiles": {
+        "best": {
+          "agent": "policy",
+          "bidding": "neural",
+          "declaration": "heuristic",
+          "pickup": "always"
+        },
+        "all-neural": {
+          "agent": "policy",
+          "bidding": "neural",
+          "declaration": "neural",
+          "pickup": "neural"
+        },
+        "mcts": {
+          "agent": "mcts",
+          "bidding": "neural",
+          "declaration": "neural",
+          "pickup": "neural"
+        }
+      },
+      "models": {
+        "policy": "benchmark_runs/iss-run-1/policy.pt",
+        "bidding": "benchmark_runs/bidding-run-1/bidding.pt",
+        "declaration": "benchmark_runs/declaration-run-3/declaration.pt",
+        "pickup": "benchmark_runs/pickup-run-2/pickup.pt"
+      },
+      "checkpoint_sha256": {
+        "policy": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+        "bidding": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+        "declaration": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+        "pickup": "85660fcdecb72fb85a3ceb24af779b175719759f5e6003785cd36ff6d2566831"
+      },
+      "seeds": [
+        20261022,
+        20261023
+      ],
+      "deals_per_seed": 500,
+      "workers": 8,
+      "device": "cpu",
+      "bidding_threshold": 0.55,
+      "pickup_margin": 0.0,
+      "mcts": {
+        "simulations": 600,
+        "determinizations": 20
+      },
+      "rng_scheme": "sha256-preset-deal-and-seat-v1",
+      "bootstrap": "2000-resamples-complete-deals-including-all-seats",
+      "primary_comparison": "all-neural minus best, separately for each fixed reference panel"
+    },
+    "status": "complete",
+    "panels": {
+      "mcts": {
+        "summary": {
+          "best": {
+            "wins": 1096,
+            "played": 2949,
+            "passed": 51,
+            "win_rate": 0.3716514072566972,
+            "soloist": {
+              "wins": 792,
+              "played": 983
+            },
+            "defence": {
+              "wins": 304,
+              "played": 1966
+            },
+            "official_points": 18053,
+            "points_per_deal": 6.017666666666667,
+            "soloist_fraction": 0.32766666666666666,
+            "overbids": 0,
+            "seconds": 7859.748723732055,
+            "rounds_per_second": 0.38169159160797017,
+            "hand_games": 0,
+            "relative_points_per_deal": -0.36483333333333334,
+            "by_seed": {
+              "20261022": {
+                "wins": 540,
+                "played": 1482,
+                "passed": 18,
+                "win_rate": 0.3643724696356275,
+                "soloist": {
+                  "wins": 399,
+                  "played": 494
+                },
+                "defence": {
+                  "wins": 141,
+                  "played": 988
+                },
+                "official_points": 8475,
+                "points_per_deal": 5.65,
+                "soloist_fraction": 0.3293333333333333,
+                "overbids": 0,
+                "seconds": 3903.4939955570208,
+                "rounds_per_second": 0.3842711175442587
+              },
+              "20261023": {
+                "wins": 556,
+                "played": 1467,
+                "passed": 33,
+                "win_rate": 0.37900477164280844,
+                "soloist": {
+                  "wins": 393,
+                  "played": 489
+                },
+                "defence": {
+                  "wins": 163,
+                  "played": 978
+                },
+                "official_points": 9578,
+                "points_per_deal": 6.3853333333333335,
+                "soloist_fraction": 0.326,
+                "overbids": 0,
+                "seconds": 3956.254728175034,
+                "rounds_per_second": 0.3791464663075245
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 374,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.38046795523906407,
+                "wilson_interval": [
+                  0.3506380245031387,
+                  0.4112285202391988
+                ],
+                "soloist": {
+                  "wins": 267,
+                  "played": 320
+                },
+                "defence": {
+                  "wins": 107,
+                  "played": 663
+                },
+                "official_points": 7483,
+                "points_per_deal": 7.483,
+                "soloist_fraction": 0.32,
+                "overbids": 0,
+                "seconds": 2546.687012314027,
+                "rounds_per_second": 0.3926670200007648
+              },
+              "1": {
+                "wins": 349,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.3550356052899288,
+                "wilson_interval": [
+                  0.325738280605795,
+                  0.3854615715285292
+                ],
+                "soloist": {
+                  "wins": 250,
+                  "played": 314
+                },
+                "defence": {
+                  "wins": 99,
+                  "played": 669
+                },
+                "official_points": 5796,
+                "points_per_deal": 5.796,
+                "soloist_fraction": 0.314,
+                "overbids": 0,
+                "seconds": 2578.1709954270227,
+                "rounds_per_second": 0.3878718679923594
+              },
+              "2": {
+                "wins": 373,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.37945066124109866,
+                "wilson_interval": [
+                  0.3496403251259734,
+                  0.41019955191204366
+                ],
+                "soloist": {
+                  "wins": 275,
+                  "played": 349
+                },
+                "defence": {
+                  "wins": 98,
+                  "played": 634
+                },
+                "official_points": 4774,
+                "points_per_deal": 4.774,
+                "soloist_fraction": 0.349,
+                "overbids": 0,
+                "seconds": 2734.890715991005,
+                "rounds_per_second": 0.3656453232858497
+              }
+            }
+          },
+          "all-neural": {
+            "wins": 1161,
+            "played": 2949,
+            "passed": 51,
+            "win_rate": 0.3936927772126144,
+            "soloist": {
+              "wins": 857,
+              "played": 983
+            },
+            "defence": {
+              "wins": 304,
+              "played": 1966
+            },
+            "official_points": 25347,
+            "points_per_deal": 8.449,
+            "soloist_fraction": 0.32766666666666666,
+            "overbids": 0,
+            "seconds": 7845.264945355973,
+            "rounds_per_second": 0.3823962633379078,
+            "hand_games": 46,
+            "relative_points_per_deal": 2.0665,
+            "by_seed": {
+              "20261022": {
+                "wins": 576,
+                "played": 1482,
+                "passed": 18,
+                "win_rate": 0.38866396761133604,
+                "soloist": {
+                  "wins": 435,
+                  "played": 494
+                },
+                "defence": {
+                  "wins": 141,
+                  "played": 988
+                },
+                "official_points": 13145,
+                "points_per_deal": 8.763333333333334,
+                "soloist_fraction": 0.3293333333333333,
+                "overbids": 0,
+                "seconds": 3901.077224413966,
+                "rounds_per_second": 0.3845091788013336
+              },
+              "20261023": {
+                "wins": 585,
+                "played": 1467,
+                "passed": 33,
+                "win_rate": 0.3987730061349693,
+                "soloist": {
+                  "wins": 422,
+                  "played": 489
+                },
+                "defence": {
+                  "wins": 163,
+                  "played": 978
+                },
+                "official_points": 12202,
+                "points_per_deal": 8.134666666666666,
+                "soloist_fraction": 0.326,
+                "overbids": 0,
+                "seconds": 3944.187720942007,
+                "rounds_per_second": 0.38030644232160143
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 388,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.3947100712105799,
+                "wilson_interval": [
+                  0.3646204690914917,
+                  0.4256194235113333
+                ],
+                "soloist": {
+                  "wins": 281,
+                  "played": 320
+                },
+                "defence": {
+                  "wins": 107,
+                  "played": 663
+                },
+                "official_points": 8816,
+                "points_per_deal": 8.816,
+                "soloist_fraction": 0.32,
+                "overbids": 0,
+                "seconds": 2650.403907887003,
+                "rounds_per_second": 0.3773009830781739
+              },
+              "1": {
+                "wins": 368,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.3743641912512716,
+                "wilson_interval": [
+                  0.3446539428092776,
+                  0.40505259570713686
+                ],
+                "soloist": {
+                  "wins": 269,
+                  "played": 314
+                },
+                "defence": {
+                  "wins": 99,
+                  "played": 669
+                },
+                "official_points": 8178,
+                "points_per_deal": 8.178,
+                "soloist_fraction": 0.314,
+                "overbids": 0,
+                "seconds": 2613.371117869985,
+                "rounds_per_second": 0.38264752876546865
+              },
+              "2": {
+                "wins": 405,
+                "played": 983,
+                "passed": 17,
+                "win_rate": 0.41200406917599186,
+                "wilson_interval": [
+                  0.38163538706947264,
+                  0.4430578565068014
+                ],
+                "soloist": {
+                  "wins": 307,
+                  "played": 349
+                },
+                "defence": {
+                  "wins": 98,
+                  "played": 634
+                },
+                "official_points": 8353,
+                "points_per_deal": 8.353,
+                "soloist_fraction": 0.349,
+                "overbids": 0,
+                "seconds": 2581.4899195989856,
+                "rounds_per_second": 0.38737319576879936
+              }
+            }
+          }
+        },
+        "differences_from_best": {
+          "all-neural": {
+            "official_points": {
+              "delta": 2.431333333333333,
+              "interval_95": [
+                1.2547666666666666,
+                3.6564833333333326
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            },
+            "relative_points": {
+              "delta": 2.431333333333333,
+              "interval_95": [
+                1.2547666666666666,
+                3.6564833333333326
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            },
+            "party_win": {
+              "delta": 0.021666666666666664,
+              "interval_95": [
+                0.013658333333333331,
+                0.03
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            }
+          }
+        }
+      }
+    },
+    "mixed_tables": {},
+    "actual_rounds": 6000,
+    "independent_deals": 1000,
+    "analysis": {
+      "mixed_tables_from_recorded_rounds": {
+        "best": {
+          "candidate_points_per_round": 6.017666666666667,
+          "reference_points_per_round": 6.3825,
+          "candidate_minus_average_reference": {
+            "delta": -0.3648333333333333,
+            "interval_95": [
+              -1.5860750000000001,
+              0.8490499999999997
+            ],
+            "rounds": 3000,
+            "independent_deals": 1000
+          }
+        },
+        "all-neural": {
+          "candidate_points_per_round": 8.449,
+          "reference_points_per_round": 6.3825,
+          "candidate_minus_average_reference": {
+            "delta": 2.0665,
+            "interval_95": [
+              1.4318083333333333,
+              2.6910041666666666
+            ],
+            "rounds": 3000,
+            "independent_deals": 1000
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "directory": "benchmark_runs/presets-vs-mcts-20261020",
+      "raw_outcomes": {
+        "worker-0.jsonl": "b0890326ca634a9c8fcf3ae595ae778d447dad6855f8a08d6314b551983caf37",
+        "worker-1.jsonl": "f0314784169e4fefc373c74853e66d67bbaf9834cccda8a4655f81a89396bc51",
+        "worker-2.jsonl": "0b57dab5fd034e136d4561796a10f45932b74dc033dbe1a220b6b5cfb2c0e161",
+        "worker-3.jsonl": "adec635e2fc9dcc66ba36e9357ca37fb893bc3ee1c2af9262c69ca8bcdd9263b",
+        "worker-4.jsonl": "ab06d79cb51458d2560d9af3f3f125d1c57e43b248d25982d3efa19c371f0c13",
+        "worker-5.jsonl": "b53362459e31429ae0c0e78a5ebc7cf368423a35eb766f2535f414e2c12ab390",
+        "worker-6.jsonl": "84a60cfde1d62b8bd24584ed82e5401193e9ca1b3a4d32ad05e11b496f23b53a",
+        "worker-7.jsonl": "e4a1d03bf2fc1154f0d34eeb6c2c2480df1866e7e8ddafe46be43366b6bec482"
+      },
+      "archived_benchmark_source": "benchmark-source.py",
+      "archived_benchmark_source_sha256": "9c8d42c5c97fa91dcea9affc3952e5bad6183f1515817cff7ab9638b1e17a1f3"
+    },
+    "diagnostics": {
+      "source_snapshot_reconstructed_and_verified": true,
+      "checkpoint_hashes_verified_after_run": true
+    }
+  },
+  "vs_mcts_default_rocm": {
+    "manifest": {
+      "protocol": "paired-presets-fixed-panels-v1",
+      "measured_at": "2026-10-20T11:21:19.398284+00:00",
+      "source_commit": "a6c09138c055d0f046c22f2495b5d86c9ce0fcf4",
+      "source_sha256": "bdfa8297d5f3110d2da83e93897b212116b7b03ce6ffadb0b361e6eedc19205c",
+      "rules_schema": "skat-isko-2022-v1",
+      "observation_schema": "skat-public-contract-v3",
+      "torch_version": "2.14.1",
+      "python_version": "3.14.8",
+      "numpy_version": "2.5.4",
+      "candidates": [
+        "best",
+        "all-neural"
+      ],
+      "panels": [
+        "mcts-default"
+      ],
+      "profiles": {
+        "best": {
+          "agent": "policy",
+          "bidding": "neural",
+          "declaration": "heuristic",
+          "pickup": "always"
+        },
+        "mcts-default": {
+          "agent": "mcts",
+          "bidding": "conservative",
+          "declaration": "heuristic",
+          "pickup": "always"
+        },
+        "all-neural": {
+          "agent": "policy",
+          "bidding": "neural",
+          "declaration": "neural",
+          "pickup": "neural"
+        }
+      },
+      "models": {
+        "policy": "benchmark_runs/iss-run-1/policy.pt",
+        "bidding": "benchmark_runs/bidding-run-1/bidding.pt",
+        "declaration": "benchmark_runs/declaration-run-3/declaration.pt",
+        "pickup": "benchmark_runs/pickup-run-2/pickup.pt"
+      },
+      "checkpoint_sha256": {
+        "policy": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+        "bidding": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+        "declaration": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+        "pickup": "85660fcdecb72fb85a3ceb24af779b175719759f5e6003785cd36ff6d2566831"
+      },
+      "seeds": [
+        20261022,
+        20261023
+      ],
+      "deals_per_seed": 500,
+      "workers": 6,
+      "device": "cuda",
+      "bidding_threshold": 0.55,
+      "pickup_margin": 0.0,
+      "mcts": {
+        "simulations": 600,
+        "determinizations": 20
+      },
+      "rng_scheme": "sha256-preset-deal-and-seat-v1",
+      "bootstrap": "2000-resamples-complete-deals-including-all-seats",
+      "primary_comparison": "all-neural minus best, separately for each fixed reference panel"
+    },
+    "status": "complete",
+    "panels": {
+      "mcts-default": {
+        "summary": {
+          "best": {
+            "wins": 1315,
+            "played": 2859,
+            "passed": 141,
+            "win_rate": 0.45995103182931096,
+            "soloist": {
+              "wins": 754,
+              "played": 968
+            },
+            "defence": {
+              "wins": 561,
+              "played": 1891
+            },
+            "official_points": 15265,
+            "points_per_deal": 5.088333333333333,
+            "soloist_fraction": 0.32266666666666666,
+            "overbids": 0,
+            "seconds": 4121.941691238,
+            "rounds_per_second": 0.7278123332935765,
+            "hand_games": 0,
+            "relative_points_per_deal": 4.072333333333333,
+            "by_seed": {
+              "20261022": {
+                "wins": 655,
+                "played": 1426,
+                "passed": 74,
+                "win_rate": 0.4593267882187938,
+                "soloist": {
+                  "wins": 384,
+                  "played": 493
+                },
+                "defence": {
+                  "wins": 271,
+                  "played": 933
+                },
+                "official_points": 7125,
+                "points_per_deal": 4.75,
+                "soloist_fraction": 0.32866666666666666,
+                "overbids": 0,
+                "seconds": 2057.7714854749975,
+                "rounds_per_second": 0.7289439136405146
+              },
+              "20261023": {
+                "wins": 660,
+                "played": 1433,
+                "passed": 67,
+                "win_rate": 0.4605722260990928,
+                "soloist": {
+                  "wins": 370,
+                  "played": 475
+                },
+                "defence": {
+                  "wins": 290,
+                  "played": 958
+                },
+                "official_points": 8140,
+                "points_per_deal": 5.426666666666667,
+                "soloist_fraction": 0.31666666666666665,
+                "overbids": 0,
+                "seconds": 2064.1702057630027,
+                "rounds_per_second": 0.7266842607320446
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 445,
+                "played": 952,
+                "passed": 48,
+                "win_rate": 0.46743697478991597,
+                "wilson_interval": [
+                  0.43593677964530275,
+                  0.4991989164784063
+                ],
+                "soloist": {
+                  "wins": 260,
+                  "played": 315
+                },
+                "defence": {
+                  "wins": 185,
+                  "played": 637
+                },
+                "official_points": 6872,
+                "points_per_deal": 6.872,
+                "soloist_fraction": 0.315,
+                "overbids": 0,
+                "seconds": 1377.0096031959856,
+                "rounds_per_second": 0.7262113478940444
+              },
+              "1": {
+                "wins": 421,
+                "played": 949,
+                "passed": 51,
+                "win_rate": 0.44362486828240255,
+                "wilson_interval": [
+                  0.41230583166794726,
+                  0.4753984835088881
+                ],
+                "soloist": {
+                  "wins": 240,
+                  "played": 314
+                },
+                "defence": {
+                  "wins": 181,
+                  "played": 635
+                },
+                "official_points": 4597,
+                "points_per_deal": 4.597,
+                "soloist_fraction": 0.314,
+                "overbids": 0,
+                "seconds": 1374.234004977021,
+                "rounds_per_second": 0.7276781074972172
+              },
+              "2": {
+                "wins": 449,
+                "played": 958,
+                "passed": 42,
+                "win_rate": 0.46868475991649267,
+                "wilson_interval": [
+                  0.43727255116915564,
+                  0.5003471151043761
+                ],
+                "soloist": {
+                  "wins": 254,
+                  "played": 339
+                },
+                "defence": {
+                  "wins": 195,
+                  "played": 619
+                },
+                "official_points": 3796,
+                "points_per_deal": 3.796,
+                "soloist_fraction": 0.339,
+                "overbids": 0,
+                "seconds": 1370.6980830649936,
+                "rounds_per_second": 0.7295552626468389
+              }
+            }
+          },
+          "all-neural": {
+            "wins": 1384,
+            "played": 2859,
+            "passed": 141,
+            "win_rate": 0.48408534452605806,
+            "soloist": {
+              "wins": 823,
+              "played": 968
+            },
+            "defence": {
+              "wins": 561,
+              "played": 1891
+            },
+            "official_points": 22727,
+            "points_per_deal": 7.575666666666667,
+            "soloist_fraction": 0.32266666666666666,
+            "overbids": 0,
+            "seconds": 4118.2599790389395,
+            "rounds_per_second": 0.7284629953595346,
+            "hand_games": 42,
+            "relative_points_per_deal": 6.559666666666667,
+            "by_seed": {
+              "20261022": {
+                "wins": 694,
+                "played": 1426,
+                "passed": 74,
+                "win_rate": 0.48667601683029454,
+                "soloist": {
+                  "wins": 423,
+                  "played": 493
+                },
+                "defence": {
+                  "wins": 271,
+                  "played": 933
+                },
+                "official_points": 11921,
+                "points_per_deal": 7.947333333333333,
+                "soloist_fraction": 0.32866666666666666,
+                "overbids": 0,
+                "seconds": 2043.7549190499467,
+                "rounds_per_second": 0.7339431876192304
+              },
+              "20261023": {
+                "wins": 690,
+                "played": 1433,
+                "passed": 67,
+                "win_rate": 0.48150732728541523,
+                "soloist": {
+                  "wins": 400,
+                  "played": 475
+                },
+                "defence": {
+                  "wins": 290,
+                  "played": 958
+                },
+                "official_points": 10806,
+                "points_per_deal": 7.204,
+                "soloist_fraction": 0.31666666666666665,
+                "overbids": 0,
+                "seconds": 2074.505059988993,
+                "rounds_per_second": 0.7230640353357147
+              }
+            },
+            "by_seat": {
+              "0": {
+                "wins": 458,
+                "played": 952,
+                "passed": 48,
+                "win_rate": 0.4810924369747899,
+                "wilson_interval": [
+                  0.44949291745643283,
+                  0.5128439383573338
+                ],
+                "soloist": {
+                  "wins": 273,
+                  "played": 315
+                },
+                "defence": {
+                  "wins": 185,
+                  "played": 637
+                },
+                "official_points": 7973,
+                "points_per_deal": 7.973,
+                "soloist_fraction": 0.315,
+                "overbids": 0,
+                "seconds": 1378.7853888739555,
+                "rounds_per_second": 0.7252760350301457
+              },
+              "1": {
+                "wins": 443,
+                "played": 949,
+                "passed": 51,
+                "win_rate": 0.46680716543730244,
+                "wilson_interval": [
+                  0.43526278965028886,
+                  0.4986191903136422
+                ],
+                "soloist": {
+                  "wins": 262,
+                  "played": 314
+                },
+                "defence": {
+                  "wins": 181,
+                  "played": 635
+                },
+                "official_points": 7446,
+                "points_per_deal": 7.446,
+                "soloist_fraction": 0.314,
+                "overbids": 0,
+                "seconds": 1361.5428440929736,
+                "rounds_per_second": 0.7344609127347552
+              },
+              "2": {
+                "wins": 483,
+                "played": 958,
+                "passed": 42,
+                "win_rate": 0.5041753653444676,
+                "wilson_interval": [
+                  0.47256071656823617,
+                  0.5357566612619595
+                ],
+                "soloist": {
+                  "wins": 288,
+                  "played": 339
+                },
+                "defence": {
+                  "wins": 195,
+                  "played": 619
+                },
+                "official_points": 7308,
+                "points_per_deal": 7.308,
+                "soloist_fraction": 0.339,
+                "overbids": 0,
+                "seconds": 1377.9317460720104,
+                "rounds_per_second": 0.725725350947637
+              }
+            }
+          }
+        },
+        "differences_from_best": {
+          "all-neural": {
+            "official_points": {
+              "delta": 2.4873333333333334,
+              "interval_95": [
+                1.2269166666666667,
+                3.7513749999999977
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            },
+            "relative_points": {
+              "delta": 2.4873333333333334,
+              "interval_95": [
+                1.2269166666666667,
+                3.7513749999999977
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            },
+            "party_win": {
+              "delta": 0.023,
+              "interval_95": [
+                0.014666666666666666,
+                0.03133333333333333
+              ],
+              "rounds": 3000,
+              "independent_deals": 1000
+            }
+          }
+        }
+      }
+    },
+    "mixed_tables": {
+      "best-vs-two-mcts-default": {
+        "candidate_points_per_round": 5.088333333333333,
+        "reference_points_per_round": 1.016,
+        "candidate_minus_average_reference": {
+          "delta": 4.072333333333334,
+          "interval_95": [
+            2.6214875,
+            5.421620833333333
+          ],
+          "rounds": 3000,
+          "independent_deals": 1000
+        }
+      },
+      "all-neural-vs-two-mcts-default": {
+        "candidate_points_per_round": 7.575666666666667,
+        "reference_points_per_round": 1.016,
+        "candidate_minus_average_reference": {
+          "delta": 6.559666666666666,
+          "interval_95": [
+            5.5178208333333325,
+            7.551704166666665
+          ],
+          "rounds": 3000,
+          "independent_deals": 1000
+        }
+      }
+    },
+    "actual_rounds": 6000,
+    "independent_deals": 1000,
+    "hardware_validation": {
+      "torch_version": "2.14.1",
+      "hip_version": "7.2.53211",
+      "cuda_version": null,
+      "accelerator_name": "AMD Radeon RX 5600 XT"
+    },
+    "artifacts": {
+      "directory": "benchmark_runs/presets-vs-default-mcts-rocm-20261020",
+      "raw_outcomes": {
+        "worker-0.jsonl": "bd4fdd679f4408a0cb546e83b3553ba8e9f6491dce0aa594f926054c73b00ec0",
+        "worker-1.jsonl": "f8297f30a895b6b529239c10d3cfbd1c5cc8fd53461288c8930d90663509de3f",
+        "worker-2.jsonl": "b99bafd2a7371371cfbc2169a3093011197ed5c39b6b0d60d71c742262daa7e9",
+        "worker-3.jsonl": "a87c0bccc27c35716126269fc885def040915d0af6ee5d4e6cb3718ceef36115",
+        "worker-4.jsonl": "91e6ed9e1b41abbdc330ced231e91bc6462d2120289a14af50f34377979ff0a9",
+        "worker-5.jsonl": "19e8ded611434aa47631d0e81f7fcaabbbc3a7ef78fb87ef9547dc91b284fcf7"
+      },
+      "archived_benchmark_source": "benchmark-source.py",
+      "archived_benchmark_source_sha256": "8ce892bd59fe8b9c6c75dafa00fc05e5542804af3b368b10693baac47579a015",
+      "engine_patch": "engine.patch",
+      "engine_patch_sha256": "f01bf553dc696b961a51e9ee7ad9d89e7264678bfe5298a1b50c66f25492d848"
+    },
+    "diagnostics": {
+      "source_snapshot_reconstructed_and_verified": true,
+      "checkpoint_hashes_verified_after_run": true
+    }
+  },
+  "scope": {
+    "total_rounds": 93000,
+    "independent_deals_across_studies": 3000,
+    "notes": "MCTS studies reuse the same 1000 deals; bootstrap is separate per study. ROCm validation rounds and fixed README ratings are excluded."
+  }
+}

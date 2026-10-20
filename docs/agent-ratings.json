@@ -9,11 +9,11 @@
     "random"
   ],
   "reference_bidding": "conservative",
-  "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
-  "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+  "source_commit": "a6c09138c055d0f046c22f2495b5d86c9ce0fcf4",
+  "source_sha256": "f35f5d2ad8117ec6d370333f6c11940a141f7ba3446e8f86b50588d960ffc53f",
   "device": "cpu",
-  "torch_version": "2.14.1",
-  "measured_at": "2026-10-18T12:04:48.676487+00:00",
+  "torch_version": "2.14.1+cpu",
+  "measured_at": "2026-10-20T11:42:29.569352+00:00",
   "profiles": [
     {
       "id": "random",
@@ -46,7 +46,14 @@
         "game_points": -965
       },
       "passed": 54,
-      "seconds": 52.44153510199976
+      "seconds": 85.94101619600042,
+      "measurement": {
+        "source_commit": "a6c09138c055d0f046c22f2495b5d86c9ce0fcf4",
+        "source_sha256": "f35f5d2ad8117ec6d370333f6c11940a141f7ba3446e8f86b50588d960ffc53f",
+        "measured_at": "2026-10-20T11:42:29.569352+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1+cpu"
+      }
     },
     {
       "id": "random-neural",
@@ -79,7 +86,14 @@
         "game_points": 1808
       },
       "passed": 51,
-      "seconds": 52.521346093999455
+      "seconds": 52.521346093999455,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "mcts-600",
@@ -115,7 +129,14 @@
         "game_points": 10381
       },
       "passed": 54,
-      "seconds": 148.1024582400005
+      "seconds": 148.1024582400005,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "mcts-2000",
@@ -151,7 +172,14 @@
         "game_points": 9973
       },
       "passed": 54,
-      "seconds": 284.17068759500035
+      "seconds": 284.17068759500035,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "mcts-iss-belief",
@@ -187,7 +215,14 @@
         "game_points": 10483
       },
       "passed": 54,
-      "seconds": 152.8713077909997
+      "seconds": 152.8713077909997,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "mcts-iss-belief-300k",
@@ -223,7 +258,14 @@
         "game_points": 10469
       },
       "passed": 54,
-      "seconds": 151.62271201100157
+      "seconds": 151.62271201100157,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "policy-mcts-12",
@@ -256,7 +298,14 @@
         "game_points": 10037
       },
       "passed": 54,
-      "seconds": 59.39442803300153
+      "seconds": 59.39442803300153,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "policy-mcts-100",
@@ -289,7 +338,14 @@
         "game_points": 9375
       },
       "passed": 54,
-      "seconds": 59.056544360999396
+      "seconds": 59.056544360999396,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "policy-teacher-2000",
@@ -322,7 +378,14 @@
         "game_points": 10329
       },
       "passed": 54,
-      "seconds": 58.92077702200004
+      "seconds": 58.92077702200004,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "policy-iss",
@@ -355,7 +418,14 @@
         "game_points": 10156
       },
       "passed": 54,
-      "seconds": 59.2923622620001
+      "seconds": 59.2923622620001,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "policy-iss-neural",
@@ -388,7 +458,14 @@
         "game_points": 13424
       },
       "passed": 51,
-      "seconds": 59.31927414599886
+      "seconds": 163.41165345099944,
+      "measurement": {
+        "source_commit": "a6c09138c055d0f046c22f2495b5d86c9ce0fcf4",
+        "source_sha256": "042e04e5958f11e69d59f67ce9af7f43e0fece9019b656c8005c8ef06b2d381d",
+        "measured_at": "2026-10-20T10:54:38.865051+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1+cpu"
+      }
     },
     {
       "id": "random-neural-declaration",
@@ -421,7 +498,14 @@
         "game_points": -870
       },
       "passed": 54,
-      "seconds": 62.30667809699844
+      "seconds": 62.30667809699844,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "policy-iss-neural-declaration",
@@ -454,7 +538,14 @@
         "game_points": 9552
       },
       "passed": 54,
-      "seconds": 70.79618040399873
+      "seconds": 70.79618040399873,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "mcts-600-neural-declaration",
@@ -490,7 +581,14 @@
         "game_points": 9245
       },
       "passed": 54,
-      "seconds": 160.5559303659993
+      "seconds": 160.5559303659993,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "random-neural-declaration-300k",
@@ -523,7 +621,14 @@
         "game_points": 175
       },
       "passed": 54,
-      "seconds": 62.013635839000926
+      "seconds": 62.013635839000926,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "policy-iss-neural-declaration-300k",
@@ -556,7 +661,14 @@
         "game_points": 9857
       },
       "passed": 54,
-      "seconds": 69.87242067100124
+      "seconds": 69.87242067100124,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "mcts-600-neural-declaration-300k",
@@ -592,7 +704,14 @@
         "game_points": 9755
       },
       "passed": 54,
-      "seconds": 159.2340597629991
+      "seconds": 159.2340597629991,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "random-neural-declaration-1m",
@@ -625,7 +744,14 @@
         "game_points": -616
       },
       "passed": 54,
-      "seconds": 61.658214528000826
+      "seconds": 61.658214528000826,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "policy-iss-neural-declaration-1m",
@@ -658,7 +784,14 @@
         "game_points": 11005
       },
       "passed": 54,
-      "seconds": 70.34423682299894
+      "seconds": 70.34423682299894,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "mcts-600-neural-declaration-1m",
@@ -694,7 +827,14 @@
         "game_points": 9701
       },
       "passed": 54,
-      "seconds": 158.96630524899956
+      "seconds": 158.96630524899956,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "random-neural-declaration-1m-40",
@@ -727,7 +867,14 @@
         "game_points": -453
       },
       "passed": 54,
-      "seconds": 61.134231127998646
+      "seconds": 61.134231127998646,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "policy-iss-neural-declaration-1m-40",
@@ -760,7 +907,14 @@
         "game_points": 10243
       },
       "passed": 54,
-      "seconds": 69.70441729999948
+      "seconds": 69.70441729999948,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "mcts-600-neural-declaration-1m-40",
@@ -796,7 +950,14 @@
         "game_points": 9757
       },
       "passed": 54,
-      "seconds": 158.29674819100183
+      "seconds": 158.29674819100183,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "policy-iss-neural-pickup",
@@ -829,7 +990,14 @@
         "game_points": 10250
       },
       "passed": 54,
-      "seconds": 59.48445695299961
+      "seconds": 59.48445695299961,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
     },
     {
       "id": "policy-iss-neural-declaration-1m-pickup",
@@ -862,8 +1030,179 @@
         "game_points": 10647
       },
       "passed": 54,
-      "seconds": 69.31555998800104
+      "seconds": 69.31555998800104,
+      "measurement": {
+        "source_commit": "4f7ae9a843b84d8313210f6e02327b510dfa4c85",
+        "source_sha256": "62869f3230110527f1e294cb3a337f8c025d786c8abd0aaafab3417ef702e557",
+        "measured_at": "2026-10-18T12:04:48.676487+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1"
+      }
+    },
+    {
+      "id": "policy-iss-neural-bidding-declaration-1m",
+      "label": "Transformer · ISS 100k / 20 Epochen",
+      "agent": "policy",
+      "bidder": "neural (0.55)",
+      "declarer": "neural (1M/20 Ep.)",
+      "pickup": "always",
+      "policy": "benchmark_runs/iss-run-1/policy.pt",
+      "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+      "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+      "bidding_threshold": 0.55,
+      "declaration_model": "benchmark_runs/declaration-run-3/declaration.pt",
+      "declaration_model_sha256": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+      "pickup_model": null,
+      "pickup_model_sha256": null,
+      "pickup_margin": null,
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 333,
+        "solo_wins": 320,
+        "defence_rounds": 616,
+        "defence_wins": 330,
+        "overbids": 0,
+        "card_points": 67460,
+        "game_points": 12389
+      },
+      "passed": 51,
+      "seconds": 225.38678178200098,
+      "measurement": {
+        "source_commit": "a6c09138c055d0f046c22f2495b5d86c9ce0fcf4",
+        "source_sha256": "042e04e5958f11e69d59f67ce9af7f43e0fece9019b656c8005c8ef06b2d381d",
+        "measured_at": "2026-10-20T10:54:38.865051+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1+cpu"
+      }
+    },
+    {
+      "id": "policy-iss-neural-bidding-pickup",
+      "label": "Transformer · ISS 100k / 20 Epochen",
+      "agent": "policy",
+      "bidder": "neural (0.55)",
+      "declarer": "heuristic",
+      "pickup": "neural",
+      "policy": "benchmark_runs/iss-run-1/policy.pt",
+      "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+      "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+      "bidding_threshold": 0.55,
+      "declaration_model": null,
+      "declaration_model_sha256": null,
+      "pickup_model": "benchmark_runs/pickup-run-2/pickup.pt",
+      "pickup_model_sha256": "85660fcdecb72fb85a3ceb24af779b175719759f5e6003785cd36ff6d2566831",
+      "pickup_margin": 0.0,
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 333,
+        "solo_wins": 321,
+        "defence_rounds": 616,
+        "defence_wins": 328,
+        "overbids": 0,
+        "card_points": 67704,
+        "game_points": 13398
+      },
+      "passed": 51,
+      "seconds": 176.2595056609989,
+      "measurement": {
+        "source_commit": "a6c09138c055d0f046c22f2495b5d86c9ce0fcf4",
+        "source_sha256": "042e04e5958f11e69d59f67ce9af7f43e0fece9019b656c8005c8ef06b2d381d",
+        "measured_at": "2026-10-20T10:54:38.865051+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1+cpu"
+      }
+    },
+    {
+      "id": "policy-iss-all-neural",
+      "label": "Transformer · ISS 100k / 20 Epochen",
+      "agent": "policy",
+      "bidder": "neural (0.55)",
+      "declarer": "neural (1M/20 Ep.)",
+      "pickup": "neural",
+      "policy": "benchmark_runs/iss-run-1/policy.pt",
+      "policy_sha256": "ddfd1e531d173b7253c24232b11f9de5ac54e6f1308cbc387a32eec11fe422ff",
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+      "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+      "bidding_threshold": 0.55,
+      "declaration_model": "benchmark_runs/declaration-run-3/declaration.pt",
+      "declaration_model_sha256": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+      "pickup_model": "benchmark_runs/pickup-run-2/pickup.pt",
+      "pickup_model_sha256": "85660fcdecb72fb85a3ceb24af779b175719759f5e6003785cd36ff6d2566831",
+      "pickup_margin": 0.0,
+      "mcts": null,
+      "search_workers": null,
+      "score": {
+        "solo_rounds": 333,
+        "solo_wins": 321,
+        "defence_rounds": 616,
+        "defence_wins": 331,
+        "overbids": 0,
+        "card_points": 67127,
+        "game_points": 12489
+      },
+      "passed": 51,
+      "seconds": 270.5642179810002,
+      "measurement": {
+        "source_commit": "a6c09138c055d0f046c22f2495b5d86c9ce0fcf4",
+        "source_sha256": "042e04e5958f11e69d59f67ce9af7f43e0fece9019b656c8005c8ef06b2d381d",
+        "measured_at": "2026-10-20T10:54:38.865051+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1+cpu"
+      }
+    },
+    {
+      "id": "mcts-600-all-neural",
+      "label": "MCTS · 600 Simulationen / 20 Welten",
+      "agent": "mcts",
+      "bidder": "neural (0.55)",
+      "declarer": "neural (1M/20 Ep.)",
+      "pickup": "neural",
+      "policy": null,
+      "policy_sha256": null,
+      "belief_model": null,
+      "belief_model_sha256": null,
+      "bidding_model": "benchmark_runs/bidding-run-1/bidding.pt",
+      "bidding_model_sha256": "9a35cd18104cbeefd5c96fc4d7ebb038eca9d93f1e102b7aa338300ecc620d3c",
+      "bidding_threshold": 0.55,
+      "declaration_model": "benchmark_runs/declaration-run-3/declaration.pt",
+      "declaration_model_sha256": "02d49c064b82b740f37d8f14ddc86a7bb35162bcc12707498db7fc21c43b2f95",
+      "pickup_model": "benchmark_runs/pickup-run-2/pickup.pt",
+      "pickup_model_sha256": "85660fcdecb72fb85a3ceb24af779b175719759f5e6003785cd36ff6d2566831",
+      "pickup_margin": 0.0,
+      "mcts": {
+        "simulations": 600,
+        "determinizations": 20
+      },
+      "search_workers": 8,
+      "score": {
+        "solo_rounds": 333,
+        "solo_wins": 324,
+        "defence_rounds": 616,
+        "defence_wins": 318,
+        "overbids": 0,
+        "card_points": 63619,
+        "game_points": 11895
+      },
+      "passed": 51,
+      "seconds": 186.13886561300023,
+      "measurement": {
+        "source_commit": "a6c09138c055d0f046c22f2495b5d86c9ce0fcf4",
+        "source_sha256": "f35f5d2ad8117ec6d370333f6c11940a141f7ba3446e8f86b50588d960ffc53f",
+        "measured_at": "2026-10-20T11:42:29.569352+00:00",
+        "device": "cpu",
+        "torch_version": "2.14.1+cpu"
+      }
     }
   ],
-  "status": "complete"
+  "status": "complete",
+  "measurement_scope": "per-profile"
 }

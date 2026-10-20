@@ -5,6 +5,7 @@ import hashlib
 import json
 import subprocess
 import time
+from contextlib import redirect_stdout
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -251,6 +252,52 @@ PROFILES = (
         "neural",
         PICKUP,
     ),
+    (
+        "policy-iss-neural-bidding-declaration-1m",
+        "Transformer · ISS 100k / 20 Epochen",
+        "policy",
+        "benchmark_runs/iss-run-1/policy.pt",
+        600,
+        "neural",
+        "neural",
+        DECLARER_1M,
+    ),
+    (
+        "policy-iss-neural-bidding-pickup",
+        "Transformer · ISS 100k / 20 Epochen",
+        "policy",
+        "benchmark_runs/iss-run-1/policy.pt",
+        600,
+        "neural",
+        "heuristic",
+        None,
+        "neural",
+        PICKUP,
+    ),
+    (
+        "policy-iss-all-neural",
+        "Transformer · ISS 100k / 20 Epochen",
+        "policy",
+        "benchmark_runs/iss-run-1/policy.pt",
+        600,
+        "neural",
+        "neural",
+        DECLARER_1M,
+        "neural",
+        PICKUP,
+    ),
+    (
+        "mcts-600-all-neural",
+        "MCTS · 600 Simulationen / 20 Welten",
+        "mcts",
+        None,
+        600,
+        "neural",
+        "neural",
+        DECLARER_1M,
+        "neural",
+        PICKUP,
+    ),
 )
 
 
@@ -267,6 +314,40 @@ def atomic_json(path, document):
 
 def fraction(wins, played):
     return f"{wins}/{played} ({wins / played:.1%})" if played else "—"
+
+
+def merge_ratings(previous, current):
+    """Refresh selected fixed-protocol rows without erasing historical evidence."""
+    for key in (
+        "protocol",
+        "rounds",
+        "seed",
+        "candidate_seat",
+        "dealer_rotation",
+        "reference_agents",
+        "reference_bidding",
+    ):
+        if previous.get(key) != current.get(key):
+            raise ValueError(f"cannot merge different rating protocols: {key}")
+    rows = {}
+    for document in (previous, current):
+        measurement = {
+            key: document[key]
+            for key in (
+                "source_commit",
+                "source_sha256",
+                "measured_at",
+                "device",
+                "torch_version",
+            )
+        }
+        for row in document["profiles"]:
+            rows[row["id"]] = dict(row, measurement=row.get("measurement", measurement))
+    merged = dict(
+        current, measurement_scope="per-profile", profiles=list(rows.values())
+    )
+    merged.pop("profile_ids", None)
+    return merged
 
 
 def rating_table(rows):
@@ -297,6 +378,12 @@ def main():
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--workers", type=int)
     parser.add_argument(
+        "--profiles",
+        nargs="+",
+        choices=[profile[0] for profile in PROFILES],
+        help="Refresh selected profiles plus the fixed Random baseline; retain other report rows",
+    )
+    parser.add_argument(
         "--resume", action="store_true", help="Continue an interrupted rating directory"
     )
     parser.add_argument(
@@ -305,17 +392,22 @@ def main():
     parser.add_argument("--report", type=Path, default=Path("docs/agent-ratings.json"))
     parser.add_argument("--readme", type=Path, default=Path("README.md"))
     args = parser.parse_args()
+    profiles = [
+        p
+        for p in PROFILES
+        if args.profiles is None or p[0] in {"random", *args.profiles}
+    ]
     readme = args.readme.read_text()
     if readme.count(START) != 1 or readme.count(END) != 1:
         parser.error("README needs exactly one agent-ratings marker pair")
     # Check every required checkpoint before starting the benchmark.
-    required = {BIDDER, *(p[3] for p in PROFILES if p[3])}
+    required = {BIDDER, *(p[3] for p in profiles if p[3])}
     required.update(
         p[7] if len(p) > 7 else DECLARER
-        for p in PROFILES
+        for p in profiles
         if len(p) > 6 and p[6] == "neural"
     )
-    required.update(p[9] for p in PROFILES if len(p) > 9 and p[8] == "neural")
+    required.update(p[9] for p in profiles if len(p) > 9 and p[8] == "neural")
     for path in required:
         if not Path(path).is_file():
             parser.error(f"missing checkpoint: {path}")
@@ -338,6 +430,7 @@ def main():
         source_sha256=source.hexdigest(),
         device=args.device,
         torch_version=str(torch.__version__),
+        profile_ids=[p[0] for p in profiles],
     )
     if args.resume:
         report = json.loads((args.out / "summary.json").read_text())
@@ -348,7 +441,7 @@ def main():
         if report.get("status") != "running" or not isinstance(completed, list):
             parser.error("rating directory is not an interrupted run")
         if [row.get("id") for row in completed] != [
-            profile[0] for profile in PROFILES[: len(completed)]
+            profile[0] for profile in profiles[: len(completed)]
         ]:
             parser.error("completed profiles do not match the current rating order")
         for row in completed:
@@ -376,7 +469,7 @@ def main():
         )
     declaration_models = {}
     pickup_models = {}
-    for index, profile in enumerate(PROFILES):
+    for index, profile in enumerate(profiles):
         if index < len(report["profiles"]):
             continue
         key, label, name, policy, simulations, bidding = profile[:6]
@@ -395,7 +488,7 @@ def main():
         if pickup_path and pickup_path not in pickup_models:
             pickup_models[pickup_path] = PickupScorer(pickup_path, device=args.device)
         print(
-            f"[{index + 1}/{len(PROFILES)}] {label}, {bidding}, {declaration}",
+            f"[{index + 1}/{len(profiles)}] {label}, {bidding}, {declaration}",
             flush=True,
         )
         config = MCTSConfig(simulations=simulations, determinizations=20)
@@ -426,9 +519,10 @@ def main():
                 get_player("random", seed=SEED + 1),
                 get_player("random", seed=SEED + 2),
             ]
-            tournament = Tournament(ROUNDS, agents, seed=SEED, progress=True)
+            tournament = Tournament(ROUNDS, agents, seed=SEED, progress=False)
             started = time.perf_counter()
-            tournament.start()
+            with (args.out / f"{key}.log").open("w") as log, redirect_stdout(log):
+                tournament.start()
             elapsed = time.perf_counter() - started
             row = dict(
                 id=key,
@@ -474,6 +568,8 @@ def main():
         print(tournament.summary(), flush=True)
     report["status"] = "complete"
     atomic_json(args.out / "summary.json", report)
+    if args.profiles and args.report.exists():
+        report = merge_ratings(json.loads(args.report.read_text()), report)
     atomic_json(args.report, report)
     prefix, tail = args.readme.read_text().split(START, 1)
     _, suffix = tail.split(END, 1)

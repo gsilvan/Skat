@@ -10,8 +10,8 @@ const bestPolicySettings = {
 };
 const seatPresets = [
   {
-    label: 'Beste gemessen',
-    description: 'ISS-Policy mit neuronalem Reizen, heuristischer Ansage und Standard-Skataufnahme.',
+    label: 'Beste Policy gegen Random',
+    description: 'Höchste Policy-Punktzahl im festen Random-Vergleich: ISS-Policy mit neuronalem Reizen, heuristischer Ansage und Standard-Skataufnahme.',
     settings: bestPolicySettings,
   },
   {
