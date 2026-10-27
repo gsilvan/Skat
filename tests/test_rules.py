@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from skat.card import Card
+from skat.deal_code import decode_deal
 from skat.deck import Deck
 from skat.game import Round
 from skat.hand import FULL_HAND
@@ -175,6 +176,78 @@ def test_follow_suit_violation_leaves_state_unchanged():
                 return
             r.game.new_trick()
     pytest.fail("fixture did not find a follow-suit case")
+
+
+@pytest.mark.parametrize(
+    "declaration", [GameDeclaration("grand"), GameDeclaration("suit", 0)]
+)
+def test_reported_0baz_deal_distinguishes_grand_and_diamond_trumps(declaration):
+    from skat.agents.random import RandomAgent
+
+    cards = {repr(card): card for card in FULL_HAND}
+    deal = decode_deal("SK1-0BAZ-SSP0-C46-67")
+
+    class ReportedSoloist(RandomAgent):
+        def press_skat(self):
+            return [cards["♠7"], cards["♣7"]]
+
+    round_ = Round(
+        initial_cards=deal.initial_cards,
+        dealer=deal.dealer,
+        agents=[ReportedSoloist(), RandomAgent(), RandomAgent()],
+        skip_bidding=True,
+        solo_player_id=0,
+        hand_game=False,
+        declare_game=declaration,
+        start=False,
+    )
+    round_.prepare()
+    assert round_.game.declaration == declaration
+    # First two tricks from the screenshot, in turn order.
+    for name in "♥A ♥Q ♥8 / ♣8 ♣A ♣9".replace("/", "").split():
+        round_.play_card(round_.next_player, cards[name])
+    assert [(t.winner, t.value) for t in round_.trick_history.buffer] == [
+        (2, 14),
+        (0, 11),
+    ]
+    round_.play_card(0, cards["♠J"])
+    legal = round_.player[1].valid_moves(round_.game.trick)
+    if declaration.kind == "grand":
+        # The diamond king is not trump in Grand. Naddl still has the heart jack.
+        assert legal == {cards["♥J"]}
+        before = tuple(tuple(player.hand) for player in round_.player)
+        trick_before = tuple(round_.game.trick.buffer)
+        with pytest.raises(ValueError, match="follow-suit"):
+            round_.play_card(1, cards["♦K"])
+        assert tuple(tuple(player.hand) for player in round_.player) == before
+        assert tuple(round_.game.trick.buffer) == trick_before
+        assert round_.next_player == 1 and len(round_.trick_history) == 2
+        round_.play_card(1, cards["♥J"])
+        # Sergey holds no jacks and may discard any of his eight remaining cards.
+        assert not any(card.is_jack for card in round_.player[2].hand)
+        assert round_.player[2].valid_moves(round_.game.trick) == set(
+            round_.player[2].hand
+        )
+        round_.play_card(2, cards["♦9"])
+        assert round_.trick_history[-1].winner == 0
+    else:
+        # In Karo, both the king and the jack serve the led trump.
+        assert legal == {cards["♦K"], cards["♥J"]}
+        round_.play_card(1, cards["♦K"])
+        assert round_.player[2].valid_moves(round_.game.trick) == {
+            cards["♦9"],
+            cards["♦A"],
+        }
+        round_.play_card(2, cards["♦9"])
+        for name in "♣J ♥J ♦A / ♦J ♥7 ♥9".replace("/", "").split():
+            round_.play_card(round_.next_player, cards[name])
+        assert [(t.winner, t.value) for t in round_.trick_history.buffer] == [
+            (2, 14),
+            (0, 11),
+            (0, 6),
+            (0, 15),
+            (0, 2),
+        ]
 
 
 def test_views_do_not_expose_hidden_skat_or_opponent_cards():

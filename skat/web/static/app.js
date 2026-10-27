@@ -25,7 +25,7 @@ const seatPresets = [
       pickup: 'neural', pickupModel: 'benchmark_runs/pickup-run-2/pickup.pt'},
   },
 ];
-let state = null, appConfig = null, busy = false, selected = [], pendingId = null, generation = 0;
+let state = null, appConfig = null, busy = false, selected = [], selectedOption = null, pendingId = null, generation = 0;
 let deck = read('skat.deck') || 'fr';
 if (!['fr', 'de', 'by'].includes(deck)) deck = 'fr';
 
@@ -302,14 +302,16 @@ function renderActions() {
     if (pending.offer !== null) { node.append(el('span', '', `${pending.offer} halten?`)); add('Halten', pending.offer, 'primary'); }
     else {
       const bids = pending.options.filter(value => value !== 0);
-      const choices = select('bid', bids.map(value => [String(value), `${value}${isSuggested('bid', value) ? ' · Agentenvorschlag' : ''}`]), String(bids[0]));
+      const choices = select('bid', bids.map(value => [String(value), `${value}${isSuggested('bid', value) ? ' · Agentenvorschlag' : ''}`]), selectedOption ?? String(bids[0]));
+      choices.addEventListener('change', event => { selectedOption = event.target.value; });
       choices.disabled = busy; node.append(choices);
       const bid = button('Reizen', () => submit(Number(choices.value)), 'primary'); bid.disabled = busy || !bids.length; node.append(bid);
     }
     add('Passen', 0);
   } else if (pending.kind === 'pickup') { add('Skat aufnehmen', true, 'primary'); add('Hand spielen', false); }
   else if (pending.kind === 'declare') {
-    const choices = select('declaration', pending.options.map((d, i) => [String(i), `${declarationName(d)}${isSuggested('declare', d) ? ' · Agentenvorschlag' : ''}`]), '0');
+    const choices = select('declaration', pending.options.map((d, i) => [String(i), `${declarationName(d)}${isSuggested('declare', d) ? ' · Agentenvorschlag' : ''}`]), selectedOption ?? '0');
+    choices.addEventListener('change', event => { selectedOption = event.target.value; });
     choices.disabled = busy; node.append(choices);
     const declare = button('Ansagen', () => submit(pending.options[Number(choices.value)]), 'primary'); declare.disabled = busy; node.append(declare);
   } else {
@@ -361,7 +363,7 @@ function renderScores() {
 function render() {
   if (!state) return;
   $('setup').hidden = true; $('game').hidden = false;
-  if (pendingId !== state.pending?.id) { pendingId = state.pending?.id; selected = []; busy = false; }
+  if (pendingId !== state.pending?.id) { pendingId = state.pending?.id; selected = []; selectedOption = null; busy = false; }
   $('deal-tools').replaceChildren(dealTools(state.dealCode));
   $('round-title').textContent = `Runde ${state.roundIndex + 1}`;
   $('contract').replaceChildren(
@@ -448,7 +450,7 @@ $('setup-form').addEventListener('submit', async event => {
 $('exit').addEventListener('click', async () => {
   const id = state?.id;
   if (id) { try { await api(`/api/sessions/${id}`, 'DELETE'); } catch (error) { if (error.status !== 404) { showError(error); return; } } }
-  generation++; state = null; busy = false; selected = []; pendingId = null;
+  generation++; state = null; busy = false; selected = []; selectedOption = null; pendingId = null;
   save('skat.session', null); $('deal-code').value = ''; updateDealInput(); $('game').hidden = true; $('setup').hidden = false; clearError(); $('connection').textContent = 'Lokal';
 });
 for (const [id, command] of [['pause', () => state.paused ? 'resume' : 'pause'], ['step', () => 'step']]) $(id).addEventListener('click', () => control(command()).catch(() => {}));

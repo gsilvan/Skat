@@ -220,6 +220,26 @@ for (const [i, pending] of pendingCases.entries()) {
   assert(elements.get('actions').querySelectorAll('button').every(button => button.disabled));
 }
 
+// Polling/control updates must preserve a chosen declaration or bid until the
+// decision changes. In particular Grand must not silently become default Karo.
+for (const pending of [
+  {id: 'keep-grand', kind: 'declare', options: [{...declaration, kind: 'suit', suit: 0}, declaration], suggestion: {...declaration, kind: 'suit', suit: 0}},
+  {id: 'keep-bid', kind: 'bid', options: [0, 18, 20], current: 0, offer: null, suggestion: 18},
+]) {
+  vm.runInContext(`state.pending = ${JSON.stringify({...pending, seat: 1})}; render();`, context);
+  const choice = elements.get('actions').querySelectorAll('select')[0];
+  const selectedValue = pending.kind === 'declare' ? '1' : '20';
+  choice.value = selectedValue;
+  choice.dispatchEvent({type: 'change', target: choice});
+  vm.runInContext('state = JSON.parse(JSON.stringify(state)); render();', context);
+  assert.equal(elements.get('actions').querySelectorAll('select')[0].value, selectedValue);
+  const confirm = elements.get('actions').querySelectorAll('button').find(button => button.textContent === (pending.kind === 'declare' ? 'Ansagen' : 'Reizen'));
+  confirm.dispatchEvent({type: 'click'});
+  assert.deepEqual(JSON.parse(requests.at(-1)[1].body), {decisionId: pending.id, value: pending.kind === 'declare' ? declaration : 20});
+  vm.runInContext(`state.pending.id += '-next'; render();`, context);
+  assert.equal(elements.get('actions').querySelectorAll('select')[0].value, pending.kind === 'declare' ? '0' : '18');
+}
+
 // A person's own card click submits that card rather than the recommendation.
 vm.runInContext(`state.pending = {id: 'own-choice', seat: 1, kind: 'play', options: [0, 1, 2], suggestion: 1}; render();`, context);
 const ownCard = elements.get('player-bottom').querySelectorAll('button').find(card => card.title === 'Karo 7');
