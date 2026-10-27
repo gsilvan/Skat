@@ -164,6 +164,28 @@ Pause, Einzelschritt, Tempo und „Alle Karten“ stehen am Spieltisch bereit.
 „Alle Karten“ erweitert nur die Anzeige; Bots erhalten weiter ihre normale,
 eingeschränkte Sicht. Der letzte Stich bleibt bis zum nächsten Ausspiel sichtbar.
 
+Bei Random, MCTS und Policy kann die **Ausführung auf „Manuell“** gestellt
+werden. Der konfigurierte Agent schlägt jede Entscheidung vor; du führst sie
+mit „Vorschlag übernehmen“ aus oder wählst selbst. Empfohlene Karten und
+Aktionen sind markiert, werden aber nicht vorausgewählt oder automatisch
+ausgeführt. Die Vorschläge umfassen Reizen/Halten/Passen, Skataufnahme,
+Drücken, Spielansage, Kartenspiel und Bestätigungen von Aufgabe oder Abkürzung.
+Die getrennten Strategien für Reizen, Ansage und Skataufnahme gelten weiterhin;
+nach abweichenden Entscheidungen berät der Agent anhand des tatsächlichen
+Spielstands. Bei anderem Drücken wird die Ansage für dein Kartenpaar neu
+bestimmt. „Mensch“ spielt weiterhin ohne Vorschläge.
+
+Der aufklappbare **„Mensch–Agent-Vergleich“** zeigt Agentenvorschlag und eigene
+Wahl sowie Trefferzahl und Quote je Spieler und Entscheidungsart. Beim Drücken
+ist die Reihenfolge der beiden Karten unerheblich. Auch erzwungene Entscheidungen
+zählen mit. Die Quote misst Übereinstimmung bei sichtbaren Vorschlägen, keine
+Spielstärke. Der Verlauf bleibt über Rundenwechsel und Browser-Neuladen in
+derselben Session erhalten; er wird nicht dauerhaft gespeichert oder exportiert.
+Manuell bediente Plätze zeigen ihre Hände wie menschliche Spieler gemeinsam
+im Browser. Der beratende Agent behält seine eingeschränkte Sicht. Pause,
+Einzelschritt und Tempo steuern automatisch ausgeführte Entscheidungen;
+manuelle Entscheidungen bleiben bedienbar.
+
 Reizen, Drücken, Hand/Ouvert und Schneider-/Schwarz-Ansagen werden von der
 aktuellen Engine verarbeitet. Unter „Weitere Aktionen“ stehen Aufgeben,
 Abkürzen und offenes Gegenspiel bereit. „Nächste Runde“ wechselt den Geber und

@@ -2,6 +2,9 @@ const $ = (id) => document.getElementById(id);
 const labels = {human: 'Mensch', random: 'Random', mcts: 'MCTS', policy: 'Policy'};
 const suitNames = ['Karo', 'Herz', 'Pik', 'Kreuz'];
 const kindNames = {bid: 'reizt', pickup: 'entscheidet über den Skat', press: 'drückt', declare: 'sagt an', play: 'wählt eine Karte', confirm_concession: 'prüft die Aufgabe', confirm_claim: 'prüft die Abkürzung'};
+const decisionNames = {bid: 'Reizen', pickup: 'Skataufnahme', press: 'Drücken', declare: 'Spielansage', play: 'Kartenspiel', confirm_concession: 'Aufgabe bestätigen', confirm_claim: 'Abkürzung bestätigen'};
+const specialActions = {concede: 'Aufgeben', open: 'Gegenhand öffnen', claim0: 'Spielgewinn beanspruchen', claim1: 'Schneider beanspruchen', claim2: 'Schwarz beanspruchen'};
+const manualSeat = seat => seat.kind === 'human' || seat.execution === 'manual';
 const terminal = new Set(['finished', 'passed', 'error', 'stopped']);
 const bestPolicySettings = {
   kind: 'policy', policy: 'benchmark_runs/iss-run-1/policy.pt',
@@ -67,11 +70,11 @@ function cardLabel(card) {
   const suit = deck === 'fr' ? {'♦': 'Karo', '♥': 'Herz', '♠': 'Pik', '♣': 'Kreuz'} : {'♦': 'Schellen', '♥': 'Herz', '♠': 'Grün', '♣': 'Eichel'};
   return `${suit[card.suit]} ${rank}`;
 }
-function cardView(card, {compact = false, legal = false, chosen = false, onClick} = {}) {
+function cardView(card, {compact = false, legal = false, chosen = false, suggested = false, onClick} = {}) {
   const node = onClick ? button('', onClick) : el('div');
-  node.className = `card ${compact ? 'compact' : ''} ${card ? 'face' : 'back'} ${legal ? 'legal' : ''} ${chosen ? 'chosen' : ''} deck-${deck}`;
+  node.className = `card ${compact ? 'compact' : ''} ${card ? 'face' : 'back'} ${legal ? 'legal' : ''} ${chosen ? 'chosen' : ''} ${suggested ? 'suggested' : ''} deck-${deck}`;
   if (!card) { node.setAttribute('aria-label', 'Verdeckte Karte'); return node; }
-  node.title = cardLabel(card); node.setAttribute('aria-label', cardLabel(card));
+  node.title = `${cardLabel(card)}${suggested ? ' · Agentenvorschlag' : ''}`; node.setAttribute('aria-label', node.title);
   if (chosen) node.setAttribute('aria-pressed', 'true');
   const rank = ({X: '10', Q: deck === 'fr' ? 'D' : 'O', J: deck === 'fr' ? 'B' : 'U'}[card.rank] || card.rank);
   const fallback = el('span', `fallback ${['♦', '♥'].includes(card.suit) ? 'red' : ''}`, `${rank}\n${card.suit}`);
@@ -80,6 +83,22 @@ function cardView(card, {compact = false, legal = false, chosen = false, onClick
     node.style.backgroundPosition = `${(['A', 'K', 'Q', 'J', 'X', '9', '8', '7'].indexOf(card.rank) / 7) * 100}% ${(['♣', '♠', '♥', '♦'].indexOf(card.suit) / 3) * 100}%`;
   } else node.append(fallback);
   return node;
+}
+function actionLabel(kind, value) {
+  const cardName = id => cardLabel({suit: '♦♥♠♣'[Math.floor(id / 8)], rank: '789JQKXA'[id % 8]});
+  if (kind === 'press') return value.map(cardName).join(' + ');
+  if (kind === 'play') return typeof value === 'number' ? cardName(value) : specialActions[value];
+  if (kind === 'bid') return value === 0 ? 'Passen' : `Reizwert ${value}`;
+  if (kind === 'pickup') return value ? 'Skat aufnehmen' : 'Hand spielen';
+  if (kind === 'declare') return declarationName(value);
+  return value ? 'Annehmen' : 'Weiterspielen';
+}
+function isSuggested(kind, value) {
+  const same = (left, right) => typeof left === typeof right && (left && typeof left === 'object'
+    ? right !== null && Object.keys(left).length === Object.keys(right).length && Object.keys(left).every(key => Object.hasOwn(right, key) && same(left[key], right[key]))
+    : left === right);
+  return state.pending?.kind === kind && Object.hasOwn(state.pending, 'suggestion')
+    && same(state.pending.suggestion, value);
 }
 function setupSeats() {
   let stored;
@@ -96,6 +115,8 @@ function setupSeats() {
     const kind = select('kind', Object.entries(labels), defaults.kind || (i === 0 ? 'human' : 'random'));
     article.append(field('Spieler', kind));
     const options = el('div', 'bot-options');
+    const execution = select('execution', [['auto', 'Automatisch'], ['manual', 'Manuell · Agent schlägt vor']], defaults.execution || 'auto');
+    options.append(field('Ausführung', execution));
     const policy = input('policy', defaults.policy); policy.setAttribute('list', 'checkpoints'); policy.placeholder = 'Pfad zum Policy-Checkpoint';
     const policyField = field('Policy-Modell', policy); options.append(policyField);
     const details = el('details', 'advanced'); details.append(el('summary', '', 'Strategien und Modelle'));
@@ -148,6 +169,7 @@ function getConfig() {
   for (const seat of $('seats').children) {
     const value = {};
     for (const node of seat.querySelectorAll('[name]')) value[node.name] = ['biddingThreshold', 'pickupMargin'].includes(node.name) ? Number(node.value) : node.value;
+    if (value.kind === 'human') value.execution = 'manual';
     config.seats.push(value);
   }
   for (const key of ['seed', 'dealer', 'simulations', 'determinizations']) config[key] = Number($(key).value);
@@ -208,13 +230,15 @@ function playerView(player) {
   const node = el('section', `player ${isSoloist ? 'soloist-player' : ''} ${state.nextPlayer === player.seat || state.pending?.seat === player.seat ? 'active-player' : ''}`);
   const meta = el('div', 'player-meta'); meta.append(el('strong', '', player.label));
   if (isSoloist) meta.append(el('strong', 'soloist-badge', 'Alleinspieler'));
-  meta.append(el('span', '', `Platz ${player.seat + 1} · ${labels[player.kind]}${state.dealer === player.seat ? ' · Geber' : ''}`));
+  meta.append(el('span', '', `Platz ${player.seat + 1} · ${labels[player.kind]}${player.kind !== 'human' && manualSeat(state.config.seats[player.seat]) ? ' · manuell' : ''}${state.dealer === player.seat ? ' · Geber' : ''}`));
   meta.append(el('span', '', state.declaration?.kind === 'null' ? `${player.tricks} Stiche` : `${player.points} Augen · ${player.tricks} Stiche`)); node.append(meta);
   const hand = el('div', 'hand');
   for (const card of sortedHand(player.hand, state.declaration)) {
     const pending = state.pending;
     const legal = !busy && pending?.seat === player.seat && ['play', 'press'].includes(pending.kind) && pending.options.includes(card.id);
-    hand.append(cardView(card, {legal, chosen: selected.includes(card.id), onClick: legal ? () => {
+    const suggested = pending?.seat === player.seat && (isSuggested('play', card.id)
+      || (pending.kind === 'press' && pending.suggestion?.includes(card.id)));
+    hand.append(cardView(card, {legal, suggested, chosen: selected.includes(card.id), onClick: legal ? () => {
       if (pending.kind === 'press') {
         selected = selected.includes(card.id) ? selected.filter(id => id !== card.id) : selected.length < 2 ? [...selected, card.id] : selected;
         render();
@@ -247,17 +271,28 @@ function renderActions() {
   const node = $('actions'); node.replaceChildren();
   const pending = state.pending;
   if (!pending) {
-    node.append(el('span', 'muted', terminal.has(state.status) ? 'Runde beendet.' : 'Die automatischen Spieler sind am Zug.'));
+    const suggesting = state.active && manualSeat(state.config.seats[state.active.seat]);
+    node.append(el('span', 'muted', terminal.has(state.status) ? 'Runde beendet.' : suggesting ? 'Agentenvorschlag wird berechnet …' : 'Die automatischen Spieler sind am Zug.'));
     return;
   }
   node.append(el('strong', '', `${state.config.seats[pending.seat].label}: `));
-  const add = (label, value, className = '') => { const b = button(label, () => submit(value), className); b.disabled = busy; node.append(b); return b; };
+  if (Object.hasOwn(pending, 'suggestion')) {
+    const suggestion = el('div', 'agent-suggestion');
+    suggestion.append(el('strong', '', 'Agentenvorschlag: '), el('span', '', actionLabel(pending.kind, pending.suggestion)));
+    const accept = button('Vorschlag übernehmen', () => submit(pending.suggestion), 'primary');
+    accept.disabled = busy; suggestion.append(accept); node.append(suggestion);
+  }
+  const add = (label, value, className = '') => {
+    const suggested = isSuggested(pending.kind, value);
+    const b = button(label, () => submit(value), `${className}${suggested ? ' suggested-action' : ''}`);
+    if (suggested) { b.title = 'Agentenvorschlag'; b.setAttribute('aria-label', `${label} · Agentenvorschlag`); }
+    b.disabled = busy; node.append(b); return b;
+  };
   if (pending.kind === 'play') {
     node.append(el('span', '', busy ? 'Zug wird übernommen …' : 'Eine markierte Karte wählen.'));
     const extra = el('details', 'more-actions'); extra.append(el('summary', '', 'Weitere Aktionen'));
     for (const option of pending.options.filter(option => typeof option === 'string')) {
-      const names = {concede: 'Aufgeben', open: 'Gegenhand öffnen', claim0: 'Spielgewinn beanspruchen', claim1: 'Schneider beanspruchen', claim2: 'Schwarz beanspruchen'};
-      const b = button(names[option], () => submit(option)); b.disabled = busy; extra.append(b);
+      const b = button(specialActions[option], () => submit(option), isSuggested('play', option) ? 'suggested-action' : ''); b.disabled = busy; extra.append(b);
     }
     node.append(extra);
   } else if (pending.kind === 'press') {
@@ -267,20 +302,47 @@ function renderActions() {
     if (pending.offer !== null) { node.append(el('span', '', `${pending.offer} halten?`)); add('Halten', pending.offer, 'primary'); }
     else {
       const bids = pending.options.filter(value => value !== 0);
-      const choices = select('bid', bids.map(value => [String(value), String(value)]), String(bids[0]));
+      const choices = select('bid', bids.map(value => [String(value), `${value}${isSuggested('bid', value) ? ' · Agentenvorschlag' : ''}`]), String(bids[0]));
       choices.disabled = busy; node.append(choices);
       const bid = button('Reizen', () => submit(Number(choices.value)), 'primary'); bid.disabled = busy || !bids.length; node.append(bid);
     }
     add('Passen', 0);
   } else if (pending.kind === 'pickup') { add('Skat aufnehmen', true, 'primary'); add('Hand spielen', false); }
   else if (pending.kind === 'declare') {
-    const choices = select('declaration', pending.options.map((d, i) => [String(i), declarationName(d)]), '0');
+    const choices = select('declaration', pending.options.map((d, i) => [String(i), `${declarationName(d)}${isSuggested('declare', d) ? ' · Agentenvorschlag' : ''}`]), '0');
     choices.disabled = busy; node.append(choices);
     const declare = button('Ansagen', () => submit(pending.options[Number(choices.value)]), 'primary'); declare.disabled = busy; node.append(declare);
   } else {
     node.append(el('span', '', pending.kind === 'confirm_claim' ? `Abkürzung des Alleinspielers annehmen (Stufe ${pending.level})?` : 'Aufgabe des Alleinspielers annehmen?'));
     add('Annehmen', true); add('Weiterspielen', false);
   }
+}
+function renderComparisons() {
+  const panel = $('comparison-panel');
+  const stats = state.comparisonStats || [];
+  panel.hidden = !stats.length;
+  const summary = $('comparison-stats'); summary.replaceChildren();
+  const rate = counter => `${counter.matches}/${counter.total} · ${counter.total ? (100 * counter.matches / counter.total).toLocaleString('de-DE', {maximumFractionDigits: 1}) + ' %' : '–'}`;
+  for (const seat of stats) {
+    const block = el('div', 'comparison-seat');
+    block.append(el('h2', '', state.config.seats[seat.seat].label));
+    const table = el('table'), body = el('tbody');
+    for (const [name, counter] of [['Gesamt', seat], ...Object.entries(decisionNames).map(([kind, name]) => [name, seat.byKind[kind] || {matches: 0, total: 0}])]) {
+      const row = el('tr'); row.append(el('th', '', name), el('td', '', rate(counter))); body.append(row);
+    }
+    table.append(body); block.append(table); summary.append(block);
+  }
+  const log = $('comparison-history'); log.replaceChildren();
+  const table = el('table'), head = el('tr'), thead = el('thead'), body = el('tbody');
+  for (const name of ['Runde', 'Spieler', 'Entscheidung', 'Agentenvorschlag', 'Deine Wahl', 'Vergleich']) head.append(el('th', '', name));
+  thead.append(head); table.append(thead);
+  for (const entry of state.comparisons || []) {
+    const row = el('tr');
+    for (const text of [entry.roundIndex + 1, state.config.seats[entry.seat].label, decisionNames[entry.kind], actionLabel(entry.kind, entry.suggestion), actionLabel(entry.kind, entry.actual), entry.matches ? 'Übereinstimmung' : 'Abweichung']) row.append(el('td', '', text));
+    body.append(row);
+  }
+  table.append(body); log.append(table);
+  if (!state.comparisons?.length) log.append(el('p', 'muted', 'Noch keine Entscheidungen verglichen.'));
 }
 function renderScores() {
   const table = $('scores'); table.replaceChildren();
@@ -308,7 +370,7 @@ function render() {
   $('pause').textContent = state.paused ? 'Weiter' : 'Pause';
   $('pause').disabled = $('step').disabled = terminal.has(state.status);
   $('speed').value = state.speedMs; $('speed-label').value = `${state.speedMs} ms`; $('reveal').checked = state.reveal;
-  const bottomSeat = state.config.seats.findIndex(seat => seat.kind === 'human');
+  const bottomSeat = state.config.seats.findIndex(manualSeat);
   const bottom = bottomSeat < 0 ? 0 : bottomSeat;
   $('players-top').replaceChildren(...(state.players || []).filter(p => p.seat !== bottom).map(playerView));
   $('player-bottom').replaceChildren(...(state.players || []).filter(p => p.seat === bottom).map(playerView));
@@ -317,7 +379,7 @@ function render() {
   $('trick').replaceChildren(el('small', 'muted', state.currentTrick?.cards.length ? 'Aktueller Stich' : latest ? 'Letzter Stich' : ''), renderTrick(current));
   $('skat').replaceChildren();
   if (state.skat?.length) { $('skat').append(el('small', 'muted', 'Skat')); for (const card of state.skat) $('skat').append(cardView(card, {compact: true})); }
-  $('status').textContent = state.error || (state.status === 'loading' ? 'Runde wird vorbereitet …' : state.status === 'stopped' ? 'Partie beendet' : state.pending ? `${state.config.seats[state.pending.seat].label} ist am Zug` : terminal.has(state.status) ? 'Runde beendet' : state.active ? `${state.config.seats[state.active.seat].label} ${kindNames[state.active.kind]} …${state.paused ? ' (pausiert)' : ''}` : 'Runde läuft …');
+  $('status').textContent = state.error || (state.status === 'loading' ? 'Runde wird vorbereitet …' : state.status === 'stopped' ? 'Partie beendet' : state.pending ? `${state.config.seats[state.pending.seat].label} ist am Zug` : terminal.has(state.status) ? 'Runde beendet' : state.active ? `${state.config.seats[state.active.seat].label} ${kindNames[state.active.kind]} …${state.paused && !manualSeat(state.config.seats[state.active.seat]) ? ' (pausiert)' : ''}` : 'Runde läuft …');
   $('history').replaceChildren();
   if (!state.history?.length) $('history').append(el('p', 'muted', 'Noch keine Stiche.'));
   for (const [index, trick] of (state.history || []).entries()) {
@@ -327,7 +389,7 @@ function render() {
     if (state.declaration?.kind !== 'null') summary.append(` · ${trick.value} Augen`);
     row.append(summary, renderTrick(trick, true)); $('history').append(row);
   }
-  renderActions(); renderScores();
+  renderActions(); renderScores(); renderComparisons();
   const result = $('result'); result.hidden = !terminal.has(state.status); result.replaceChildren();
   if (!result.hidden) {
     const r = state.result;

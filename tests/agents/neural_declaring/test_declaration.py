@@ -86,6 +86,68 @@ def test_heuristic_baseline_and_round_lifecycle():
     assert round_.game.spielwert(round_.original_solo_cards) >= round_.highest_bid
 
 
+@pytest.mark.parametrize("neural", [False, True])
+def test_manual_discard_override_reconciles_declaration_with_original_skat(neural):
+    class RecordingScorer:
+        def __init__(self):
+            self.features = []
+
+        def probabilities(self, features):
+            values = np.stack(features)
+            self.features.append(values.copy())
+            # Prefer Grand when the diamond seven is kept, otherwise Null.
+            return values[:, 103] * values[:, 0] + values[:, 104] * (1 - values[:, 0])
+
+    scorer = RecordingScorer()
+    agent = RandomAgent(seed=42)
+    if neural:
+        agent.configure_declaration("neural", scorer)
+    original = view(18)
+    agent.set_state(original)
+    suggested = agent.press_skat()
+    cached = agent._declaration_choice
+    agent.accept_pressed(original, suggested[::-1])
+    assert agent._declaration_choice is cached
+    actual = (FULL_HAND[0], FULL_HAND[5])
+    if set(actual) == set(suggested):
+        actual = (FULL_HAND[1], FULL_HAND[5])
+    assert set(actual) != set(suggested)
+    agent.accept_pressed(original, actual)
+    assert set(agent._declaration_choice.pressed) == set(actual)
+    assert original.hand == tuple(FULL_HAND[:12])
+    assert original.skat == tuple(FULL_HAND[10:12])
+    if neural:
+        assert len(scorer.features) == 2
+        fixed = scorer.features[-1]
+        expected_kept = np.zeros(32)
+        expected_kept[[c.np_index for c in original.hand if c not in actual]] = 1
+        expected_pressed = np.zeros(32)
+        expected_pressed[[c.np_index for c in actual]] = 1
+        expected_skat = np.zeros(32)
+        expected_skat[[c.np_index for c in original.skat]] = 1
+        assert np.all(fixed[:, :32] == expected_kept)
+        assert np.all(fixed[:, 32:64] == expected_pressed)
+        assert np.all(fixed[:, 64:96] == expected_skat)
+        assert agent._declaration_choice.game.declaration.kind == (
+            "null" if FULL_HAND[0] in actual else "grand"
+        )
+    assert agent.declare_game().spielwert(original.hand) >= original.highest_bid
+
+
+def test_fixed_discard_candidates_validate_pair_and_preserve_covering_games():
+    original = view(48)
+    pair = (FULL_HAND[1], FULL_HAND[3])
+    options = list(candidates(original, pressed=pair))
+    assert options and len(options) <= 6
+    assert all(
+        choice.pressed == pair and choice.game.spielwert(original.hand) >= 48
+        for choice, _ in options
+    )
+    for pair in [(FULL_HAND[0],), (FULL_HAND[0],) * 2, (FULL_HAND[0], FULL_HAND[20])]:
+        with pytest.raises(ValueError, match="two distinct"):
+            list(candidates(original, pressed=pair))
+
+
 def test_checkpoint_is_separate_and_batched(tmp_path):
     torch = pytest.importorskip("torch")
     from skat.agents.neural_declaring.checkpoint import (

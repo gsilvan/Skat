@@ -13,7 +13,7 @@ from skat.deal_code import decode_deal
 from skat.game import Round
 from skat.utils.reproducibility import stage_seed
 
-from .agents import ObservedAgent, WebAgent
+from .agents import AssistedWebAgent, ObservedAgent, WebAgent
 from .serialize import snapshot
 
 KINDS = ("human", "random", "mcts", "policy")
@@ -54,6 +54,19 @@ def same_option(value, option):
     return value == option
 
 
+def valid_answer(kind, options, value):
+    if kind == "press":
+        return (
+            isinstance(value, list)
+            and len(value) == 2
+            and all(type(v) is int for v in value)
+            and len(set(value)) == 2
+            and all(v in options for v in value)
+        )
+    # bool is an int subclass: JSON true must never play card 1.
+    return any(same_option(value, option) for option in options)
+
+
 def validate_config(value):
     if not isinstance(value, dict):
         raise ValueError("Konfiguration muss ein Objekt sein")
@@ -66,6 +79,13 @@ def validate_config(value):
     for i, seat in enumerate(seats):
         if not isinstance(seat, dict) or seat.get("kind") not in KINDS:
             raise ValueError(f"Ungültiger Spieler an Platz {i + 1}")
+        seat["execution"] = seat.get(
+            "execution", "manual" if seat["kind"] == "human" else "auto"
+        )
+        if seat["execution"] not in ("auto", "manual") or (
+            seat["kind"] == "human" and seat["execution"] != "manual"
+        ):
+            raise ValueError(f"Ungültige Ausführung an Platz {i + 1}")
         label = seat.get("label") or f"Spieler {i + 1}"
         if not isinstance(label, str) or len(label) > 80:
             raise ValueError("Spielername darf höchstens 80 Zeichen enthalten")
@@ -150,6 +170,12 @@ class GameSession:
         self.stopped = False
         self.round_index = 0
         self.records = []
+        self.comparisons = []
+        self.comparison_stats = [
+            {"seat": seat, "matches": 0, "total": 0, "byKind": {}}
+            for seat, config in enumerate(self.config["seats"])
+            if config["kind"] != "human" and config["execution"] == "manual"
+        ]
         self.scores = [0, 0, 0]
         self.cached = ({}, {})
         self.agents = None
@@ -193,6 +219,8 @@ class GameSession:
                     "speedMs": self.speed_ms,
                     "roundIndex": self.round_index,
                     "records": self.records,
+                    "comparisons": self.comparisons,
+                    "comparisonStats": self.comparison_stats,
                     "scores": self.scores,
                 }
             )
@@ -259,7 +287,11 @@ class GameSession:
                 pickup_model=pickup,
                 pickup_margin=config["pickupMargin"],
             )
-            agents.append(ObservedAgent(agent, self, seat))
+            agents.append(
+                AssistedWebAgent(agent, self, seat, seed)
+                if config["execution"] == "manual"
+                else ObservedAgent(agent, self, seat)
+            )
         return agents
 
     def run(self):
@@ -331,6 +363,10 @@ class GameSession:
     def ask(self, seat, kind, options, **details):
         with self.changed:
             self.check_stopped()
+            if "suggestion" in details and not valid_answer(
+                kind, options, details["suggestion"]
+            ):
+                raise ValueError("Agentenvorschlag ist für diese Entscheidung ungültig")
             prompt = {
                 "id": uuid.uuid4().hex,
                 "seat": seat,
@@ -343,6 +379,29 @@ class GameSession:
             self.changed.wait_for(lambda: self.answer is not None or self.stopped)
             self.check_stopped()
             answer = self.answer[0]
+            if "suggestion" in prompt:
+                suggestion = prompt["suggestion"]
+                matches = (
+                    set(answer) == set(suggestion)
+                    if kind == "press"
+                    else same_option(answer, suggestion)
+                )
+                self.comparisons.append(
+                    {
+                        "decisionId": prompt["id"],
+                        "roundIndex": self.round_index,
+                        "seat": seat,
+                        "kind": kind,
+                        "suggestion": copy.deepcopy(suggestion),
+                        "actual": copy.deepcopy(answer),
+                        "matches": matches,
+                    }
+                )
+                stats = next(s for s in self.comparison_stats if s["seat"] == seat)
+                by_kind = stats["byKind"].setdefault(kind, {"matches": 0, "total": 0})
+                for counter in (stats, by_kind):
+                    counter["total"] += 1
+                    counter["matches"] += int(matches)
             self.pending = self.answer = None
             self.last_action = {
                 "seat": seat,
@@ -362,28 +421,18 @@ class GameSession:
             ):
                 raise Conflict("Diese Entscheidung ist nicht mehr offen")
             options = self.pending["options"]
-            if self.pending["kind"] == "press":
-                valid = (
-                    isinstance(value, list)
-                    and len(value) == 2
-                    and all(type(v) is int for v in value)
-                )
-                valid = (
-                    valid and len(set(value)) == 2 and all(v in options for v in value)
-                )
-            else:
-                # bool is an int subclass: JSON true must never play card 1.
-                valid = any(same_option(value, option) for option in options)
-            if not valid:
+            if not valid_answer(self.pending["kind"], options, value):
                 raise ValueError("Ungültige Aktion für diese Entscheidung")
             self.answer = (copy.deepcopy(value),)
             self.touch()
 
-    def before_decision(self, seat, kind):
+    def before_decision(self, seat, kind, *, manual=False):
         with self.changed:
             self.check_stopped()
             self.active = {"seat": seat, "kind": kind}
             self.publish()
+            if manual:
+                return
             self.changed.wait_for(
                 lambda: not self.paused or self.steps > 0 or self.stopped
             )

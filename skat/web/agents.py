@@ -1,5 +1,6 @@
 """Browser decisions and transparent instrumentation of existing agents."""
 
+from copy import deepcopy
 from dataclasses import asdict
 
 from skat.agents import Agent
@@ -8,12 +9,22 @@ from skat.hand import FULL_HAND
 from skat.rules import Claim, Concede, GameDeclaration, OpenHand
 
 
+def manual_seat(config):
+    return config["kind"] == "human" or config.get("execution") == "manual"
+
+
 def shown(value):
+    if isinstance(value, Concede):
+        return "concede"
+    if isinstance(value, OpenHand):
+        return "open"
+    if isinstance(value, Claim):
+        return f"claim{value.level}"
     if isinstance(value, Card):
         return value.np_index
     if isinstance(value, (list, tuple)):
         return [shown(item) for item in value]
-    if isinstance(value, (GameDeclaration, Claim, Concede, OpenHand)):
+    if isinstance(value, GameDeclaration):
         return asdict(value)
     if hasattr(value, "declaration"):
         return asdict(value.declaration)
@@ -94,6 +105,51 @@ class WebAgent(Agent):
 
     def confirm_claim(self, level):
         return self.ask("confirm_claim", [True, False], level=level)
+
+
+class AssistedWebAgent(WebAgent):
+    """Suggest with an existing agent; execute only the browser's answer."""
+
+    def __init__(self, delegate, session, seat, seed):
+        super().__init__(session, seat, seed)
+        self.delegate = delegate
+
+    def set_state(self, state):
+        super().set_state(state)
+        self.delegate.set_state(state)
+
+    def new_round_event(self):
+        super().new_round_event()
+        self.delegate.new_round_event()
+
+    def trick_done_event(self, is_terminal):
+        self.delegate.trick_done_event(is_terminal)
+
+    def ask(self, kind, options, **details):
+        self.session.before_decision(self.seat, kind, manual=True)
+        press_view = deepcopy(self.state) if kind == "press" else None
+        if kind == "bid":
+            result = self.delegate.bid(details["current"], details["offer"])
+        elif kind == "play":
+            result = self.delegate.choose_card(
+                {FULL_HAND[index] for index in options if type(index) is int}
+            )
+        elif kind == "confirm_claim":
+            result = self.delegate.confirm_claim(details["level"])
+        else:
+            method = {
+                "pickup": self.delegate.pickup_skat,
+                "press": self.delegate.press_skat,
+                "declare": self.delegate.declare_game,
+                "confirm_concession": self.delegate.confirm_concession,
+            }[kind]
+            result = method()
+        answer = super().ask(kind, options, suggestion=shown(result), **details)
+        if press_view is not None:
+            self.delegate.accept_pressed(
+                press_view, [FULL_HAND[index] for index in answer]
+            )
+        return answer
 
 
 class ObservedAgent(Agent):

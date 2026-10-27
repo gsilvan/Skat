@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from random import Random
 
 from skat.agents.bidding import VALID_BIDS, BiddingStyle, best_game, next_rung, playable
-from skat.agents.declaring import HeuristicDeclarer
+from skat.agents.declaring import HeuristicDeclarer, validate_pressed
 
 
 class Agent(ABC):
@@ -127,6 +127,16 @@ class Agent(ABC):
             self.state
         )
         return self._declaration_choice.pressed
+
+    def accept_pressed(self, press_view, pressed):
+        """Reconcile a manual discard override using the original pickup view."""
+        pressed = validate_pressed(press_view, pressed)
+        if self._declaration_choice is None:
+            raise ValueError("accept_pressed requires a prior press_skat decision")
+        if set(pressed) != set(self._declaration_choice.pressed):
+            self._declaration_choice = self.declaration_strategy.choose_after_pickup(
+                press_view, pressed=pressed
+            )
 
     def declare_game(self, state=None):
         if self.state.hand_game:

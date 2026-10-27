@@ -2,6 +2,8 @@
 
 from dataclasses import asdict
 
+from .agents import manual_seat
+
 
 def card_data(card):
     return {"id": card.np_index, "suit": card.suit, "rank": card.rank}
@@ -27,9 +29,7 @@ def snapshot(session, *, reveal=False):
         for seat in range(3)
     ]
     solo = round_.solo_player_id if round_.solo_player_id in range(3) else None
-    humans = {
-        i for i, seat in enumerate(session.config["seats"]) if seat["kind"] == "human"
-    }
+    humans = {i for i, seat in enumerate(session.config["seats"]) if manual_seat(seat)}
     # Cache both views in the worker. Request threads never read the live Round.
     visible = humans | round_.exposed
     if reveal or finished:
